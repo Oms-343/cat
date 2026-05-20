@@ -16,6 +16,12 @@ const navItems: NavItem[] = [
   { to: '/my-profile', label: 'My Profile', icon: '📋', roles: ['msme'] },
   { to: '/masters', label: 'Master Data', icon: '🗂️', roles: ['super', 'admin'] },
   { to: '/users', label: 'Users', icon: '👥', roles: ['super', 'admin'] },
+  {
+    to: '/onboarding-drives',
+    label: 'Onboarding Drives',
+    icon: '📢',
+    roles: ['super', 'admin'],
+  },
   { to: '/reports', label: 'Reports', icon: '📊', roles: ['super', 'admin'] },
   { to: '/audit-log', label: 'Audit Log', icon: '📜', roles: ['super', 'admin'] },
 ]

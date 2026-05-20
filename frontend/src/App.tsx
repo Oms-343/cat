@@ -18,6 +18,7 @@ import { ReportsListPage } from './pages/ReportsListPage'
 import { ReportRunPage } from './pages/ReportRunPage'
 import { ReportHistoryPage } from './pages/ReportHistoryPage'
 import { MsmeProfileRedirectPage } from './pages/MsmeProfileRedirectPage'
+import { OnboardingDrivesPage } from './pages/OnboardingDrivesPage'
 
 function App() {
   return (
@@ -125,6 +126,15 @@ function App() {
               element={
                 <ProtectedRoute roles={['super', 'admin']}>
                   <ReportRunPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/onboarding-drives"
+              element={
+                <ProtectedRoute roles={['super', 'admin']}>
+                  <OnboardingDrivesPage />
                 </ProtectedRoute>
               }
             />
