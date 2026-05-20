@@ -1,0 +1,157 @@
+"""Static seed data for master tables.
+
+Each entry is (code, name, description). Sort order is derived from list position
+during seeding. HSN codes and Pincodes are not seeded here — they need bulk import.
+"""
+
+DISTRICTS: list[tuple[str, str, str | None]] = [
+    ("ARI", "Ariyalur", None),
+    ("CHN", "Chennai", None),
+    ("CGL", "Chengalpattu", None),
+    ("CBE", "Coimbatore", None),
+    ("CDL", "Cuddalore", None),
+    ("DHR", "Dharmapuri", None),
+    ("DDG", "Dindigul", None),
+    ("ERD", "Erode", None),
+    ("KLK", "Kallakurichi", None),
+    ("KAN", "Kanchipuram", None),
+    ("KNY", "Kanyakumari", None),
+    ("KAR", "Karur", None),
+    ("KRI", "Krishnagiri", None),
+    ("MDU", "Madurai", None),
+    ("MYL", "Mayiladuthurai", None),
+    ("NAG", "Nagapattinam", None),
+    ("NMK", "Namakkal", None),
+    ("NLG", "Nilgiris", None),
+    ("PMB", "Perambalur", None),
+    ("PDK", "Pudukkottai", None),
+    ("RMD", "Ramanathapuram", None),
+    ("RNP", "Ranipet", None),
+    ("SLM", "Salem", None),
+    ("SVG", "Sivaganga", None),
+    ("TJV", "Thanjavur", None),
+    ("THI", "Theni", None),
+    ("THV", "Thoothukudi", None),
+    ("TVL", "Tirunelveli", None),
+    ("TPT", "Tirupathur", None),
+    ("TRP", "Tiruppur", None),
+    ("TVR", "Tiruvallur", None),
+    ("TVM", "Tiruvannamalai", None),
+    ("TVA", "Tiruvarur", None),
+    ("TRI", "Tiruchirappalli", None),
+    ("VLR", "Vellore", None),
+    ("VLP", "Viluppuram", None),
+    ("VDN", "Virudhunagar", None),
+    ("CHG", "Chengalpattu (new)", None),
+]
+
+COMPANY_TYPES: list[tuple[str, str, str | None]] = [
+    ("GOVT", "Government", "State or Central government entity"),
+    ("PRV", "Private", "Privately owned company"),
+    ("PUB", "Public", "Publicly listed company"),
+]
+
+LEGAL_STRUCTURES: list[tuple[str, str, str | None]] = [
+    ("PROP", "Proprietorship", "Sole proprietorship"),
+    ("PART", "Partnership", "Partnership firm"),
+    ("LLP", "Limited Liability Partnership", "LLP under LLP Act 2008"),
+    ("PVT", "Private Limited", "Private limited company"),
+    ("PLC", "Public Limited", "Public limited company"),
+    ("OPC", "One Person Company", "OPC under Companies Act 2013"),
+    ("COOP", "Cooperative Society", "Registered cooperative society"),
+    ("SHG", "Self Help Group", "Self Help Group"),
+]
+
+TURNOVER_RANGES: list[tuple[str, str, str | None]] = [
+    ("MICRO_LT_1", "< ₹1 Cr", "Micro enterprise (under ₹1 Cr)"),
+    ("MICRO_1_5", "₹1–5 Cr", "Micro enterprise (₹1–5 Cr)"),
+    ("SMALL_5_20", "₹5–20 Cr", "Small enterprise (₹5–20 Cr)"),
+    ("SMALL_20_50", "₹20–50 Cr", "Small enterprise (₹20–50 Cr)"),
+    ("MED_50_100", "₹50–100 Cr", "Medium enterprise (₹50–100 Cr)"),
+    ("MED_GT_100", "> ₹100 Cr", "Medium enterprise (above ₹100 Cr)"),
+]
+
+SECTORS: list[tuple[str, str, str | None]] = [
+    ("TXT_APP", "Textile & Apparel", None),
+    ("TXT_KNIT", "Knitwear & Hosiery", None),
+    ("TXT_TECH", "Technical Textiles", None),
+    ("LEAT", "Leather & Footwear", None),
+    ("AUTO", "Automotive Components", None),
+    ("AERO", "Aerospace & Defence", None),
+    ("EV", "Electric Vehicles", None),
+    ("ENG_HEAVY", "Heavy Engineering", None),
+    ("ENG_LIGHT", "Light Engineering", None),
+    ("FORG", "Forging & Foundry", None),
+    ("MACH", "Machinery & Equipment", None),
+    ("ELEC", "Electrical Equipment", None),
+    ("ELC_PWR", "Power Electronics", None),
+    ("ELC_CONS", "Consumer Electronics", None),
+    ("SEMI", "Semiconductors", None),
+    ("IT", "IT & Software", None),
+    ("ITES", "IT-Enabled Services", None),
+    ("FOOD", "Food Processing", None),
+    ("BEV", "Beverages", None),
+    ("AGRO", "Agro Processing", None),
+    ("DAIRY", "Dairy Products", None),
+    ("FISH", "Fisheries & Marine", None),
+    ("PHAR", "Pharmaceuticals", None),
+    ("BIOT", "Biotechnology", None),
+    ("MEDI", "Medical Devices", None),
+    ("CHEM", "Chemicals", None),
+    ("PETR", "Petrochemicals", None),
+    ("PLAS", "Plastics & Polymers", None),
+    ("RUBR", "Rubber Products", None),
+    ("PACK", "Packaging", None),
+    ("PAPR", "Paper & Pulp", None),
+    ("PRNT", "Printing", None),
+    ("FURN", "Furniture & Wood", None),
+    ("CONS", "Construction Materials", None),
+    ("CEMT", "Cement", None),
+    ("STEEL", "Iron & Steel", None),
+]
+
+PRODUCTION_CAPACITIES: list[tuple[str, str, str | None]] = [
+    ("PCS", "Pieces", "Unit count"),
+    ("KG", "Kilograms", "Weight in kg"),
+    ("TON", "Metric Tonnes", "Weight in MT"),
+    ("LTR", "Litres", "Liquid volume"),
+    ("M", "Metres", "Length in metres"),
+    ("M2", "Square Metres", "Area in sqm"),
+    ("M3", "Cubic Metres", "Volume in cubic metres"),
+    ("PAIRS", "Pairs", "Footwear, gloves, etc."),
+    ("BOX", "Boxes", "Packed boxes"),
+    ("REEL", "Reels", "Paper, film reels"),
+    ("ROLL", "Rolls", "Fabric, foil rolls"),
+    ("UNIT", "Units", "Generic units"),
+]
+
+CERTIFICATIONS: list[tuple[str, str, str | None]] = [
+    ("ISO9001", "ISO 9001", "Quality Management System"),
+    ("ISO14001", "ISO 14001", "Environmental Management"),
+    ("ISO45001", "ISO 45001", "Occupational Health & Safety"),
+    ("ISO27001", "ISO 27001", "Information Security"),
+    ("ISO22000", "ISO 22000", "Food Safety Management"),
+    ("ISO13485", "ISO 13485", "Medical Devices Quality"),
+    ("IATF16949", "IATF 16949", "Automotive Quality"),
+    ("AS9100", "AS 9100", "Aerospace Quality"),
+    ("CE", "CE Marking", "European Conformity"),
+    ("WHO_GMP", "WHO GMP", "Good Manufacturing Practice"),
+    ("OEKO_TEX", "OEKO-TEX", "Textile safety"),
+    ("GOTS", "GOTS", "Global Organic Textile Standard"),
+    ("HACCP", "HACCP", "Food Safety Hazard Analysis"),
+    ("FSSAI", "FSSAI", "Food Safety Standards Authority of India"),
+    ("BIS", "BIS Hallmark", "Bureau of Indian Standards"),
+    ("ZED", "ZED Certification", "Zero Defect Zero Effect (MSME)"),
+    ("GREEN", "GreenCo Rating", "Green company rating"),
+]
+
+
+SEED_BY_KEY: dict[str, list[tuple[str, str, str | None]]] = {
+    "districts": DISTRICTS,
+    "company-types": COMPANY_TYPES,
+    "legal-structures": LEGAL_STRUCTURES,
+    "turnover-ranges": TURNOVER_RANGES,
+    "sectors": SECTORS,
+    "production-capacities": PRODUCTION_CAPACITIES,
+    "certifications": CERTIFICATIONS,
+}
