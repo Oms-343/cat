@@ -11,17 +11,16 @@ import { ApiError } from '../api/client'
 import type { DistrictsOverview, TalukDrilldown, TalukPincodeDrilldown } from '../types/dashboard'
 import type { CompanyListItem } from '../types/company'
 import type { MasterEntry } from '../types/master'
+import { DensitySvgMap, type MapRegion } from '../components/maps/DensitySvgMap'
+import {
+  CBE_TALUK_CELLS,
+  CBE_VIEWBOX,
+  layoutGridCells,
+  TN_DISTRICT_CELLS,
+  TN_VIEWBOX,
+} from '../components/maps/tamilNaduLayout'
 
 const SUGGESTED_TAGS = ['Defence', 'Aerospace', 'EV', 'Forging', 'Export']
-
-function densityClass(count: number, max: number): string {
-  if (count === 0) return 'bg-slate-50 text-slate-400 border-slate-200'
-  if (max === 0) return 'bg-slate-50 text-slate-400 border-slate-200'
-  const ratio = count / max
-  if (ratio > 0.66) return 'bg-blue-600 text-white border-blue-700'
-  if (ratio > 0.33) return 'bg-blue-300 text-blue-900 border-blue-400'
-  return 'bg-amber-100 text-amber-800 border-amber-200'
-}
 
 type DrillItem = { code: string; name: string; count: number; subtitle?: string }
 
@@ -158,7 +157,38 @@ export function GeographicDashboardPage() {
     return []
   }, [level, overview, taluks, pincodes])
 
-  const maxCount = Math.max(0, ...listItems.map((i) => i.count))
+  const mapRegions: MapRegion[] = listItems.map((i) => ({
+    code: i.code,
+    name: i.name,
+    count: i.count,
+  }))
+
+  const mapCells = useMemo(() => {
+    if (level === 'state') {
+      return TN_DISTRICT_CELLS
+    }
+    if (level === 'district' && district === 'CBE') {
+      return CBE_TALUK_CELLS.filter((c) => listItems.some((i) => i.code === c.code))
+    }
+    if (level === 'district') {
+      return layoutGridCells(
+        listItems.map((i) => i.code),
+        380,
+        220,
+        Math.min(4, listItems.length),
+      )
+    }
+    if (level === 'taluk') {
+      return layoutGridCells(listItems.map((i) => i.code), 380, 180, 3)
+    }
+    return undefined
+  }, [level, district, listItems])
+
+  const mapView = useMemo(() => {
+    if (level === 'state') return TN_VIEWBOX
+    if (level === 'district' && district === 'CBE') return CBE_VIEWBOX
+    return { width: 380, height: level === 'taluk' ? 180 : 220 }
+  }, [level, district])
 
   function onSelectItem(item: DrillItem) {
     if (level === 'state') updateParams({ district: item.code, taluk: null, pincode: null })
@@ -266,33 +296,26 @@ export function GeographicDashboardPage() {
           </div>
 
           <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-4">
-            <p className="text-xs text-slate-500 mb-3">Density map (click a region)</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-              {listItems.map((item) => (
-                <button
-                  key={item.code}
-                  type="button"
-                  disabled={item.count === 0 && level === 'state'}
-                  title={`${item.name}: ${item.count} MSMEs`}
-                  onClick={() => onSelectItem(item)}
-                  onMouseEnter={() => setHovered(item.code)}
-                  onMouseLeave={() => setHovered(null)}
-                  className={`rounded-lg border p-3 text-left transition min-h-[72px] ${densityClass(
-                    item.count,
-                    maxCount,
-                  )} ${hovered === item.code ? 'ring-2 ring-blue-400 scale-[1.02]' : ''} disabled:cursor-not-allowed`}
-                >
-                  <p className="text-xs font-semibold truncate leading-tight">{item.name}</p>
-                  <p className="text-lg font-bold mt-1 tabular-nums">{item.count}</p>
-                </button>
-              ))}
-            </div>
-            {hovered && (
-              <p className="mt-3 text-sm text-slate-600">
-                {listItems.find((i) => i.code === hovered)?.name}:{' '}
-                <strong>{listItems.find((i) => i.code === hovered)?.count}</strong> MSMEs
-              </p>
-            )}
+            <DensitySvgMap
+              title={
+                level === 'state'
+                  ? 'Tamil Nadu — click a district'
+                  : level === 'district'
+                    ? `Taluks in ${districtName}`
+                    : `Pincodes in ${talukName}`
+              }
+              regions={mapRegions}
+              cells={mapCells}
+              viewWidth={mapView.width}
+              viewHeight={mapView.height}
+              hoveredCode={hovered}
+              onHover={setHovered}
+              onSelect={(code) => {
+                const item = listItems.find((i) => i.code === code)
+                if (item) onSelectItem(item)
+              }}
+              disableEmpty={level === 'state'}
+            />
           </div>
         </div>
       )}

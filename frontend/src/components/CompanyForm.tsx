@@ -84,10 +84,13 @@ export function companyToForm(c: Company): CompanyFormValues {
   }
 }
 
-export function formToPayload(v: CompanyFormValues): CompanyCreate {
+export function formToPayload(
+  v: CompanyFormValues,
+  options?: { omitFields?: ReadonlySet<string> },
+): CompanyCreate {
   const blank = (s: string) => (s.trim() === '' ? null : s.trim())
   const num = (s: string) => (s.trim() === '' ? null : Number(s))
-  return {
+  const payload: CompanyCreate = {
     name: v.name.trim(),
     legal_structure_code: blank(v.legal_structure_code),
     primary_place_of_business: blank(v.primary_place_of_business),
@@ -113,6 +116,12 @@ export function formToPayload(v: CompanyFormValues): CompanyCreate {
     udyam_number: blank(v.udyam_number),
     pan: blank(v.pan),
   }
+  if (options?.omitFields) {
+    for (const field of options.omitFields) {
+      delete (payload as Record<string, unknown>)[field]
+    }
+  }
+  return payload
 }
 
 interface CompanyFormProps {

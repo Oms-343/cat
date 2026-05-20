@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { forgotPasswordRequest, forgotPasswordReset } from '../api/auth'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
+import { homePathForRole } from '../auth/homePath'
 import {
   AuthBackLink,
   AuthError,
@@ -26,7 +27,7 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (user) return <Navigate to="/dashboard" replace />
+  if (user) return <Navigate to={homePathForRole(user.role)} replace />
 
   async function handleEmail(e: FormEvent) {
     e.preventDefault()

@@ -150,6 +150,26 @@ def seed_companies() -> None:
         print(f"Companies: {created} new, {skipped} already existed.")
 
 
+def link_demo_msme_owner() -> None:
+    """Link seeded Vignesh Kumar (msme@example.com) to Velocity Knit Industries."""
+    with Session(engine) as session:
+        user = session.exec(select(User).where(User.email == "msme@example.com")).first()
+        company = session.exec(
+            select(Company).where(Company.name == "Velocity Knit Industries")
+        ).first()
+        if not user or not company:
+            print("Demo MSME link: skipping — user or Velocity Knit not present.")
+            return
+        company.owner_user_id = user.id
+        company.contact_name = user.full_name
+        company.contact_email = user.email
+        company.contact_phone = user.mobile
+        company.contact_designation = user.designation
+        session.add(company)
+        session.commit()
+        print(f"Demo MSME linked: {user.email} → {company.name} (id={company.id}).")
+
+
 def seed_subitems() -> None:
     """Populate sections 3-6 for two showcase companies so the UI has live data."""
     with Session(engine) as session:
@@ -364,6 +384,7 @@ def main() -> None:
     seed_masters()
     seed_taluks_pincodes_hsn()
     seed_companies()
+    link_demo_msme_owner()
     seed_subitems()
 
 

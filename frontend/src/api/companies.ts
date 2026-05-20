@@ -22,6 +22,10 @@ export function listCompanies(filters: CompanyFilters = {}): Promise<CompanyList
   return api<CompanyListResponse>(`/api/companies${suffix}`)
 }
 
+export function getMyCompany(): Promise<Company> {
+  return api<Company>('/api/companies/mine')
+}
+
 export function getCompany(id: number): Promise<Company> {
   return api<Company>(`/api/companies/${id}`)
 }

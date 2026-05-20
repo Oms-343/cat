@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { EditRequestsPanel } from '../components/EditRequestsPanel'
 import type { UserRole } from '../types/auth'
@@ -11,8 +11,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { to: '/companies', label: 'Companies', icon: '🏭' },
+  { to: '/dashboard', label: 'Dashboard', icon: '🏠', roles: ['super', 'admin'] },
+  { to: '/companies', label: 'Companies', icon: '🏭', roles: ['super', 'admin'] },
+  { to: '/my-profile', label: 'My Profile', icon: '📋', roles: ['msme'] },
   { to: '/masters', label: 'Master Data', icon: '🗂️', roles: ['super', 'admin'] },
   { to: '/users', label: 'Users', icon: '👥', roles: ['super', 'admin'] },
   { to: '/reports', label: 'Reports', icon: '📊', roles: ['super', 'admin'] },
@@ -27,9 +28,19 @@ const roleStyles: Record<string, string> = {
 
 export function DashboardLayout() {
   const { user, logout } = useAuth()
+  const location = useLocation()
   if (!user) return null
 
   const visibleNav = navItems.filter((n) => !n.roles || n.roles.includes(user.role))
+
+  function navIsActive(item: NavItem, isActive: boolean): boolean {
+    if (isActive) return true
+    return (
+      item.to === '/my-profile' &&
+      user!.role === 'msme' &&
+      /^\/companies\/\d+/.test(location.pathname)
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -46,7 +57,7 @@ export function DashboardLayout() {
               to={item.to}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition ${
-                  isActive
+                  navIsActive(item, isActive)
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-700 hover:bg-slate-100'
                 }`

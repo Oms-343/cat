@@ -1,5 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthContext'
+import { HomeRedirect } from './auth/HomeRedirect'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { DashboardLayout } from './layouts/DashboardLayout'
 import { LoginPage } from './pages/LoginPage'
@@ -16,6 +17,7 @@ import { AuditLogPage } from './pages/AuditLogPage'
 import { ReportsListPage } from './pages/ReportsListPage'
 import { ReportRunPage } from './pages/ReportRunPage'
 import { ReportHistoryPage } from './pages/ReportHistoryPage'
+import { MsmeProfileRedirectPage } from './pages/MsmeProfileRedirectPage'
 
 function App() {
   return (
@@ -33,9 +35,31 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/dashboard" element={<GeographicDashboardPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute roles={['super', 'admin']}>
+                  <GeographicDashboardPage />
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/companies" element={<CompaniesListPage />} />
+            <Route
+              path="/companies"
+              element={
+                <ProtectedRoute roles={['super', 'admin']}>
+                  <CompaniesListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-profile"
+              element={
+                <ProtectedRoute roles={['msme']}>
+                  <MsmeProfileRedirectPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/companies/new"
               element={
@@ -106,8 +130,8 @@ function App() {
             />
           </Route>
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<HomeRedirect />} />
+          <Route path="*" element={<HomeRedirect />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

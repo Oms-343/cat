@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { homePathForRole } from '../auth/homePath'
 import { ApiError } from '../api/client'
 import type { LoginUserType } from '../api/auth'
 import {
@@ -29,8 +30,9 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   if (user) {
-    const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard'
-    return <Navigate to={from} replace />
+    const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname
+    const destination = from && from !== '/login' ? from : homePathForRole(user.role)
+    return <Navigate to={destination} replace />
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -39,7 +41,7 @@ export function LoginPage() {
     setSubmitting(true)
     try {
       await login(email, password, userType)
-      navigate(userType === 'msme' ? '/companies' : '/dashboard', { replace: true })
+      navigate(userType === 'msme' ? '/my-profile' : '/dashboard', { replace: true })
     } catch (err) {
       if (err instanceof ApiError) setError(err.detail)
       else setError('Login failed. Is the backend running?')

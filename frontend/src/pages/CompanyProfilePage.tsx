@@ -105,12 +105,15 @@ export function CompanyProfilePage() {
   }
 
   if (error || !company || !masters || !locked || !formValues) {
+    const isMsmeUser = user?.role === 'msme'
     return (
       <div className="p-8">
-        <Link to="/companies" className="text-sm text-blue-600 hover:underline">
-          ← Back to registry
-        </Link>
-        <p className="mt-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3">
+        {!isMsmeUser && (
+          <Link to="/companies" className="text-sm text-blue-600 hover:underline">
+            ← Back to registry
+          </Link>
+        )}
+        <p className={`text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 ${isMsmeUser ? '' : 'mt-4'}`}>
           {error ?? 'Failed to load profile'}
         </p>
       </div>
@@ -128,7 +131,7 @@ export function CompanyProfilePage() {
     setSaveError(null)
     setSaving(true)
     try {
-      const payload = formToPayload(formValues)
+      const payload = formToPayload(formValues, { omitFields: lockedFieldsSet })
       if (canEditTags && editedTags) {
         ;(payload as { tags?: string[] }).tags = editedTags
       }
@@ -150,7 +153,7 @@ export function CompanyProfilePage() {
     if (!confirm(`Delete ${company.name}? This cannot be undone.`)) return
     try {
       await deleteCompany(companyId)
-      navigate('/companies')
+      navigate(user?.role === 'msme' ? '/my-profile' : '/companies')
     } catch (err) {
       if (err instanceof ApiError) alert(err.detail)
       else alert(String(err))
@@ -176,11 +179,13 @@ export function CompanyProfilePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-8 py-8">
-      <Link to="/companies" className="text-sm text-blue-600 hover:underline">
-        ← Back to registry
-      </Link>
+      {!isMsme && (
+        <Link to="/companies" className="text-sm text-blue-600 hover:underline">
+          ← Back to registry
+        </Link>
+      )}
 
-      <header className="mt-2 mb-6 flex items-start justify-between gap-4">
+      <header className={`${isMsme ? '' : 'mt-2'} mb-6 flex items-start justify-between gap-4`}>
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-900 truncate">{company.name}</h1>
           <p className="text-sm text-slate-500">

@@ -1,9 +1,10 @@
 from collections import Counter
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select
 
-from app.deps import CurrentUser, SessionDep
+from app.deps import SessionDep, require_roles
+from app.models.user import UserRole
 from app.models.company import Company
 from app.models.master import DistrictMaster, TalukMaster
 from app.schemas.dashboard import (
@@ -43,7 +44,7 @@ def _matching_companies(
 @router.get("/districts", response_model=DistrictsOverview)
 def districts_overview(
     session: SessionDep,
-    _user: CurrentUser,
+    _user=Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
     sector: str | None = Query(default=None),
     turnover: str | None = Query(default=None),
     tag: str | None = Query(default=None),
@@ -71,7 +72,7 @@ def districts_overview(
 def district_taluks(
     district_code: str,
     session: SessionDep,
-    _user: CurrentUser,
+    _user=Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
     sector: str | None = Query(default=None),
     turnover: str | None = Query(default=None),
     tag: str | None = Query(default=None),
@@ -120,7 +121,7 @@ def taluk_pincodes(
     district_code: str,
     taluk_code: str,
     session: SessionDep,
-    _user: CurrentUser,
+    _user=Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
     sector: str | None = Query(default=None),
     turnover: str | None = Query(default=None),
     tag: str | None = Query(default=None),

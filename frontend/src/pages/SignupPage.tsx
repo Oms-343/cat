@@ -30,7 +30,7 @@ export function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (user) return <Navigate to="/companies" replace />
+  if (user) return <Navigate to="/my-profile" replace />
 
   async function handleDetails(e: FormEvent) {
     e.preventDefault()
@@ -64,7 +64,7 @@ export function SignupPage() {
       const res = await signupVerify(email, otp)
       applyLogin(res)
       setStep('done')
-      setTimeout(() => navigate('/companies', { replace: true }), 1500)
+      setTimeout(() => navigate('/my-profile', { replace: true }), 1500)
     } catch (err) {
       setError(err instanceof ApiError ? err.detail : String(err))
     } finally {

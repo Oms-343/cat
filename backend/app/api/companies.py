@@ -56,10 +56,26 @@ def locked_fields(_user: CurrentUser) -> LockedFieldsResponse:
     )
 
 
+@router.get("/mine", response_model=CompanyOut)
+def get_my_company(session: SessionDep, user: CurrentUser) -> CompanyOut:
+    if user.role != UserRole.MSME:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="only MSME users have an owned company profile",
+        )
+    company = session.exec(select(Company).where(Company.owner_user_id == user.id)).first()
+    if not company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="no company profile linked to your account",
+        )
+    return _to_out(company, session)
+
+
 @router.get("", response_model=CompanyListResponse)
 def list_companies(
     session: SessionDep,
-    _user: CurrentUser,
+    _user: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
     q: str | None = Query(default=None, description="search by name, GST, CIN, Udyam"),
     sector: str | None = Query(default=None, description="sector code"),
     district: str | None = Query(default=None, description="district code"),
@@ -102,7 +118,7 @@ def list_companies(
 @router.get("/export")
 def export_companies(
     session: SessionDep,
-    actor: CurrentUser,
+    actor: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
     q: str | None = Query(default=None),
     sector: str | None = Query(default=None),
     district: str | None = Query(default=None),
@@ -182,10 +198,15 @@ def bulk_update_tags(
 
 
 @router.get("/{company_id}", response_model=CompanyOut)
-def get_company(company_id: int, session: SessionDep, _user: CurrentUser) -> CompanyOut:
+def get_company(company_id: int, session: SessionDep, user: CurrentUser) -> CompanyOut:
     c = session.get(Company, company_id)
     if not c:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="company not found")
+    if user.role == UserRole.MSME and c.owner_user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="MSME users can only view their own company profile",
+        )
     return _to_out(c, session)
 
 
