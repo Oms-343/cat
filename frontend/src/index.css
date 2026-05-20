@@ -4,3 +4,8 @@ html, body, #root {
   height: 100%;
   margin: 0;
 }
+
+.leaflet-container {
+  font-family: inherit;
+  z-index: 0;
+}

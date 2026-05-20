@@ -18,6 +18,7 @@ import {
   MachinerySection,
   ProductsSection,
 } from '../components/ProfileSubSections'
+import { CompanyLocationMap } from '../components/maps/CompanyLocationMap'
 import type { Company, LockedFields } from '../types/company'
 import type { MasterEntry } from '../types/master'
 
@@ -304,6 +305,21 @@ export function CompanyProfilePage() {
             lockedFields={lockedFieldsSet}
             readOnly={!editing}
           />
+
+          <div className="mt-8 pt-6 border-t border-slate-200">
+            <CompanyLocationMap
+              name={company.name}
+              addressLine1={company.address_line1}
+              addressLine2={company.address_line2}
+              city={company.city}
+              districtCode={company.district_code}
+              districtName={
+                masters.districts.find((d) => d.code === company.district_code)?.name ?? undefined
+              }
+              pincode={company.pincode}
+              state={company.state}
+            />
+          </div>
 
           <div className="mt-8 pt-6 border-t border-slate-200 space-y-0">
             <ProductsSection

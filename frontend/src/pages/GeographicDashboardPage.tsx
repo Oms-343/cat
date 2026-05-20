@@ -11,14 +11,10 @@ import { ApiError } from '../api/client'
 import type { DistrictsOverview, TalukDrilldown, TalukPincodeDrilldown } from '../types/dashboard'
 import type { CompanyListItem } from '../types/company'
 import type { MasterEntry } from '../types/master'
-import { DensitySvgMap, type MapRegion } from '../components/maps/DensitySvgMap'
-import {
-  CBE_TALUK_CELLS,
-  CBE_VIEWBOX,
-  layoutGridCells,
-  TN_DISTRICT_CELLS,
-  TN_VIEWBOX,
-} from '../components/maps/tamilNaduLayout'
+import type { MapRegion } from '../components/maps/DensitySvgMap'
+import { GeographicMapPanel } from '../components/maps/GeographicMapPanel'
+import { PincodeAreaMap } from '../components/maps/PincodeAreaMap'
+import type { GeoDrillLevel } from '../components/maps/geoTypes'
 
 const SUGGESTED_TAGS = ['Defence', 'Aerospace', 'EV', 'Forging', 'Export']
 
@@ -163,33 +159,6 @@ export function GeographicDashboardPage() {
     count: i.count,
   }))
 
-  const mapCells = useMemo(() => {
-    if (level === 'state') {
-      return TN_DISTRICT_CELLS
-    }
-    if (level === 'district' && district === 'CBE') {
-      return CBE_TALUK_CELLS.filter((c) => listItems.some((i) => i.code === c.code))
-    }
-    if (level === 'district') {
-      return layoutGridCells(
-        listItems.map((i) => i.code),
-        380,
-        220,
-        Math.min(4, listItems.length),
-      )
-    }
-    if (level === 'taluk') {
-      return layoutGridCells(listItems.map((i) => i.code), 380, 180, 3)
-    }
-    return undefined
-  }, [level, district, listItems])
-
-  const mapView = useMemo(() => {
-    if (level === 'state') return TN_VIEWBOX
-    if (level === 'district' && district === 'CBE') return CBE_VIEWBOX
-    return { width: 380, height: level === 'taluk' ? 180 : 220 }
-  }, [level, district])
-
   function onSelectItem(item: DrillItem) {
     if (level === 'state') updateParams({ district: item.code, taluk: null, pincode: null })
     else if (level === 'district') updateParams({ taluk: item.code, pincode: null })
@@ -255,7 +224,14 @@ export function GeographicDashboardPage() {
       )}
 
       {level === 'pincode' && companies && !loading && (
-        <CompaniesTable companies={companies} masters={masters} onOpen={(id) => navigate(`/companies/${id}`)} />
+        <>
+          <PincodeAreaMap
+            pincode={pincode}
+            districtName={districtName}
+            districtCode={district}
+          />
+          <CompaniesTable companies={companies} masters={masters} onOpen={(id) => navigate(`/companies/${id}`)} />
+        </>
       )}
 
       {level !== 'pincode' && !loading && listItems.length > 0 && (
@@ -296,7 +272,7 @@ export function GeographicDashboardPage() {
           </div>
 
           <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-4">
-            <DensitySvgMap
+            <GeographicMapPanel
               title={
                 level === 'state'
                   ? 'Tamil Nadu — click a district'
@@ -305,9 +281,9 @@ export function GeographicDashboardPage() {
                     : `Pincodes in ${talukName}`
               }
               regions={mapRegions}
-              cells={mapCells}
-              viewWidth={mapView.width}
-              viewHeight={mapView.height}
+              level={level as GeoDrillLevel}
+              districtCode={district}
+              districtName={districtName}
               hoveredCode={hovered}
               onHover={setHovered}
               onSelect={(code) => {

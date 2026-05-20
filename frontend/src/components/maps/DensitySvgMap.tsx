@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { cellToPath, type DistrictCell } from './tamilNaduLayout'
+import { fillForCount } from './mapColors'
 
 export interface MapRegion {
   code: string
@@ -18,15 +19,6 @@ export interface DensitySvgMapProps {
   onSelect: (code: string) => void
   disableEmpty?: boolean
   title?: string
-}
-
-function fillForCount(count: number, max: number): string {
-  if (count === 0) return '#f1f5f9'
-  if (max === 0) return '#f1f5f9'
-  const ratio = count / max
-  if (ratio > 0.66) return '#1d4ed8'
-  if (ratio > 0.33) return '#60a5fa'
-  return '#fcd34d'
 }
 
 function strokeForCount(count: number): string {
@@ -100,7 +92,7 @@ export function DensitySvgMap({
             >
               <path
                 d={path}
-                fill={fillForCount(count, max)}
+                fill={count === 0 ? '#f1f5f9' : fillForCount(count, max)}
                 stroke={isHovered ? '#2563eb' : strokeForCount(count)}
                 strokeWidth={isHovered ? 2.5 : 1}
                 opacity={disabled ? 0.45 : 1}
