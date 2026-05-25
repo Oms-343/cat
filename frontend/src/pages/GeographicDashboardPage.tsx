@@ -11,7 +11,7 @@ import { ApiError } from '../api/client'
 import type { DistrictsOverview, TalukDrilldown, TalukPincodeDrilldown } from '../types/dashboard'
 import type { CompanyListItem } from '../types/company'
 import type { MasterEntry } from '../types/master'
-import type { MapRegion } from '../components/maps/DensitySvgMap'
+import type { MapRegion } from '../components/maps/mapTypes'
 import { GeographicMapPanel } from '../components/maps/GeographicMapPanel'
 import { PincodeAreaMap } from '../components/maps/PincodeAreaMap'
 import type { GeoDrillLevel } from '../components/maps/geoTypes'
@@ -277,19 +277,18 @@ export function GeographicDashboardPage() {
                 level === 'state'
                   ? 'Tamil Nadu — click a district'
                   : level === 'district'
-                    ? `Taluks in ${districtName}`
-                    : `Pincodes in ${talukName}`
+                    ? `Taluks in ${districtName} — click another district to switch`
+                    : `${talukName} (in ${districtName}) — click a district to switch`
               }
-              regions={mapRegions}
+              regions={level === 'state' ? mapRegions : []}
               level={level as GeoDrillLevel}
               districtCode={district}
               districtName={districtName}
-              hoveredCode={hovered}
-              onHover={setHovered}
-              onSelect={(code) => {
-                const item = listItems.find((i) => i.code === code)
-                if (item) onSelectItem(item)
-              }}
+              hoveredCode={level === 'state' ? hovered : null}
+              onHover={level === 'state' ? setHovered : () => {}}
+              onSelectDistrict={(code) =>
+                updateParams({ district: code, taluk: null, pincode: null })
+              }
               disableEmpty={level === 'state'}
             />
           </div>

@@ -1,20 +1,21 @@
-import type { MapRegion } from './DensitySvgMap'
-import { GeographicOsmMap } from './GeographicOsmMap'
-import type { GeoDrillLevel } from './geoTypes'
+import { GeographicChoroplethMap } from "./GeographicChoroplethMap";
+import type { GeoDrillLevel } from "./geoTypes";
+import type { MapRegion } from "./mapTypes";
 
 export interface GeographicMapPanelProps {
-  title: string
-  regions: MapRegion[]
-  level: GeoDrillLevel
-  districtCode?: string
-  districtName?: string
-  hoveredCode: string | null
-  onHover: (code: string | null) => void
-  onSelect: (code: string) => void
-  disableEmpty?: boolean
+  title: string;
+  regions: MapRegion[];
+  level: GeoDrillLevel;
+  districtCode?: string;
+  districtName?: string;
+  hoveredCode: string | null;
+  onHover: (code: string | null) => void;
+  /** Fires when a district polygon is clicked. Always carries a district code. */
+  onSelectDistrict: (code: string) => void;
+  disableEmpty?: boolean;
 }
 
-/** Interactive map using free OpenStreetMap tiles (no API key). */
+/** Choropleth of Tamil Nadu's 38 districts, rendered from live OSM boundaries. */
 export function GeographicMapPanel(props: GeographicMapPanelProps) {
-  return <GeographicOsmMap {...props} />
+  return <GeographicChoroplethMap {...props} />;
 }
