@@ -36,7 +36,7 @@ def _to_out(req: CompanyEditRequest, session) -> EditRequestOut:
 @router.get("/edit-requests/pending", response_model=list[EditRequestOut])
 def list_pending(
     session: SessionDep,
-    _: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    _: User = Depends(require_roles(UserRole.ADMIN)),
 ) -> list[EditRequestOut]:
     rows = session.exec(
         select(CompanyEditRequest)
@@ -108,7 +108,7 @@ def review_edit_request(
     request_id: int,
     payload: EditRequestReview,
     session: SessionDep,
-    actor: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
 ) -> EditRequestOut:
     req = session.get(CompanyEditRequest, request_id)
     if not req:

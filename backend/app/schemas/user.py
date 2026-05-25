@@ -23,7 +23,7 @@ class UserCreate(BaseModel):
     full_name: str = Field(min_length=1, max_length=200)
     designation: str | None = None
     mobile: str | None = None
-    role: UserRole = UserRole.MSME
+    role: UserRole = UserRole.ADMIN
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
 

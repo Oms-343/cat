@@ -153,7 +153,7 @@ export function ForgotPasswordPage() {
           {submitting ? 'Sending…' : 'Send code'}
         </button>
       </form>
-      <p className="text-xs text-slate-400 mt-4">Use seeded accounts e.g. msme@example.com</p>
+      <p className="text-xs text-slate-400 mt-4">Use your TIDCO admin email e.g. admin@tidco.com</p>
       <AuthBackLink />
     </AuthLayout>
   )

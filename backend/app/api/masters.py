@@ -72,7 +72,7 @@ def list_entries(
     "/{key}",
     response_model=MasterOut,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 def create_entry(
     key: str, payload: MasterCreate, session: SessionDep, actor: CurrentUser
@@ -106,7 +106,7 @@ def create_entry(
 @router.patch(
     "/{key}/{entry_id}",
     response_model=MasterOut,
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 def update_entry(
     key: str,
@@ -156,7 +156,7 @@ def update_entry(
 @router.delete(
     "/{key}/{entry_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 def delete_entry(
     key: str, entry_id: int, session: SessionDep, actor: CurrentUser
@@ -180,7 +180,7 @@ def delete_entry(
 
 @router.get(
     "/{key}/export",
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 def export_master(key: str, session: SessionDep, _actor: CurrentUser) -> Response:
     model = _get_model(key)
@@ -201,7 +201,7 @@ def export_master(key: str, session: SessionDep, _actor: CurrentUser) -> Respons
 
 @router.post(
     "/{key}/import",
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 async def import_master(
     key: str,

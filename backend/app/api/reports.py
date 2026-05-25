@@ -24,7 +24,7 @@ from app.schemas.report import (
 router = APIRouter(
     prefix="/api/reports",
     tags=["reports"],
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 
 

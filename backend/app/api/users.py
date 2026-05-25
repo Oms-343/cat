@@ -34,7 +34,7 @@ def _gen_temp_password(length: int = 12) -> str:
 @router.get("", response_model=list[UserOut])
 def list_users(
     session: SessionDep,
-    _: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    _: User = Depends(require_roles(UserRole.ADMIN)),
     q: str | None = Query(default=None, description="search by name or email"),
     role: UserRole | None = Query(default=None),
     active: bool | None = Query(default=None),
@@ -61,7 +61,7 @@ def list_users(
 def create_user(
     payload: UserCreate,
     session: SessionDep,
-    actor: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
 ) -> UserCreateResponse:
     existing = session.exec(select(User).where(User.email == payload.email)).first()
     if existing:
@@ -114,7 +114,7 @@ def update_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found")
 
     is_self = actor.id == user.id
-    is_tidco = actor.role in (UserRole.SUPER, UserRole.ADMIN)
+    is_tidco = actor.role == UserRole.ADMIN
     if not is_self and not is_tidco:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -123,11 +123,11 @@ def update_user(
 
     data = payload.model_dump(exclude_unset=True)
 
-    # Only super can change roles or activation status.
-    if ("role" in data or "is_active" in data) and actor.role != UserRole.SUPER:
+    # Only admin can change roles or activation status.
+    if ("role" in data or "is_active" in data) and actor.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="only super users can change role or activation status",
+            detail="only admin users can change role or activation status",
         )
 
     changed: list[str] = []
@@ -161,7 +161,7 @@ def update_user(
 def reset_password(
     user_id: int,
     session: SessionDep,
-    actor: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
 ) -> PasswordResetResponse:
     user = session.get(User, user_id)
     if not user:
@@ -190,7 +190,7 @@ def reset_password(
 def deactivate_user(
     user_id: int,
     session: SessionDep,
-    actor: User = Depends(require_roles(UserRole.SUPER)),
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
 ) -> UserOut:
     user = session.get(User, user_id)
     if not user:

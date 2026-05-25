@@ -48,7 +48,7 @@ def _matching_companies(
 @router.get("/districts", response_model=DistrictsOverview)
 def districts_overview(
     session: SessionDep,
-    _user=Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    _user=Depends(require_roles(UserRole.ADMIN)),
     sector: str | None = Query(default=None),
     turnover: str | None = Query(default=None),
     tag: str | None = Query(default=None),
@@ -76,7 +76,7 @@ def districts_overview(
 def district_taluks(
     district_code: str,
     session: SessionDep,
-    _user=Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    _user=Depends(require_roles(UserRole.ADMIN)),
     sector: str | None = Query(default=None),
     turnover: str | None = Query(default=None),
     tag: str | None = Query(default=None),
@@ -122,7 +122,7 @@ def taluk_pincodes(
     district_code: str,
     taluk_code: str,
     session: SessionDep,
-    _user=Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    _user=Depends(require_roles(UserRole.ADMIN)),
     sector: str | None = Query(default=None),
     turnover: str | None = Query(default=None),
     tag: str | None = Query(default=None),

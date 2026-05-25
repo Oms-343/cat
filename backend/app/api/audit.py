@@ -13,7 +13,7 @@ from app.schemas.audit import AuditLogList, AuditLogOut
 router = APIRouter(
     prefix="/api/audit-log",
     tags=["audit"],
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 
 

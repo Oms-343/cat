@@ -17,9 +17,7 @@ import type {
 } from '../types/auth'
 
 const roleStyles: Record<string, string> = {
-  super: 'bg-purple-100 text-purple-800 border-purple-200',
   admin: 'bg-blue-100 text-blue-800 border-blue-200',
-  msme: 'bg-green-100 text-green-800 border-green-200',
 }
 
 const emptyForm: UserCreate = {
@@ -27,7 +25,7 @@ const emptyForm: UserCreate = {
   full_name: '',
   designation: '',
   mobile: '',
-  role: 'msme',
+  role: 'admin',
 }
 
 export function UsersPage() {
@@ -115,8 +113,8 @@ export function UsersPage() {
     }
   }
 
-  const canDeactivate = me?.role === 'super'
-  const canChangeRoles = me?.role === 'super'
+  const canDeactivate = me?.role === 'admin'
+  const canChangeRoles = false
 
   return (
     <div className="max-w-6xl mx-auto px-8 py-8">
@@ -160,9 +158,7 @@ export function UsersPage() {
           className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
         >
           <option value="">All roles</option>
-          <option value="super">Super</option>
           <option value="admin">Admin</option>
-          <option value="msme">MSME</option>
         </select>
       </div>
 
@@ -320,9 +316,7 @@ export function UsersPage() {
               onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
               className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
             >
-              <option value="super">Super</option>
               <option value="admin">Admin</option>
-              <option value="msme">MSME</option>
             </select>
           </div>
           <div>

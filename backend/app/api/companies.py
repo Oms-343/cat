@@ -75,7 +75,7 @@ def get_my_company(session: SessionDep, user: CurrentUser) -> CompanyOut:
 @router.get("", response_model=CompanyListResponse)
 def list_companies(
     session: SessionDep,
-    _user: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    _user: User = Depends(require_roles(UserRole.ADMIN)),
     q: str | None = Query(default=None, description="search by name, GST, CIN, Udyam"),
     sector: str | None = Query(default=None, description="sector code"),
     district: str | None = Query(default=None, description="district code"),
@@ -118,7 +118,7 @@ def list_companies(
 @router.get("/export")
 def export_companies(
     session: SessionDep,
-    actor: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
     q: str | None = Query(default=None),
     sector: str | None = Query(default=None),
     district: str | None = Query(default=None),
@@ -183,7 +183,7 @@ class BulkTagPayload(BaseModel):
 def bulk_update_tags(
     payload: BulkTagPayload,
     session: SessionDep,
-    actor: User = Depends(require_roles(UserRole.SUPER, UserRole.ADMIN)),
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
 ) -> None:
     for cid in payload.company_ids:
         c = session.get(Company, cid)
@@ -214,7 +214,7 @@ def get_company(company_id: int, session: SessionDep, user: CurrentUser) -> Comp
     "",
     response_model=CompanyOut,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_roles(UserRole.SUPER, UserRole.ADMIN))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 def create_company(payload: CompanyCreate, session: SessionDep, actor: CurrentUser) -> CompanyOut:
     if payload.gst_number:
@@ -329,7 +329,7 @@ def update_company(
 @router.delete(
     "/{company_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(require_roles(UserRole.SUPER))],
+    dependencies=[Depends(require_roles(UserRole.ADMIN))],
 )
 def delete_company(company_id: int, session: SessionDep, actor: CurrentUser) -> None:
     c = session.get(Company, company_id)

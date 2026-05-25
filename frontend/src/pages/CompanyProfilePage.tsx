@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { createEditRequest } from '../api/editRequests'
 import { deleteCompany, getCompany, getLockedFields, updateCompany } from '../api/companies'
 import { uploadImage } from '../api/uploads'
 import { listEntries } from '../api/masters'
@@ -106,37 +105,32 @@ export function CompanyProfilePage() {
   }
 
   if (error || !company || !masters || !locked || !formValues) {
-    const isMsmeUser = user?.role === 'msme'
     return (
       <div className="p-8">
-        {!isMsmeUser && (
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            ← Back
-          </button>
-        )}
-        <p className={`text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 ${isMsmeUser ? '' : 'mt-4'}`}>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ← Back
+        </button>
+        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 mt-4">
           {error ?? 'Failed to load profile'}
         </p>
       </div>
     )
   }
 
-  const isMsme = user?.role === 'msme'
-  const canEditAnything = !isMsme || company.owner_user_id === user?.id
+  const canEditAnything = true
   const canEditTags = user ? locked.tag_edit_roles.includes(user.role) : false
-  const canDelete = user?.role === 'super'
-  const lockedFieldsSet = isMsme ? new Set(locked.locked_for_msme) : undefined
+  const canDelete = user?.role === 'admin'
 
   async function handleSave() {
     if (!formValues) return
     setSaveError(null)
     setSaving(true)
     try {
-      const payload = formToPayload(formValues, { omitFields: lockedFieldsSet })
+      const payload = formToPayload(formValues)
       if (canEditTags && editedTags) {
         ;(payload as { tags?: string[] }).tags = editedTags
       }
@@ -158,7 +152,7 @@ export function CompanyProfilePage() {
     if (!confirm(`Delete ${company.name}? This cannot be undone.`)) return
     try {
       await deleteCompany(companyId)
-      navigate(user?.role === 'msme' ? '/my-profile' : '/companies')
+      navigate('/companies')
     } catch (err) {
       if (err instanceof ApiError) alert(err.detail)
       else alert(String(err))
@@ -184,17 +178,15 @@ export function CompanyProfilePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-8 py-8">
-      {!isMsme && (
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="text-sm text-blue-600 hover:underline"
-        >
-          ← Back
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="text-sm text-blue-600 hover:underline"
+      >
+        ← Back
+      </button>
 
-      <header className={`${isMsme ? '' : 'mt-2'} mb-6 flex items-start justify-between gap-4`}>
+      <header className="mt-2 mb-6 flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-900 truncate">{company.name}</h1>
           <p className="text-sm text-slate-500">
@@ -243,24 +235,6 @@ export function CompanyProfilePage() {
               </button>
             </>
           )}
-          {isMsme && canEditAnything && !editing && (
-            <button
-              type="button"
-              className="text-sm border border-amber-300 text-amber-800 px-3 py-1.5 rounded-md hover:bg-amber-50"
-              onClick={async () => {
-                const val = prompt('Request change to company name (govt locked field):')
-                if (!val?.trim()) return
-                try {
-                  await createEditRequest(companyId, { name: val.trim() })
-                  alert('Change request submitted for TIDCO approval.')
-                } catch (err) {
-                  alert(err instanceof ApiError ? err.detail : String(err))
-                }
-              }}
-            >
-              Request name change
-            </button>
-          )}
           {canDelete && !editing && (
             <button
               onClick={handleDelete}
@@ -293,12 +267,6 @@ export function CompanyProfilePage() {
                 )
               })}
             </ul>
-            {isMsme && (
-              <p className="mt-4 text-xs text-slate-500">
-                Some fields are <strong>🔒 locked</strong> — they come from verified government
-                records and can't be edited.
-              </p>
-            )}
           </div>
         </aside>
 
@@ -310,7 +278,7 @@ export function CompanyProfilePage() {
             sectors={masters.sectors}
             legalStructures={masters.legalStructures}
             turnoverRanges={masters.turnoverRanges}
-            lockedFields={lockedFieldsSet}
+            lockedFields={undefined}
             readOnly={!editing}
           />
 

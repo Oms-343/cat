@@ -67,7 +67,7 @@ export function DummyAccounts<T extends { role: string; email: string }>({
         ))}
       </div>
       <p className="text-xs text-slate-400 mt-2">
-        Demo OTP for signup / password reset: <strong>1234</strong>
+        Demo OTP for password reset: <strong>1234</strong>
       </p>
     </div>
   )

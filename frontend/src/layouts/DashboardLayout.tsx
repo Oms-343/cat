@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { EditRequestsPanel } from '../components/EditRequestsPanel'
 import type { UserRole } from '../types/auth'
@@ -11,42 +11,24 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: '🏠', roles: ['super', 'admin'] },
-  { to: '/companies', label: 'Companies', icon: '🏭', roles: ['super', 'admin'] },
-  { to: '/my-profile', label: 'My Profile', icon: '📋', roles: ['msme'] },
-  { to: '/masters', label: 'Master Data', icon: '🗂️', roles: ['super', 'admin'] },
-  { to: '/users', label: 'Users', icon: '👥', roles: ['super', 'admin'] },
-  {
-    to: '/onboarding-drives',
-    label: 'Onboarding Drives',
-    icon: '📢',
-    roles: ['super', 'admin'],
-  },
-  { to: '/reports', label: 'Reports', icon: '📊', roles: ['super', 'admin'] },
-  { to: '/audit-log', label: 'Audit Log', icon: '📜', roles: ['super', 'admin'] },
+  { to: '/dashboard', label: 'Dashboard', icon: '🏠', roles: ['admin'] },
+  { to: '/companies', label: 'Companies', icon: '🏭', roles: ['admin'] },
+  { to: '/masters', label: 'Master Data', icon: '🗂️', roles: ['admin'] },
+  { to: '/users', label: 'Users', icon: '👥', roles: ['admin'] },
+  { to: '/onboarding-drives', label: 'Onboarding Drives', icon: '📢', roles: ['admin'] },
+  { to: '/reports', label: 'Reports', icon: '📊', roles: ['admin'] },
+  { to: '/audit-log', label: 'Audit Log', icon: '📜', roles: ['admin'] },
 ]
 
 const roleStyles: Record<string, string> = {
-  super: 'bg-purple-100 text-purple-800 border-purple-200',
   admin: 'bg-blue-100 text-blue-800 border-blue-200',
-  msme: 'bg-green-100 text-green-800 border-green-200',
 }
 
 export function DashboardLayout() {
   const { user, logout } = useAuth()
-  const location = useLocation()
   if (!user) return null
 
   const visibleNav = navItems.filter((n) => !n.roles || n.roles.includes(user.role))
-
-  function navIsActive(item: NavItem, isActive: boolean): boolean {
-    if (isActive) return true
-    return (
-      item.to === '/my-profile' &&
-      user!.role === 'msme' &&
-      /^\/companies\/\d+/.test(location.pathname)
-    )
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -63,9 +45,7 @@ export function DashboardLayout() {
               to={item.to}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition ${
-                  navIsActive(item, isActive)
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-700 hover:bg-slate-100'
+                  isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-100'
                 }`
               }
             >
@@ -97,7 +77,7 @@ export function DashboardLayout() {
       </aside>
 
       <main className="flex-1 overflow-x-hidden">
-        {(user.role === 'super' || user.role === 'admin') && (
+        {user.role === 'admin' && (
           <div className="max-w-7xl mx-auto px-8 pt-6">
             <EditRequestsPanel />
           </div>

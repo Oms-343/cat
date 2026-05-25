@@ -82,7 +82,7 @@ export function CompaniesListPage() {
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
   const currentPage = Math.floor(offset / PAGE_SIZE) + 1
 
-  const canAdd = user && (user.role === 'super' || user.role === 'admin')
+  const canAdd = user?.role === 'admin'
   const canBulk = canAdd
 
   function toggleOne(id: number) {

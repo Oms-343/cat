@@ -20,28 +20,12 @@ from app.models.user import User, UserRole
 
 DUMMY_USERS = [
     {
-        "email": "super@tidco.com",
-        "full_name": "Murugesan",
-        "designation": "Senior Officer",
-        "mobile": "+919000000001",
-        "role": UserRole.SUPER,
-        "password": "super123",
-    },
-    {
         "email": "admin@tidco.com",
         "full_name": "Priya",
         "designation": "Operations Staff",
         "mobile": "+919000000002",
         "role": UserRole.ADMIN,
         "password": "admin123",
-    },
-    {
-        "email": "msme@example.com",
-        "full_name": "Vignesh Kumar",
-        "designation": "Owner",
-        "mobile": "+919000000003",
-        "role": UserRole.MSME,
-        "password": "msme123",
     },
 ]
 
@@ -391,7 +375,6 @@ def main() -> None:
     seed_masters()
     seed_taluks_pincodes_hsn()
     seed_companies()
-    link_demo_msme_owner()
     seed_subitems()
 
 
