@@ -30,6 +30,7 @@ cd backend
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+python -m app.seed
 ```
 
 **Every time** — activate the venv and start the server:
@@ -38,12 +39,6 @@ pip install -r requirements.txt
 cd backend
 .\venv\Scripts\Activate.ps1
 uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
-
-if any error in login, seed database :
-
-```
-python.exe -m app.seed
 ```
 
 The API is available at `http://127.0.0.1:8000`.
