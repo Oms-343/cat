@@ -36,8 +36,14 @@ pip install -r requirements.txt
 
 ```powershell
 cd backend
-\venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+if any error in login, seed database :
+
+```
+python.exe -m app.seed
 ```
 
 The API is available at `http://127.0.0.1:8000`.
