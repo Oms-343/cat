@@ -32,6 +32,7 @@ DISTRICTS: list[tuple[str, str, str | None]] = [
     ("TJV", "Thanjavur", None),
     ("THI", "Theni", None),
     ("THV", "Thoothukudi", None),
+    ("TKS", "Tenkasi", None),
     ("TVL", "Tirunelveli", None),
     ("TPT", "Tirupathur", None),
     ("TRP", "Tiruppur", None),
@@ -42,7 +43,6 @@ DISTRICTS: list[tuple[str, str, str | None]] = [
     ("VLR", "Vellore", None),
     ("VLP", "Viluppuram", None),
     ("VDN", "Virudhunagar", None),
-    ("CHG", "Chengalpattu (new)", None),
 ]
 
 COMPANY_TYPES: list[tuple[str, str, str | None]] = [

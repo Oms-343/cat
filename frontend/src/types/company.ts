@@ -12,6 +12,7 @@ export interface Company {
   address_line2: string | null
   city: string | null
   district_code: string | null
+  taluk_code: string | null
   pincode: string | null
   state: string
 

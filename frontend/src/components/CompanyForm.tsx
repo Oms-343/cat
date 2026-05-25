@@ -1,5 +1,7 @@
+import { useEffect, useMemo, useState } from 'react'
 import type { Company, CompanyCreate } from '../types/company'
 import type { MasterEntry } from '../types/master'
+import { loadTalukIndex, type TalukIndex } from './maps/tnLayoutMap'
 
 export interface CompanyFormValues {
   name: string
@@ -10,6 +12,7 @@ export interface CompanyFormValues {
   address_line2: string
   city: string
   district_code: string
+  taluk_code: string
   pincode: string
   state: string
   sector_code: string
@@ -37,6 +40,7 @@ export const emptyCompanyForm: CompanyFormValues = {
   address_line2: '',
   city: '',
   district_code: '',
+  taluk_code: '',
   pincode: '',
   state: 'Tamil Nadu',
   sector_code: '',
@@ -65,6 +69,7 @@ export function companyToForm(c: Company): CompanyFormValues {
     address_line2: c.address_line2 ?? '',
     city: c.city ?? '',
     district_code: c.district_code ?? '',
+    taluk_code: c.taluk_code ?? '',
     pincode: c.pincode ?? '',
     state: c.state ?? 'Tamil Nadu',
     sector_code: c.sector_code ?? '',
@@ -99,6 +104,7 @@ export function formToPayload(
     address_line2: blank(v.address_line2),
     city: blank(v.city),
     district_code: blank(v.district_code),
+    taluk_code: blank(v.taluk_code),
     pincode: blank(v.pincode),
     state: v.state.trim() || 'Tamil Nadu',
     sector_code: blank(v.sector_code),
@@ -153,6 +159,19 @@ export function CompanyForm({
   lockedFields,
   readOnly = false,
 }: CompanyFormProps) {
+  const [talukIndex, setTalukIndex] = useState<TalukIndex | null>(null)
+
+  useEffect(() => {
+    loadTalukIndex()
+      .then(setTalukIndex)
+      .catch(() => setTalukIndex(null))
+  }, [])
+
+  const taluks = useMemo(() => {
+    if (!talukIndex || !values.district_code) return []
+    return talukIndex.districts[values.district_code]?.taluks ?? []
+  }, [talukIndex, values.district_code])
+
   const isLocked = (f: keyof CompanyFormValues) => lockedFields?.has(f as string) ?? false
   function set<K extends keyof CompanyFormValues>(key: K, value: CompanyFormValues[K]) {
     onChange({ ...values, [key]: value })
@@ -243,13 +262,36 @@ export function CompanyForm({
           <select
             disabled={readOnly}
             value={values.district_code}
-            onChange={(e) => set('district_code', e.target.value)}
+            onChange={(e) =>
+              onChange({ ...values, district_code: e.target.value, taluk_code: '' })
+            }
             className={inputCls + ' bg-white'}
           >
             <option value="">Select…</option>
             {districts.map((d) => (
               <option key={d.code} value={d.code}>
                 {d.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Taluk">
+          <select
+            disabled={readOnly || !values.district_code}
+            value={values.taluk_code}
+            onChange={(e) => set('taluk_code', e.target.value)}
+            className={inputCls + ' bg-white'}
+          >
+            <option value="">
+              {!values.district_code
+                ? 'Select district first…'
+                : taluks.length === 0
+                  ? 'No taluks available'
+                  : 'Select…'}
+            </option>
+            {taluks.map((t) => (
+              <option key={t.code} value={t.code}>
+                {t.name}
               </option>
             ))}
           </select>

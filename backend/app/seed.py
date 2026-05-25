@@ -3,8 +3,9 @@ from sqlmodel import Session, select
 from app.core.security import hash_password
 from app.data.company_seed import COMPANIES
 from app.data.master_seed import SEED_BY_KEY
-from app.data.taluk_pincode_seed import HSN_SAMPLE, PINCODES, TALUKS
-from app.models.master import HSNCodeMaster, PincodeMaster, TalukMaster
+from app.data.taluk_pincode_seed import HSN_SAMPLE, PINCODES
+from app.core.geo_lookup import backfill_company_taluks, sync_taluk_master
+from app.models.master import HSNCodeMaster, PincodeMaster
 from app.database import engine, init_db
 from app.models.company import Company
 from app.models.company_subitem import (
@@ -94,20 +95,17 @@ def seed_masters() -> None:
 
 def seed_taluks_pincodes_hsn() -> None:
     with Session(engine) as session:
-        for idx, (code, name, district_code) in enumerate(TALUKS):
-            if session.exec(select(TalukMaster).where(TalukMaster.code == code)).first():
-                continue
-            session.add(
-                TalukMaster(
-                    code=code,
-                    name=name,
-                    district_code=district_code,
-                    is_active=True,
-                    sort_order=idx,
-                )
-            )
+        taluk_created = sync_taluk_master(session)
+        print(f"Taluks: {taluk_created} new from tn-taluks-index.json.")
+
+        pincode_created = 0
         for idx, (code, name, district_code, taluk_code) in enumerate(PINCODES):
-            if session.exec(select(PincodeMaster).where(PincodeMaster.code == code)).first():
+            existing = session.exec(select(PincodeMaster).where(PincodeMaster.code == code)).first()
+            if existing:
+                if not existing.taluk_code and taluk_code:
+                    existing.taluk_code = taluk_code
+                    existing.district_code = district_code
+                    session.add(existing)
                 continue
             session.add(
                 PincodeMaster(
@@ -119,6 +117,7 @@ def seed_taluks_pincodes_hsn() -> None:
                     sort_order=idx,
                 )
             )
+            pincode_created += 1
         for idx, (code, name, description) in enumerate(HSN_SAMPLE):
             if session.exec(select(HSNCodeMaster).where(HSNCodeMaster.code == code)).first():
                 continue
@@ -132,7 +131,11 @@ def seed_taluks_pincodes_hsn() -> None:
                 )
             )
         session.commit()
-    print("Taluks, sample pincodes, and HSN codes seeded.")
+    print(f"Pincodes: {pincode_created} new, HSN codes seeded.")
+    with Session(engine) as session:
+        updated = backfill_company_taluks(session)
+        if updated:
+            print(f"Companies: backfilled taluk_code on {updated} record(s).")
 
 
 def seed_companies() -> None:
@@ -148,6 +151,10 @@ def seed_companies() -> None:
             created += 1
         session.commit()
         print(f"Companies: {created} new, {skipped} already existed.")
+    with Session(engine) as session:
+        updated = backfill_company_taluks(session)
+        if updated:
+            print(f"Companies: backfilled taluk_code on {updated} record(s) after seed.")
 
 
 def link_demo_msme_owner() -> None:

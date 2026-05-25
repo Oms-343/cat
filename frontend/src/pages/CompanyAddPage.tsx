@@ -62,9 +62,13 @@ export function CompanyAddPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-8 py-8">
-      <Link to="/companies" className="text-sm text-blue-600 hover:underline">
-        ← Back to registry
-      </Link>
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="text-sm text-blue-600 hover:underline"
+      >
+        ← Back
+      </button>
 
       <header className="mt-2 mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Add MSME</h1>

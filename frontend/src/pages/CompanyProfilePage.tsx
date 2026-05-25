@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { createEditRequest } from '../api/editRequests'
 import { deleteCompany, getCompany, getLockedFields, updateCompany } from '../api/companies'
 import { uploadImage } from '../api/uploads'
@@ -110,9 +110,13 @@ export function CompanyProfilePage() {
     return (
       <div className="p-8">
         {!isMsmeUser && (
-          <Link to="/companies" className="text-sm text-blue-600 hover:underline">
-            ← Back to registry
-          </Link>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            ← Back
+          </button>
         )}
         <p className={`text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 ${isMsmeUser ? '' : 'mt-4'}`}>
           {error ?? 'Failed to load profile'}
@@ -181,9 +185,13 @@ export function CompanyProfilePage() {
   return (
     <div className="max-w-6xl mx-auto px-8 py-8">
       {!isMsme && (
-        <Link to="/companies" className="text-sm text-blue-600 hover:underline">
-          ← Back to registry
-        </Link>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ← Back
+        </button>
       )}
 
       <header className={`${isMsme ? '' : 'mt-2'} mb-6 flex items-start justify-between gap-4`}>

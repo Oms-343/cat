@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import SQLModel, Session, create_engine, select
 from app.config import get_settings
 
 settings = get_settings()
@@ -20,11 +20,85 @@ def _sqlite_add_column_if_missing(table: str, column: str, col_type: str) -> Non
             conn.commit()
 
 
+def _sync_district_master() -> None:
+    """Insert districts from master_seed that are not yet in the DB."""
+    from app.data.master_seed import DISTRICTS
+    from app.models.master import DistrictMaster
+
+    with Session(engine) as session:
+        for idx, (code, name, description) in enumerate(DISTRICTS):
+            existing = session.exec(select(DistrictMaster).where(DistrictMaster.code == code)).first()
+            if existing:
+                continue
+            session.add(
+                DistrictMaster(
+                    code=code,
+                    name=name,
+                    description=description,
+                    is_active=True,
+                    sort_order=idx,
+                )
+            )
+        session.commit()
+
+
+def _remove_retired_districts() -> None:
+    """Drop duplicate district rows removed from master_seed (e.g. CHG → use CGL)."""
+    from app.models.master import DistrictMaster
+
+    with Session(engine) as session:
+        for code in ("CHG",):
+            row = session.exec(select(DistrictMaster).where(DistrictMaster.code == code)).first()
+            if row:
+                session.delete(row)
+        session.commit()
+
+
 def migrate_db() -> None:
     """Lightweight SQLite migrations for dev databases created before new columns."""
     _sqlite_add_column_if_missing("companies", "taluk_code", "VARCHAR")
     _sqlite_add_column_if_missing("master_pincodes", "district_code", "VARCHAR")
     _sqlite_add_column_if_missing("master_pincodes", "taluk_code", "VARCHAR")
+    _remove_retired_districts()
+    _sync_district_master()
+    _sync_geo_masters()
+
+
+def _sync_geo_masters() -> None:
+    """Keep taluk master and company taluk assignments in sync with pincode map."""
+    from sqlmodel import Session
+
+    from app.core.geo_lookup import backfill_company_taluks, sync_taluk_master
+    from app.data.taluk_pincode_seed import PINCODES
+    from app.models.master import PincodeMaster
+
+    with Session(engine) as session:
+        sync_taluk_master(session)
+        for idx, (code, name, district_code, taluk_code) in enumerate(PINCODES):
+            existing = session.exec(select(PincodeMaster).where(PincodeMaster.code == code)).first()
+            if existing:
+                changed = False
+                if not existing.taluk_code and taluk_code:
+                    existing.taluk_code = taluk_code
+                    changed = True
+                if not existing.district_code and district_code:
+                    existing.district_code = district_code
+                    changed = True
+                if changed:
+                    session.add(existing)
+                continue
+            session.add(
+                PincodeMaster(
+                    code=code,
+                    name=name,
+                    district_code=district_code,
+                    taluk_code=taluk_code,
+                    is_active=True,
+                    sort_order=idx,
+                )
+            )
+        session.commit()
+        backfill_company_taluks(session)
 
 
 def init_db() -> None:

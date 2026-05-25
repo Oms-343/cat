@@ -3,6 +3,10 @@ from collections import Counter
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import select
 
+from app.core.geo_lookup import (
+    build_pincode_maps,
+    effective_taluk_code,
+)
 from app.deps import SessionDep, require_roles
 from app.models.user import UserRole
 from app.models.company import Company
@@ -89,21 +93,18 @@ def district_taluks(
         .order_by(TalukMaster.name)
     ).all()
     matched = _matching_companies(session, sector, turnover, tag, district=district_code)
+    pincode_map, pincode_district_map = build_pincode_maps(session)
 
     by_taluk: Counter[str] = Counter()
-    unassigned = 0
     for c in matched:
-        if c.taluk_code:
-            by_taluk[c.taluk_code] += 1
-        else:
-            unassigned += 1
+        taluk = effective_taluk_code(c, pincode_map, pincode_district_map)
+        if taluk:
+            by_taluk[taluk] += 1
 
     items = [
         RegionCount(code=t.code, name=t.name, company_count=by_taluk.get(t.code, 0))
         for t in taluks
     ]
-    if unassigned:
-        items.append(RegionCount(code="_OTHER", name="(Unassigned taluk)", company_count=unassigned))
 
     return TalukDrilldown(
         district_code=district.code,
@@ -132,25 +133,22 @@ def taluk_pincodes(
     if not district:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="unknown district")
 
-    taluk_name = taluk_code
-    if taluk_code != "_OTHER":
-        taluk = session.exec(
-            select(TalukMaster).where(
-                TalukMaster.code == taluk_code,
-                TalukMaster.district_code == district_code,
-            )
-        ).first()
-        if not taluk:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="unknown taluk")
-        taluk_name = taluk.name
+    taluk = session.exec(
+        select(TalukMaster).where(
+            TalukMaster.code == taluk_code,
+            TalukMaster.district_code == district_code,
+        )
+    ).first()
+    if not taluk:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="unknown taluk")
 
-    matched = _matching_companies(
-        session, sector, turnover, tag, district=district_code, taluk=None if taluk_code == "_OTHER" else taluk_code
-    )
-    if taluk_code == "_OTHER":
-        matched = [c for c in matched if not c.taluk_code]
-    else:
-        matched = [c for c in matched if c.taluk_code == taluk_code]
+    pincode_map, pincode_district_map = build_pincode_maps(session)
+    matched = _matching_companies(session, sector, turnover, tag, district=district_code)
+    matched = [
+        c
+        for c in matched
+        if effective_taluk_code(c, pincode_map, pincode_district_map) == taluk_code
+    ]
 
     by_pincode: Counter[str] = Counter()
     for c in matched:
@@ -165,7 +163,7 @@ def taluk_pincodes(
         district_code=district.code,
         district_name=district.name,
         taluk_code=taluk_code,
-        taluk_name=taluk_name,
+        taluk_name=taluk.name,
         total_companies=len(matched),
         items=items,
     )

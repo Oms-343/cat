@@ -1,1 +1,1 @@
-export type GeoDrillLevel = 'state' | 'district' | 'taluk'
+export type GeoDrillLevel = 'state' | 'district' | 'taluk' | 'pincode'

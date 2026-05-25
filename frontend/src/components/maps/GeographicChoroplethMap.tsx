@@ -3,6 +3,10 @@ import { geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeoDrillLevel } from "./geoTypes";
 import type { MapRegion } from "./mapTypes";
+import {
+  DISTRICT_CHOROPLETH,
+  districtStateFillColor,
+} from "./choroplethColors";
 
 interface DistrictProperties {
   code: string;
@@ -32,14 +36,6 @@ export interface GeographicChoroplethMapProps {
 const VIEW_W = 800;
 const VIEW_H = 760;
 
-const COLOR_HIGH = "#b91c1c";
-const COLOR_RED = "#dc2626";
-const COLOR_RED_MID = "#ef4444";
-const COLOR_RED_LIGHT = "#fca5a5";
-const COLOR_NONE = "#fbcfe8";
-const COLOR_SELECTED = "#22c55e";
-const COLOR_INACTIVE = "#e5e7eb";
-
 const GEOJSON_URL = "/tn-districts.geojson?v=2";
 
 let cachedGeo: DistrictFeatureCollection | null = null;
@@ -65,31 +61,6 @@ async function loadDistricts(): Promise<DistrictFeatureCollection> {
       throw err;
     });
   return cachedPromise;
-}
-
-function fillForRegion(args: {
-  level: GeoDrillLevel;
-  count: number;
-  max: number;
-  isFocusedDistrict: boolean;
-  hasRegion: boolean;
-  disableEmpty: boolean;
-}): string {
-  const { level, count, max, isFocusedDistrict, hasRegion, disableEmpty } =
-    args;
-
-  if (isFocusedDistrict) return COLOR_SELECTED;
-
-  if (level !== "state") return COLOR_NONE;
-
-  if (!hasRegion) return disableEmpty ? COLOR_INACTIVE : COLOR_NONE;
-  if (count === 0) return disableEmpty ? COLOR_INACTIVE : COLOR_NONE;
-
-  const ratio = max > 0 ? count / max : 0;
-  if (ratio > 0.66) return COLOR_HIGH;
-  if (ratio > 0.33) return COLOR_RED;
-  if (ratio > 0.1) return COLOR_RED_MID;
-  return COLOR_RED_LIGHT;
 }
 
 function shouldShowLabel(area: number): boolean {
@@ -206,14 +177,15 @@ export function GeographicChoroplethMap({
               level !== "state" && districtCode === d.code;
             const isHovered = hoveredCode === d.code;
 
-            const fill = fillForRegion({
-              level,
-              count,
-              max,
-              isFocusedDistrict,
-              hasRegion: Boolean(region),
-              disableEmpty,
-            });
+            const fill =
+              level !== "state"
+                ? DISTRICT_CHOROPLETH.none
+                : districtStateFillColor({
+                    count,
+                    max,
+                    disableEmpty,
+                    isFocused: isFocusedDistrict,
+                  });
 
             const stroke = isHovered ? "#0f172a" : "#ffffff";
             const strokeWidth = isHovered || isFocusedDistrict ? 2.5 : 1.2;
@@ -308,37 +280,24 @@ export function GeographicChoroplethMap({
         <span className="flex items-center gap-1">
           <span
             className="w-3 h-3 rounded"
-            style={{ background: COLOR_HIGH }}
+            style={{ background: DISTRICT_CHOROPLETH.high }}
           />{" "}
           High
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded" style={{ background: COLOR_RED }} />{" "}
+          <span
+            className="w-3 h-3 rounded"
+            style={{ background: DISTRICT_CHOROPLETH.medium }}
+          />{" "}
           Medium
         </span>
         <span className="flex items-center gap-1">
           <span
             className="w-3 h-3 rounded"
-            style={{ background: COLOR_RED_LIGHT }}
+            style={{ background: DISTRICT_CHOROPLETH.low }}
           />{" "}
           Low
         </span>
-        <span className="flex items-center gap-1">
-          <span
-            className="w-3 h-3 rounded"
-            style={{ background: COLOR_NONE }}
-          />{" "}
-          None
-        </span>
-        {level !== "state" && (
-          <span className="flex items-center gap-1">
-            <span
-              className="w-3 h-3 rounded"
-              style={{ background: COLOR_SELECTED }}
-            />{" "}
-            Selected
-          </span>
-        )}
         <span className="text-slate-400">
           · Boundaries © OpenStreetMap contributors
         </span>

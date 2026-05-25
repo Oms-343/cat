@@ -1,7 +1,7 @@
 {
   "source": "LGD / Bharatmaps sub-district boundaries (ramSeraph/indian_admin_boundaries)",
-  "vintage": "LGD current",
-  "note": "300 revenue taluks across 38 districts. Source: Local Government Directory via Bharatmaps.",
+  "vintage": "LGD current (Bharatmaps MapServer)",
+  "note": "300 revenue taluks across 38 districts. Built from LGD_Subdistricts.parquet via scripts/build-tn-taluks.py",
   "districts": {
     "ARI": {
       "name": "Ariyalur",
@@ -48,7 +48,7 @@
           "name": "Avanashi"
         },
         {
-          "code": "CBE_CBE",
+          "code": "CBE_05897",
           "name": "Coimbatore North"
         },
         {
@@ -524,16 +524,16 @@
           "name": "MADURAI EAST"
         },
         {
+          "code": "MDU_MADURAI_WEST",
+          "name": "MADURAI WEST"
+        },
+        {
           "code": "MDU_05836",
           "name": "Madurai North"
         },
         {
           "code": "MDU_05841",
           "name": "Madurai South"
-        },
-        {
-          "code": "MDU_MADURAI_WEST",
-          "name": "MADURAI WEST"
         },
         {
           "code": "MDU_05835",
@@ -544,12 +544,12 @@
           "name": "Peraiyur"
         },
         {
-          "code": "MDU_05840",
-          "name": "Thirumangalam"
-        },
-        {
           "code": "MDU_THIRUPPARANK",
           "name": "THIRUPPARANKUNDRAM"
+        },
+        {
+          "code": "MDU_05840",
+          "name": "Thirumangalam"
         },
         {
           "code": "MDU_05838",
@@ -761,16 +761,16 @@
       "file": "/tn-taluks/RMD.geojson",
       "taluks": [
         {
+          "code": "RMD_KILAKARAI",
+          "name": "KILAKARAI"
+        },
+        {
           "code": "RMD_05859",
           "name": "Kadaladi"
         },
         {
           "code": "RMD_05858",
           "name": "Kamuthi"
-        },
-        {
-          "code": "RMD_KILAKARAI",
-          "name": "KILAKARAI"
         },
         {
           "code": "RMD_05857",
@@ -1108,16 +1108,16 @@
           "name": "Lalgudi"
         },
         {
+          "code": "TRI_MARUNGAPURI",
+          "name": "MARUNGAPURI"
+        },
+        {
           "code": "TRI_05776",
           "name": "Manachanallur"
         },
         {
           "code": "TRI_05781",
           "name": "Manapparai"
-        },
-        {
-          "code": "TRI_MARUNGAPURI",
-          "name": "MARUNGAPURI"
         },
         {
           "code": "TRI_05774",
@@ -1470,5 +1470,6 @@
       ]
     }
   },
-  "cache_version": 2
+  "cache_version": 2,
+  "built_at": "2026-05-25"
 }

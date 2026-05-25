@@ -12,9 +12,15 @@ import type { DistrictsOverview, TalukDrilldown, TalukPincodeDrilldown } from '.
 import type { CompanyListItem } from '../types/company'
 import type { MasterEntry } from '../types/master'
 import type { MapRegion } from '../components/maps/mapTypes'
+import { regionListDotColor } from '../components/maps/choroplethColors'
 import { GeographicMapPanel } from '../components/maps/GeographicMapPanel'
 import { PincodeAreaMap } from '../components/maps/PincodeAreaMap'
-import type { GeoDrillLevel } from '../components/maps/geoTypes'
+import {
+  findLayoutTaluk,
+  getLayoutDistrictKey,
+  loadLayoutData,
+  loadTalukIndex,
+} from '../components/maps/tnLayoutMap'
 
 const SUGGESTED_TAGS = ['Defence', 'Aerospace', 'EV', 'Forging', 'Export']
 
@@ -53,6 +59,32 @@ export function GeographicDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
+  const [layoutTalukName, setLayoutTalukName] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!district || !taluk) {
+      setLayoutTalukName(null)
+      return
+    }
+    let cancelled = false
+    Promise.all([loadLayoutData(), loadTalukIndex()])
+      .then(([layout, index]) => {
+        if (cancelled) return
+        const indexName = index.districts[district]?.taluks.find((t) => t.code === taluk)?.name
+        if (indexName) {
+          setLayoutTalukName(indexName)
+          return
+        }
+        const key = getLayoutDistrictKey(district)
+        if (!key) return
+        const found = findLayoutTaluk(layout.districts[key] ?? [], taluk, index, district)
+        if (found) setLayoutTalukName(found.name)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [district, taluk])
 
   useEffect(() => {
     Promise.all([
@@ -80,7 +112,13 @@ export function GeographicDashboardPage() {
     } else if (district && taluk) {
       getTalukPincodes(district, taluk, filters)
         .then(setPincodes)
-        .catch((err) => setError(err instanceof ApiError ? err.detail : String(err)))
+        .catch((err) => {
+          if (err instanceof ApiError && err.status === 404) {
+            setPincodes(null)
+            return
+          }
+          setError(err instanceof ApiError ? err.detail : String(err))
+        })
         .finally(() => setLoading(false))
       setOverview(null)
       setTaluks(null)
@@ -119,7 +157,7 @@ export function GeographicDashboardPage() {
     masters?.districts.find((d) => d.code === district)?.name ??
     district
 
-  const talukName = pincodes?.taluk_name ?? taluk
+  const talukName = pincodes?.taluk_name ?? layoutTalukName ?? taluk
 
   let level: 'state' | 'district' | 'taluk' | 'pincode' = 'state'
   if (district && taluk && pincode) level = 'pincode'
@@ -158,6 +196,11 @@ export function GeographicDashboardPage() {
     name: i.name,
     count: i.count,
   }))
+
+  const maxRegionCount = useMemo(
+    () => Math.max(0, ...listItems.map((i) => i.count)),
+    [listItems],
+  )
 
   function onSelectItem(item: DrillItem) {
     if (level === 'state') updateParams({ district: item.code, taluk: null, pincode: null })
@@ -216,6 +259,13 @@ export function GeographicDashboardPage() {
         onUpdate={updateParams}
       />
 
+      {overview && level === 'state' && !loading && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <Stat label="Total MSMEs" value={overview.total_companies.toLocaleString()} />
+          <Stat label="Districts active" value={`${overview.total_districts_with_msmes} of 38`} />
+        </div>
+      )}
+
       {loading && <p className="text-sm text-slate-500">Loading…</p>}
       {error && (
         <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 mb-4">
@@ -224,50 +274,84 @@ export function GeographicDashboardPage() {
       )}
 
       {level === 'pincode' && companies && !loading && (
-        <>
-          <PincodeAreaMap
-            pincode={pincode}
-            districtName={districtName}
-            districtCode={district}
-          />
-          <CompaniesTable companies={companies} masters={masters} onOpen={(id) => navigate(`/companies/${id}`)} />
-        </>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[420px]">
+          <div className="lg:col-span-1 bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Companies
+            </div>
+            <div className="max-h-[480px] overflow-y-auto">
+              <CompaniesTable
+                companies={companies}
+                masters={masters}
+                onOpen={(id) => navigate(`/companies/${id}`)}
+                embedded
+              />
+            </div>
+          </div>
+          <div className="lg:col-span-2">
+            <PincodeAreaMap
+              pincode={pincode}
+              districtName={districtName}
+              districtCode={district}
+            />
+          </div>
+        </div>
       )}
 
-      {level !== 'pincode' && !loading && listItems.length > 0 && (
+      {level !== 'pincode' && !loading && (listItems.length > 0 || district) && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[420px]">
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden lg:col-span-1">
             <div className="px-4 py-3 border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Regions
             </div>
             <ul className="max-h-[480px] overflow-y-auto divide-y divide-slate-100">
-              {listItems.map((item) => (
-                <li key={item.code}>
-                  <button
-                    type="button"
-                    disabled={item.count === 0 && level === 'state'}
-                    onClick={() => onSelectItem(item)}
-                    onMouseEnter={() => setHovered(item.code)}
-                    onMouseLeave={() => setHovered(null)}
-                    className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-blue-50 disabled:opacity-50 ${
-                      hovered === item.code ? 'bg-blue-50' : ''
-                    }`}
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        item.count >= 100 ? 'bg-green-500' : item.count > 0 ? 'bg-amber-400' : 'bg-slate-300'
-                      }`}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-slate-900 truncate">{item.name}</p>
-                      {item.subtitle && (
-                        <p className="text-[10px] text-slate-400 font-mono">{item.subtitle}</p>
-                      )}
-                    </div>
-                    <span className="font-bold tabular-nums text-slate-700">{item.count}</span>
-                  </button>
+              {listItems.length === 0 && (
+                <li className="px-4 py-6 text-xs text-slate-500 text-center">
+                  No regions in the list yet — use the map to explore taluks and pincodes.
                 </li>
-              ))}
+              )}
+              {listItems.map((item) => {
+                const dotColor = regionListDotColor(level, item.count, maxRegionCount)
+                const isEmpty = item.count === 0
+
+                return (
+                  <li key={item.code}>
+                    <button
+                      type="button"
+                      onClick={() => onSelectItem(item)}
+                      onMouseEnter={() => setHovered(item.code)}
+                      onMouseLeave={() => setHovered(null)}
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-blue-50 ${
+                        hovered === item.code ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: dotColor }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={`font-medium truncate ${
+                            isEmpty ? 'text-slate-500' : 'text-slate-900'
+                          }`}
+                        >
+                          {item.name}
+                        </p>
+                        {item.subtitle && (
+                          <p className="text-[10px] text-slate-400 font-mono">{item.subtitle}</p>
+                        )}
+                      </div>
+                      <span
+                        className={`font-bold tabular-nums ${
+                          isEmpty ? 'text-slate-400' : 'text-slate-700'
+                        }`}
+                      >
+                        {item.count}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           </div>
 
@@ -277,28 +361,29 @@ export function GeographicDashboardPage() {
                 level === 'state'
                   ? 'Tamil Nadu — click a district'
                   : level === 'district'
-                    ? `Taluks in ${districtName} — click another district to switch`
-                    : `${talukName} (in ${districtName}) — click a district to switch`
+                    ? `${districtName} — click a taluk`
+                    : `${talukName} — MSMEs by pincode`
               }
-              regions={level === 'state' ? mapRegions : []}
-              level={level as GeoDrillLevel}
+              regions={mapRegions}
+              level={level}
               districtCode={district}
               districtName={districtName}
-              hoveredCode={level === 'state' ? hovered : null}
-              onHover={level === 'state' ? setHovered : () => {}}
+              talukCode={taluk}
+              talukName={talukName}
+              hoveredCode={hovered}
+              onHover={setHovered}
               onSelectDistrict={(code) =>
                 updateParams({ district: code, taluk: null, pincode: null })
               }
+              onSelectTaluk={(code) => updateParams({ taluk: code, pincode: null })}
+              onSelectPincode={(pc) => updateParams({ pincode: pc })}
+              onBack={() => {
+                if (level === 'taluk') updateParams({ taluk: null, pincode: null })
+                else if (level === 'district') updateParams({ district: null, taluk: null, pincode: null })
+              }}
               disableEmpty={level === 'state'}
             />
           </div>
-        </div>
-      )}
-
-      {overview && level === 'state' && !loading && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-          <Stat label="Total MSMEs" value={overview.total_companies.toLocaleString()} />
-          <Stat label="Districts active" value={`${overview.total_districts_with_msmes} of 38`} />
         </div>
       )}
     </div>
@@ -391,13 +476,15 @@ function CompaniesTable({
   companies,
   masters,
   onOpen,
+  embedded = false,
 }: {
   companies: CompanyListItem[]
   masters: { sectors: MasterEntry[]; turnoverRanges: MasterEntry[] } | null
   onOpen: (id: number) => void
+  embedded?: boolean
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className={embedded ? '' : 'bg-white rounded-xl border border-slate-200 overflow-hidden'}>
       <table className="w-full text-sm">
         <thead className="text-left text-xs uppercase tracking-wide text-slate-500 bg-slate-50 border-b">
           <tr>
