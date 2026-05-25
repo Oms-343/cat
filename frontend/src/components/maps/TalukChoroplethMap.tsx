@@ -3,6 +3,7 @@ import { geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeoDrillLevel } from "./geoTypes";
 import type { MapRegion } from "./mapTypes";
+import { talukGeoJsonUrl } from "../../constants/maps/mapAssets";
 import { fillColorByCount } from "./tnLayoutMap";
 
 interface TalukProperties {
@@ -46,7 +47,7 @@ async function loadDistrictTaluks(
 
   let promise = geoPromises.get(districtCode);
   if (!promise) {
-    promise = fetch(`/tn-taluks/${districtCode}.geojson?v=1`)
+    promise = fetch(talukGeoJsonUrl(districtCode))
       .then((r) => {
         if (!r.ok)
           throw new Error(`Failed to load taluk boundaries (HTTP ${r.status})`);

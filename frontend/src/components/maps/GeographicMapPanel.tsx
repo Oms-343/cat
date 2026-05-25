@@ -23,8 +23,8 @@ export interface GeographicMapPanelProps {
 
 /**
  * Multi-level Tamil Nadu map:
- * - state: accurate district GeoJSON (tn-districts.geojson)
- * - district: LGD taluk GeoJSON per district (tn-taluks/{code}.geojson)
+ * - state: accurate district GeoJSON (src/constants/maps/tn-districts.geojson)
+ * - district: LGD taluk GeoJSON per district (src/constants/maps/tn-taluks/{code}.geojson)
  * - taluk: selected taluk boundary + pincode MSME markers
  */
 export function GeographicMapPanel({

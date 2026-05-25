@@ -1,5 +1,7 @@
 /** Tamil Nadu taluk/pincode SVG layout (from reference mockup). */
 
+import { TN_TALUK_LAYOUT_URL, TN_TALUKS_INDEX_URL } from '../../constants/maps/mapAssets'
+
 export interface LayoutPincode {
   p: string
   n: string
@@ -71,9 +73,6 @@ export const DISTRICT_CODE_TO_LAYOUT: Record<string, string> = {
   VDN: 'Virudhunagar',
 }
 
-const LAYOUT_URL = '/tn-taluk-layout.json'
-const INDEX_URL = '/tn-taluks-index.json'
-
 let cachedLayout: LayoutData | null = null
 let cachedLayoutPromise: Promise<LayoutData> | null = null
 let cachedIndex: TalukIndex | null = null
@@ -82,7 +81,7 @@ let cachedIndexPromise: Promise<TalukIndex> | null = null
 export async function loadLayoutData(): Promise<LayoutData> {
   if (cachedLayout) return cachedLayout
   if (cachedLayoutPromise) return cachedLayoutPromise
-  cachedLayoutPromise = fetch(LAYOUT_URL)
+  cachedLayoutPromise = fetch(TN_TALUK_LAYOUT_URL)
     .then((r) => {
       if (!r.ok) throw new Error(`Failed to load map layout (HTTP ${r.status})`)
       return r.json() as Promise<LayoutData>
@@ -101,7 +100,7 @@ export async function loadLayoutData(): Promise<LayoutData> {
 export async function loadTalukIndex(): Promise<TalukIndex> {
   if (cachedIndex) return cachedIndex
   if (cachedIndexPromise) return cachedIndexPromise
-  cachedIndexPromise = fetch(INDEX_URL)
+  cachedIndexPromise = fetch(TN_TALUKS_INDEX_URL)
     .then((r) => {
       if (!r.ok) throw new Error(`Failed to load taluk index (HTTP ${r.status})`)
       return r.json() as Promise<TalukIndex>

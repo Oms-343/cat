@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
+import { talukGeoJsonUrl } from "../../constants/maps/mapAssets";
 import type { MapRegion } from "./mapTypes";
 import {
   fillColorByCount,
@@ -103,7 +104,7 @@ function layoutToMarkers(
 async function loadDistrictTaluks(districtCode: string) {
   const cached = geoCache.get(districtCode);
   if (cached) return cached;
-  const data = (await fetch(`/tn-taluks/${districtCode}.geojson?v=1`).then(
+  const data = (await fetch(talukGeoJsonUrl(districtCode)).then(
     (r) => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();

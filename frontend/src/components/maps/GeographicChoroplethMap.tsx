@@ -7,6 +7,7 @@ import {
   DISTRICT_CHOROPLETH,
   districtStateFillColor,
 } from "./choroplethColors";
+import { TN_DISTRICTS_GEOJSON_URL } from "../../constants/maps/mapAssets";
 
 interface DistrictProperties {
   code: string;
@@ -36,15 +37,13 @@ export interface GeographicChoroplethMapProps {
 const VIEW_W = 800;
 const VIEW_H = 760;
 
-const GEOJSON_URL = "/tn-districts.geojson?v=2";
-
 let cachedGeo: DistrictFeatureCollection | null = null;
 let cachedPromise: Promise<DistrictFeatureCollection> | null = null;
 
 async function loadDistricts(): Promise<DistrictFeatureCollection> {
   if (cachedGeo) return cachedGeo;
   if (cachedPromise) return cachedPromise;
-  cachedPromise = fetch(GEOJSON_URL)
+  cachedPromise = fetch(TN_DISTRICTS_GEOJSON_URL)
     .then((r) => {
       if (!r.ok)
         throw new Error(

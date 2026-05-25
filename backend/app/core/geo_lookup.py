@@ -11,7 +11,12 @@ from app.models.company import Company
 from app.models.master import PincodeMaster, TalukMaster
 
 _INDEX_PATH = (
-    Path(__file__).resolve().parents[3] / "frontend" / "public" / "tn-taluks-index.json"
+    Path(__file__).resolve().parents[3]
+    / "frontend"
+    / "src"
+    / "constants"
+    / "maps"
+    / "tn-taluks-index.json"
 )
 
 
