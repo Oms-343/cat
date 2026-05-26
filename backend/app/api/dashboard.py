@@ -90,6 +90,7 @@ def district_taluks(
     taluks = session.exec(
         select(TalukMaster)
         .where(TalukMaster.district_code == district_code)
+        .where(TalukMaster.is_active == True)  # noqa: E712
         .order_by(TalukMaster.name)
     ).all()
     matched = _matching_companies(session, sector, turnover, tag, district=district_code)

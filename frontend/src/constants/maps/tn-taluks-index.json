@@ -1,11 +1,11 @@
 {
-  "source": "LGD / Bharatmaps sub-district boundaries (ramSeraph/indian_admin_boundaries)",
-  "vintage": "LGD current (Bharatmaps MapServer)",
-  "note": "300 revenue taluks across 38 districts. Built from LGD_Subdistricts.parquet via scripts/build-tn-taluks.py",
+  "source": "Tamil Nadu revenue taluks (official district–taluk list)",
+  "vintage": "Revenue administration (38 districts, 317 taluks)",
+  "note": "317 revenue taluks across 38 districts (official list). ~242 have LGD map polygons; run scripts/reconcile-tn-taluks-index.py and scripts/filter-taluk-geojson.py after boundary updates.",
   "districts": {
     "ARI": {
       "name": "Ariyalur",
-      "taluk_count": 5,
+      "taluk_count": 4,
       "file": "constants/maps/tn-taluks/ARI.geojson",
       "taluks": [
         {
@@ -15,10 +15,6 @@
         {
           "code": "ARI_05787",
           "name": "Ariyalur"
-        },
-        {
-          "code": "ARI_05796",
-          "name": "Mayiladuthurai"
         },
         {
           "code": "ARI_05785",
@@ -32,7 +28,7 @@
     },
     "CBE": {
       "name": "Coimbatore",
-      "taluk_count": 11,
+      "taluk_count": 10,
       "file": "constants/maps/tn-taluks/CBE.geojson",
       "taluks": [
         {
@@ -42,10 +38,6 @@
         {
           "code": "CBE_ANNUR",
           "name": "Annur"
-        },
-        {
-          "code": "CBE_AVN",
-          "name": "Avanashi"
         },
         {
           "code": "CBE_05897",
@@ -66,6 +58,10 @@
         {
           "code": "CBE_MET",
           "name": "Mettupalayam"
+        },
+        {
+          "code": "CBE_PERUR",
+          "name": "Perur"
         },
         {
           "code": "CBE_POL",
@@ -142,8 +138,8 @@
           "name": "Cheyyur"
         },
         {
-          "code": "CGL_05710",
-          "name": "Maduranthakam"
+          "code": "CGL_MADURAMDAGAM",
+          "name": "Maduramdagam"
         },
         {
           "code": "CGL_PALLAVARAM",
@@ -154,20 +150,28 @@
           "name": "Tambaram"
         },
         {
+          "code": "CGL_THIRUPORUR",
+          "name": "Thiruporur"
+        },
+        {
           "code": "CGL_05709",
           "name": "Tirukalukundram"
         },
         {
-          "code": "CGL_TIRUPORUR",
-          "name": "Tiruporur"
+          "code": "CGL_VANDALUR",
+          "name": "Vandalur"
         }
       ]
     },
     "CHN": {
       "name": "Chennai",
-      "taluk_count": 14,
+      "taluk_count": 13,
       "file": "constants/maps/tn-taluks/CHN.geojson",
       "taluks": [
+        {
+          "code": "CHN_ALANDUR",
+          "name": "Alandur"
+        },
         {
           "code": "CHN_05700",
           "name": "Ambattur"
@@ -181,12 +185,20 @@
           "name": "Ayanavaram"
         },
         {
-          "code": "CHN_05925",
-          "name": "Chennai"
+          "code": "CHN_EGMORE",
+          "name": "Egmore"
         },
         {
           "code": "CHN_GUINDY",
           "name": "Guindy"
+        },
+        {
+          "code": "CHN_KOLATHUR",
+          "name": "Kolathur"
+        },
+        {
+          "code": "CHN_05701",
+          "name": "Mathavaram"
         },
         {
           "code": "CHN_MADURAVOYAL",
@@ -195,10 +207,6 @@
         {
           "code": "CHN_MAMBALAM",
           "name": "Mambalam"
-        },
-        {
-          "code": "CHN_05701",
-          "name": "Mathavaram"
         },
         {
           "code": "CHN_MYLAPORE",
@@ -211,6 +219,10 @@
         {
           "code": "CHN_PURASAWALKAM",
           "name": "Purasawalkam"
+        },
+        {
+          "code": "CHN_SHOZHINGANALLUR",
+          "name": "Shozhinganallur"
         },
         {
           "code": "CHN_TIRUVOTTIYUR",
@@ -228,7 +240,7 @@
     },
     "DDG": {
       "name": "Dindigul",
-      "taluk_count": 10,
+      "taluk_count": 7,
       "file": "constants/maps/tn-taluks/DDG.geojson",
       "taluks": [
         {
@@ -244,6 +256,10 @@
           "name": "DindigulWest"
         },
         {
+          "code": "DDG_GUJILIAMPARAI",
+          "name": "Gujiliamparai"
+        },
+        {
           "code": "DDG_05766",
           "name": "Kodaikanal"
         },
@@ -252,20 +268,16 @@
           "name": "Natham"
         },
         {
-          "code": "DDG_05767",
-          "name": "Nilakkottai"
+          "code": "DDG_NILAKOTTAI",
+          "name": "Nilakottai"
         },
         {
-          "code": "DDG_05761",
-          "name": "Oddanchatram"
+          "code": "DDG_ODDENCHATRAM",
+          "name": "Oddenchatram"
         },
         {
           "code": "DDG_05760",
           "name": "Palani"
-        },
-        {
-          "code": "DDG_05838",
-          "name": "Usilampatti"
         },
         {
           "code": "DDG_05762",
@@ -275,7 +287,7 @@
     },
     "DHR": {
       "name": "Dharmapuri",
-      "taluk_count": 7,
+      "taluk_count": 5,
       "file": "constants/maps/tn-taluks/DHR.geojson",
       "taluks": [
         {
@@ -295,12 +307,12 @@
           "name": "Nallampalli"
         },
         {
-          "code": "DHR_05885",
-          "name": "Palakkodu"
+          "code": "DHR_PALACODE",
+          "name": "Palacode"
         },
         {
-          "code": "DHR_05887",
-          "name": "Pappireddipatti"
+          "code": "DHR_PAPPIREDDIPATTY",
+          "name": "Pappireddipatty"
         },
         {
           "code": "DHR_05889",
@@ -310,7 +322,7 @@
     },
     "ERD": {
       "name": "Erode",
-      "taluk_count": 10,
+      "taluk_count": 9,
       "file": "constants/maps/tn-taluks/ERD.geojson",
       "taluks": [
         {
@@ -326,8 +338,8 @@
           "name": "Erode"
         },
         {
-          "code": "ERD_05751",
-          "name": "Gobichettipalayam"
+          "code": "ERD_GOBICHETTIPALAYM",
+          "name": "Gobichettipalaym"
         },
         {
           "code": "ERD_KODUMUDI",
@@ -357,32 +369,20 @@
     },
     "KAN": {
       "name": "Kancheepuram",
-      "taluk_count": 8,
+      "taluk_count": 4,
       "file": "constants/maps/tn-taluks/KAN.geojson",
       "taluks": [
-        {
-          "code": "KAN_05704",
-          "name": "Alandur"
-        },
         {
           "code": "KAN_05707",
           "name": "Kancheepuram"
         },
         {
-          "code": "KAN_05699",
-          "name": "Poonamallee"
-        },
-        {
-          "code": "KAN_05705",
-          "name": "Sholinganallur"
+          "code": "KAN_KUNDRATHUR",
+          "name": "Kundrathur"
         },
         {
           "code": "KAN_05702",
           "name": "Sriperumbudur"
-        },
-        {
-          "code": "KAN_05698",
-          "name": "Thiruvallur"
         },
         {
           "code": "KAN_05708",
@@ -396,12 +396,12 @@
     },
     "KAR": {
       "name": "Karur",
-      "taluk_count": 6,
+      "taluk_count": 5,
       "file": "constants/maps/tn-taluks/KAR.geojson",
       "taluks": [
         {
-          "code": "KAR_05768",
-          "name": "Aravakurichi"
+          "code": "KAR_ARVAKURICHI",
+          "name": "Arvakurichi"
         },
         {
           "code": "KAR_05772",
@@ -422,12 +422,16 @@
         {
           "code": "KAR_MANMANGALAM",
           "name": "Manmangalam"
+        },
+        {
+          "code": "KAR_PUGALUR",
+          "name": "Pugalur"
         }
       ]
     },
     "KLK": {
       "name": "Kallakurichi",
-      "taluk_count": 5,
+      "taluk_count": 3,
       "file": "constants/maps/tn-taluks/KLK.geojson",
       "taluks": [
         {
@@ -435,26 +439,34 @@
           "name": "Chinnasalem"
         },
         {
-          "code": "KLK_05734",
-          "name": "Kallakkurichi"
+          "code": "KLK_KALLAKURICHI",
+          "name": "Kallakurichi"
+        },
+        {
+          "code": "KLK_KALVARAYANHILLS",
+          "name": "Kalvarayan Hills"
         },
         {
           "code": "KLK_05733",
           "name": "Sankarapuram"
         },
         {
-          "code": "KLK_05732",
-          "name": "Tirukkoyilur"
+          "code": "KLK_TIRUKKOILUR",
+          "name": "Tirukkoilur"
         },
         {
           "code": "KLK_05735",
           "name": "Ulundurpettai"
+        },
+        {
+          "code": "KLK_VANAPURAM",
+          "name": "Vanapuram"
         }
       ]
     },
     "KNY": {
       "name": "Kanyakumari",
-      "taluk_count": 4,
+      "taluk_count": 3,
       "file": "constants/maps/tn-taluks/KNY.geojson",
       "taluks": [
         {
@@ -466,12 +478,20 @@
           "name": "Kalkulam"
         },
         {
+          "code": "KNY_KILLIYOOR",
+          "name": "Killiyoor"
+        },
+        {
+          "code": "KNY_THIRUVATTAR",
+          "name": "Thiruvattar"
+        },
+        {
           "code": "KNY_05883",
           "name": "Thovala"
         },
         {
-          "code": "KNY_05881",
-          "name": "Vilavancode"
+          "code": "KNY_VILAVAMCODE",
+          "name": "Vilavamcode"
         }
       ]
     },
@@ -480,6 +500,10 @@
       "taluk_count": 7,
       "file": "constants/maps/tn-taluks/KRI.geojson",
       "taluks": [
+        {
+          "code": "KRI_ANCHETTY",
+          "name": "Anchetty"
+        },
         {
           "code": "KRI_BARGUR",
           "name": "Bargur"
@@ -512,7 +536,7 @@
     },
     "MDU": {
       "name": "Madurai",
-      "taluk_count": 11,
+      "taluk_count": 10,
       "file": "constants/maps/tn-taluks/MDU.geojson",
       "taluks": [
         {
@@ -524,16 +548,16 @@
           "name": "MADURAI EAST"
         },
         {
-          "code": "MDU_MADURAI_WEST",
-          "name": "MADURAI WEST"
-        },
-        {
           "code": "MDU_05836",
           "name": "Madurai North"
         },
         {
           "code": "MDU_05841",
           "name": "Madurai South"
+        },
+        {
+          "code": "MDU_MADURAI_WEST",
+          "name": "MADURAI WEST"
         },
         {
           "code": "MDU_05835",
@@ -548,8 +572,8 @@
           "name": "THIRUPPARANKUNDRAM"
         },
         {
-          "code": "MDU_05840",
-          "name": "Thirumangalam"
+          "code": "MDU_TIRUMANGALAM",
+          "name": "Tirumangalam"
         },
         {
           "code": "MDU_05838",
@@ -563,7 +587,7 @@
     },
     "MYL": {
       "name": "Mayiladuthurai",
-      "taluk_count": 4,
+      "taluk_count": 3,
       "file": "constants/maps/tn-taluks/MYL.geojson",
       "taluks": [
         {
@@ -575,8 +599,8 @@
           "name": "Mayiladuthurai"
         },
         {
-          "code": "MYL_05795",
-          "name": "Sirkali"
+          "code": "MYL_SIRKAZHI",
+          "name": "Sirkazhi"
         },
         {
           "code": "MYL_05798",
@@ -609,7 +633,7 @@
     },
     "NLG": {
       "name": "Nilgiris",
-      "taluk_count": 6,
+      "taluk_count": 4,
       "file": "constants/maps/tn-taluks/NLG.geojson",
       "taluks": [
         {
@@ -629,18 +653,18 @@
           "name": "Kundah"
         },
         {
-          "code": "NLG_05754",
-          "name": "Panthalur"
+          "code": "NLG_PANDALUR",
+          "name": "Pandalur"
         },
         {
-          "code": "NLG_05756",
-          "name": "Udhagamandalam"
+          "code": "NLG_UDHAGAI",
+          "name": "Udhagai"
         }
       ]
     },
     "NMK": {
       "name": "Namakkal",
-      "taluk_count": 8,
+      "taluk_count": 7,
       "file": "constants/maps/tn-taluks/NMK.geojson",
       "taluks": [
         {
@@ -672,14 +696,14 @@
           "name": "SENDAMANGALAM"
         },
         {
-          "code": "NMK_05745",
-          "name": "Tiruchengode"
+          "code": "NMK_THIRUCHENCODE",
+          "name": "Thiruchencode"
         }
       ]
     },
     "PDK": {
       "name": "Pudukkottai",
-      "taluk_count": 12,
+      "taluk_count": 9,
       "file": "constants/maps/tn-taluks/PDK.geojson",
       "taluks": [
         {
@@ -691,16 +715,16 @@
           "name": "Aranthangi"
         },
         {
-          "code": "PDK_05828",
-          "name": "Avudayarkoil"
+          "code": "PDK_AVUDAIYARKOIL",
+          "name": "Avudaiyarkoil"
         },
         {
-          "code": "PDK_05820",
-          "name": "Gandarvakkottai"
+          "code": "PDK_GANDARVAKOTTAI",
+          "name": "Gandarvakottai"
         },
         {
-          "code": "PDK_05818",
-          "name": "Iluppur"
+          "code": "PDK_ILLUPUR",
+          "name": "Illupur"
         },
         {
           "code": "PDK_05825",
@@ -757,13 +781,9 @@
     },
     "RMD": {
       "name": "Ramanathapuram",
-      "taluk_count": 8,
+      "taluk_count": 6,
       "file": "constants/maps/tn-taluks/RMD.geojson",
       "taluks": [
-        {
-          "code": "RMD_KILAKARAI",
-          "name": "KILAKARAI"
-        },
         {
           "code": "RMD_05859",
           "name": "Kadaladi"
@@ -771,6 +791,10 @@
         {
           "code": "RMD_05858",
           "name": "Kamuthi"
+        },
+        {
+          "code": "RMD_KILAKARAI",
+          "name": "KILAKARAI"
         },
         {
           "code": "RMD_05857",
@@ -781,45 +805,57 @@
           "name": "Paramakudi"
         },
         {
+          "code": "RMD_RAJASINGAMANGALAM",
+          "name": "Rajasingamangalam"
+        },
+        {
           "code": "RMD_05860",
           "name": "Ramanathapuram"
         },
         {
-          "code": "RMD_05861",
-          "name": "Rameswaram"
+          "code": "RMD_RAMESHWARAM",
+          "name": "Rameshwaram"
         },
         {
-          "code": "RMD_05855",
-          "name": "Tiruvadanai"
+          "code": "RMD_THIRUVADANI",
+          "name": "Thiruvadani"
         }
       ]
     },
     "RNP": {
       "name": "Ranipet",
-      "taluk_count": 4,
+      "taluk_count": 2,
       "file": "constants/maps/tn-taluks/RNP.geojson",
       "taluks": [
         {
-          "code": "RNP_05715",
-          "name": "Arakonam"
+          "code": "RNP_ARAKKONAM",
+          "name": "Arakkonam"
         },
         {
           "code": "RNP_05716",
           "name": "Arcot"
         },
         {
+          "code": "RNP_KALAVAI",
+          "name": "Kalavai"
+        },
+        {
           "code": "RNP_NEMILI",
           "name": "Nemili"
         },
         {
-          "code": "RNP_05714",
-          "name": "Wallajah"
+          "code": "RNP_SHOLINGHUR",
+          "name": "Sholinghur"
+        },
+        {
+          "code": "RNP_WALAJAPET",
+          "name": "Walajapet"
         }
       ]
     },
     "SLM": {
       "name": "Salem",
-      "taluk_count": 13,
+      "taluk_count": 10,
       "file": "constants/maps/tn-taluks/SLM.geojson",
       "taluks": [
         {
@@ -827,8 +863,8 @@
           "name": "Attur"
         },
         {
-          "code": "SLM_05738",
-          "name": "Edappadi"
+          "code": "SLM_EDAPPADY",
+          "name": "Edappady"
         },
         {
           "code": "SLM_05744",
@@ -847,8 +883,8 @@
           "name": "Omalur"
         },
         {
-          "code": "SLM_PETHANAICKAN",
-          "name": "Pethanaickanpalayam"
+          "code": "SLM_PETHANAICKENPALAYAM",
+          "name": "Pethanaickenpalayam"
         },
         {
           "code": "SLM_05740",
@@ -867,8 +903,12 @@
           "name": "Sankari"
         },
         {
-          "code": "SLM_05742",
-          "name": "Vazhapadi"
+          "code": "SLM_THALAIVASAL",
+          "name": "Thalaivasal"
+        },
+        {
+          "code": "SLM_VALAPADY",
+          "name": "Valapady"
         },
         {
           "code": "SLM_05741",
@@ -878,7 +918,7 @@
     },
     "SVG": {
       "name": "Sivaganga",
-      "taluk_count": 9,
+      "taluk_count": 5,
       "file": "constants/maps/tn-taluks/SVG.geojson",
       "taluks": [
         {
@@ -886,16 +926,16 @@
           "name": "Devakottai"
         },
         {
-          "code": "SVG_05834",
-          "name": "Ilayangudi"
+          "code": "SVG_ILAYANKUDI",
+          "name": "Ilayankudi"
         },
         {
-          "code": "SVG_KALAIYARKOIL",
-          "name": "Kalaiyarkoil"
+          "code": "SVG_KALAIYARKOVIL",
+          "name": "Kalaiyarkovil"
         },
         {
-          "code": "SVG_05830",
-          "name": "Karaikkudi"
+          "code": "SVG_KARAIKUDI",
+          "name": "Karaikudi"
         },
         {
           "code": "SVG_05833",
@@ -910,8 +950,8 @@
           "name": "Sivaganga"
         },
         {
-          "code": "SVG_05829",
-          "name": "Thiruppathur"
+          "code": "SVG_THIRUPPATTUR",
+          "name": "Thiruppattur"
         },
         {
           "code": "SVG_THIRUPPUVANA",
@@ -921,16 +961,16 @@
     },
     "THI": {
       "name": "Theni",
-      "taluk_count": 5,
+      "taluk_count": 3,
       "file": "constants/maps/tn-taluks/THI.geojson",
       "taluks": [
         {
-          "code": "THI_05846",
-          "name": "Andipatti"
+          "code": "THI_AUNDIPATTI",
+          "name": "Aundipatti"
         },
         {
-          "code": "THI_05842",
-          "name": "Bodinayakanur"
+          "code": "THI_BODINAYAKKANUR",
+          "name": "Bodinayakkanur"
         },
         {
           "code": "THI_05843",
@@ -948,9 +988,13 @@
     },
     "THV": {
       "name": "Thoothukkudi",
-      "taluk_count": 9,
+      "taluk_count": 6,
       "file": "constants/maps/tn-taluks/THV.geojson",
       "taluks": [
+        {
+          "code": "THV_ERAL",
+          "name": "Eral"
+        },
         {
           "code": "THV_05863",
           "name": "Ettayapuram"
@@ -968,16 +1012,16 @@
           "name": "Ottapidaram"
         },
         {
-          "code": "THV_05869",
-          "name": "Sathankulam"
+          "code": "THV_SATTANKULAM",
+          "name": "Sattankulam"
         },
         {
-          "code": "THV_05867",
-          "name": "Srivaikuntam"
+          "code": "THV_SRIVAIKUNDAM",
+          "name": "Srivaikundam"
         },
         {
-          "code": "THV_05866",
-          "name": "Thoothukkudi"
+          "code": "THV_THOOTHUKUDI",
+          "name": "Thoothukudi"
         },
         {
           "code": "THV_05868",
@@ -991,9 +1035,13 @@
     },
     "TJV": {
       "name": "Thanjavur",
-      "taluk_count": 9,
+      "taluk_count": 7,
       "file": "constants/maps/tn-taluks/TJV.geojson",
       "taluks": [
+        {
+          "code": "TJV_BUDALUR",
+          "name": "Budalur"
+        },
         {
           "code": "TJV_05811",
           "name": "Kumbakonam"
@@ -1007,8 +1055,8 @@
           "name": "Papanasam"
         },
         {
-          "code": "TJV_05816",
-          "name": "Pattukkottai"
+          "code": "TJV_PATTUKKOTAI",
+          "name": "Pattukkotai"
         },
         {
           "code": "TJV_05817",
@@ -1019,22 +1067,22 @@
           "name": "Thanjavur"
         },
         {
-          "code": "TJV_05809",
-          "name": "Thiruthuraipoondi"
-        },
-        {
           "code": "TJV_05813",
           "name": "Thiruvaiyaru"
         },
         {
           "code": "TJV_05810",
           "name": "Thiruvidaimarudur"
+        },
+        {
+          "code": "TJV_THIRUVONAM",
+          "name": "Thiruvonam"
         }
       ]
     },
     "TKS": {
       "name": "Tenkasi",
-      "taluk_count": 8,
+      "taluk_count": 6,
       "file": "constants/maps/tn-taluks/TKS.geojson",
       "taluks": [
         {
@@ -1062,18 +1110,18 @@
           "name": "Tenkasi"
         },
         {
-          "code": "TKS_TIRUVENGADAM",
-          "name": "Tiruvengadam"
+          "code": "TKS_THIRUVENGADAM",
+          "name": "Thiruvengadam"
         },
         {
-          "code": "TKS_05872",
-          "name": "Veerakeralamputhur"
+          "code": "TKS_VEERAKERALAMPUDUR",
+          "name": "Veerakeralampudur"
         }
       ]
     },
     "TPT": {
       "name": "Tirupathur",
-      "taluk_count": 4,
+      "taluk_count": 3,
       "file": "constants/maps/tn-taluks/TPT.geojson",
       "taluks": [
         {
@@ -1081,8 +1129,8 @@
           "name": "Ambur"
         },
         {
-          "code": "TPT_NATRAMPALLI",
-          "name": "Natrampalli"
+          "code": "TPT_NATARAMPALLI",
+          "name": "Natarampalli"
         },
         {
           "code": "TPT_05720",
@@ -1096,20 +1144,12 @@
     },
     "TRI": {
       "name": "Tiruchirappalli",
-      "taluk_count": 12,
+      "taluk_count": 10,
       "file": "constants/maps/tn-taluks/TRI.geojson",
       "taluks": [
         {
-          "code": "TRI_KOLLI_HILLS",
-          "name": "KOLLI HILLS"
-        },
-        {
           "code": "TRI_05777",
           "name": "Lalgudi"
-        },
-        {
-          "code": "TRI_MARUNGAPURI",
-          "name": "MARUNGAPURI"
         },
         {
           "code": "TRI_05776",
@@ -1118,6 +1158,10 @@
         {
           "code": "TRI_05781",
           "name": "Manapparai"
+        },
+        {
+          "code": "TRI_MARUNGAPURI",
+          "name": "MARUNGAPURI"
         },
         {
           "code": "TRI_05774",
@@ -1132,8 +1176,8 @@
           "name": "Thiruverumbur"
         },
         {
-          "code": "TRI_05773",
-          "name": "Thottiyam"
+          "code": "TRI_THOTTIAM",
+          "name": "Thottiam"
         },
         {
           "code": "TRI_05775",
@@ -1175,12 +1219,12 @@
           "name": "Palladam"
         },
         {
-          "code": "TRP_05904",
-          "name": "TIRUPPAR SOUTH"
+          "code": "TRP_TIRUPPURNORT",
+          "name": "Tiruppur North"
         },
         {
-          "code": "TRP_TIRUPPURNORT",
-          "name": "TiruppurNorth"
+          "code": "TRP_05904",
+          "name": "Tiruppur South"
         },
         {
           "code": "TRP_05906",
@@ -1208,6 +1252,10 @@
         {
           "code": "TVA_05808",
           "name": "Mannargudi"
+        },
+        {
+          "code": "TVA_MUTHUPETTAI",
+          "name": "Muthupettai"
         },
         {
           "code": "TVA_05805",
@@ -1261,6 +1309,10 @@
           "name": "Radhapuram"
         },
         {
+          "code": "TVL_THISAYANVILAI",
+          "name": "Thisayanvilai"
+        },
+        {
           "code": "TVL_05876",
           "name": "Tirunelveli"
         }
@@ -1268,7 +1320,7 @@
     },
     "TVM": {
       "name": "Tiruvannamalai",
-      "taluk_count": 12,
+      "taluk_count": 11,
       "file": "constants/maps/tn-taluks/TVM.geojson",
       "taluks": [
         {
@@ -1304,8 +1356,8 @@
           "name": "Polur"
         },
         {
-          "code": "TVM_05726",
-          "name": "THANDRAMPET"
+          "code": "TVM_THANDARAMPATTU",
+          "name": "Thandarampattu"
         },
         {
           "code": "TVM_05727",
@@ -1323,7 +1375,7 @@
     },
     "TVR": {
       "name": "Thiruvallur",
-      "taluk_count": 8,
+      "taluk_count": 5,
       "file": "constants/maps/tn-taluks/TVR.geojson",
       "taluks": [
         {
@@ -1335,8 +1387,8 @@
           "name": "Gummidipoondi"
         },
         {
-          "code": "TVR_05697",
-          "name": "Pallipattu"
+          "code": "TVR_PALLIPET",
+          "name": "Pallipet"
         },
         {
           "code": "TVR_05694",
@@ -1347,22 +1399,26 @@
           "name": "Poonamallee"
         },
         {
-          "code": "TVR_05698",
-          "name": "Thiruvallur"
+          "code": "TVR_RKPET",
+          "name": "R.K. PET"
         },
         {
           "code": "TVR_05696",
           "name": "Tiruttani"
         },
         {
-          "code": "TVR_05695",
-          "name": "Uthukkottai"
+          "code": "TVR_TIRUVALLUR",
+          "name": "Tiruvallur"
+        },
+        {
+          "code": "TVR_UTHUKOTTAI",
+          "name": "Uthukottai"
         }
       ]
     },
     "VDN": {
       "name": "Virudhunagar",
-      "taluk_count": 9,
+      "taluk_count": 6,
       "file": "constants/maps/tn-taluks/VDN.geojson",
       "taluks": [
         {
@@ -1370,12 +1426,12 @@
           "name": "Aruppukkottai"
         },
         {
-          "code": "VDN_05851",
-          "name": "Kariapatti"
+          "code": "VDN_KARIYAPATTI",
+          "name": "Kariyapatti"
         },
         {
-          "code": "VDN_05847",
-          "name": "Rajapalayam"
+          "code": "VDN_RAJAPALAIAM",
+          "name": "Rajapalaiam"
         },
         {
           "code": "VDN_05854",
@@ -1394,18 +1450,22 @@
           "name": "Tiruchuli"
         },
         {
-          "code": "VDN_VEMBAKOTTAI",
-          "name": "VEMBAKOTTAI"
+          "code": "VDN_VEMBAKKOTTAI",
+          "name": "Vembakkottai"
         },
         {
           "code": "VDN_05850",
           "name": "Virudhunagar"
+        },
+        {
+          "code": "VDN_WATRAP",
+          "name": "Watrap"
         }
       ]
     },
     "VLP": {
       "name": "Viluppuram",
-      "taluk_count": 8,
+      "taluk_count": 5,
       "file": "constants/maps/tn-taluks/VLP.geojson",
       "taluks": [
         {
@@ -1413,16 +1473,20 @@
           "name": "Gingee"
         },
         {
-          "code": "VLP_KANDACHIPURA",
-          "name": "Kandachipuram"
+          "code": "VLP_KANDACHEEPURAM",
+          "name": "Kandacheepuram"
         },
         {
-          "code": "VLP_MARAKANAM",
-          "name": "MARAKANAM"
+          "code": "VLP_MARAKKANAM",
+          "name": "Marakkanam"
         },
         {
-          "code": "VLP_MELMALAIYANU",
-          "name": "Melmalaiyanur"
+          "code": "VLP_MELMALAIYANOOR",
+          "name": "Melmalaiyanoor"
+        },
+        {
+          "code": "VLP_THIRUVENNAINALLUR",
+          "name": "Thiruvennainallur"
         },
         {
           "code": "VLP_05729",
@@ -1460,6 +1524,10 @@
           "name": "Katpadi"
         },
         {
+          "code": "VLR_KVKUPPAM",
+          "name": "K.V. Kuppam"
+        },
+        {
           "code": "VLR_PERNAMBUT",
           "name": "Pernambut"
         },
@@ -1470,6 +1538,5 @@
       ]
     }
   },
-  "cache_version": 2,
-  "built_at": "2026-05-25"
+  "cache_version": 2
 }

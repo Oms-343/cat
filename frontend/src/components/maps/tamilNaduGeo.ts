@@ -51,12 +51,9 @@ export const TN_DISTRICT_GEO: Record<string, LatLng> = {
 
 /** Coimbatore taluk codes (walkthrough demo). */
 export const CBE_TALUK_GEO: Record<string, LatLng> = {
-  CBE_AVN: { lat: 11.193, lng: 77.268 },
   CBE_CBE: { lat: 11.0168, lng: 76.9558 },
   CBE_MET: { lat: 11.3, lng: 76.935 },
   CBE_POL: { lat: 10.657, lng: 77.008 },
-  CBE_TIR: { lat: 11.108, lng: 77.341 },
-  CBE_UDU: { lat: 10.583, lng: 77.25 },
 }
 
 export function getDistrictGeo(code: string): LatLng | null {

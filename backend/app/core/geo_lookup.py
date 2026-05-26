@@ -25,29 +25,62 @@ def load_taluk_index() -> dict:
 
 
 def sync_taluk_master(session: Session) -> int:
-    """Upsert all revenue taluks from tn-taluks-index.json into TalukMaster."""
+    """Sync TalukMaster from tn-taluks-index.json (create, update, deactivate stale)."""
     index = load_taluk_index()
+    official_codes: set[str] = set()
     created = 0
+    updated = 0
     sort = 0
+
     for district_code, district in index["districts"].items():
         for taluk in district["taluks"]:
+            code = taluk["code"]
+            official_codes.add(code)
             existing = session.exec(
-                select(TalukMaster).where(TalukMaster.code == taluk["code"])
+                select(TalukMaster).where(TalukMaster.code == code)
             ).first()
             if existing:
-                continue
-            session.add(
-                TalukMaster(
-                    code=taluk["code"],
-                    name=taluk["name"],
-                    district_code=district_code,
-                    is_active=True,
-                    sort_order=sort,
+                changed = False
+                if existing.name != taluk["name"]:
+                    existing.name = taluk["name"]
+                    changed = True
+                if existing.district_code != district_code:
+                    existing.district_code = district_code
+                    changed = True
+                if not existing.is_active:
+                    existing.is_active = True
+                    changed = True
+                if existing.sort_order != sort:
+                    existing.sort_order = sort
+                    changed = True
+                if changed:
+                    session.add(existing)
+                    updated += 1
+            else:
+                session.add(
+                    TalukMaster(
+                        code=code,
+                        name=taluk["name"],
+                        district_code=district_code,
+                        is_active=True,
+                        sort_order=sort,
+                    )
                 )
-            )
-            created += 1
+                created += 1
             sort += 1
-    if created:
+
+    stale = session.exec(
+        select(TalukMaster).where(TalukMaster.is_active == True)  # noqa: E712
+    ).all()
+    deactivated = 0
+    for row in stale:
+        if row.code in official_codes:
+            continue
+        row.is_active = False
+        session.add(row)
+        deactivated += 1
+
+    if created or updated or deactivated:
         session.commit()
     return created
 
