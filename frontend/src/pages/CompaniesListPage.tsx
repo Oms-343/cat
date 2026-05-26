@@ -6,6 +6,7 @@ import { ApiError } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import type { CompanyListResponse } from '../types/company'
 import type { MasterEntry } from '../types/master'
+import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 
 interface MasterMap {
   districts: MasterEntry[]
@@ -173,7 +174,7 @@ export function CompaniesListPage() {
       {canBulk && selected.size > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-2 text-sm bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
           <span>{selected.size} selected</span>
-          {['Defence', 'Forging', 'Export'].map((t) => (
+          {SUGGESTED_COMPANY_TAGS.map((t) => (
             <button
               key={t}
               type="button"
@@ -250,7 +251,7 @@ export function CompaniesListPage() {
 
         <div className="flex items-center gap-2 mt-3">
           <span className="text-xs text-slate-500">Tag:</span>
-          {['Defence', 'Aerospace', 'EV', 'Forging', 'Export'].map((t) => (
+          {SUGGESTED_COMPANY_TAGS.map((t) => (
             <button
               key={t}
               onClick={() => {

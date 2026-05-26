@@ -17,6 +17,9 @@ from app.models.company_subitem import (
 )
 from app.models.master import MASTERS
 from app.models.user import User, UserRole
+from app.models.outreach_contact import OutreachContact
+from app.data.outreach_seed import OUTREACH_CONTACTS
+from app.core.phone import normalize_phone
 
 DUMMY_USERS = [
     {
@@ -369,6 +372,33 @@ def seed_subitems() -> None:
         session.commit()
 
 
+def seed_outreach_contacts() -> None:
+    with Session(engine) as session:
+        added = 0
+        for name, phone, district_code, sector_code, email in OUTREACH_CONTACTS:
+            normalized = normalize_phone(phone)
+            if not normalized:
+                continue
+            existing = session.exec(
+                select(OutreachContact).where(OutreachContact.phone == normalized)
+            ).first()
+            if existing:
+                continue
+            session.add(
+                OutreachContact(
+                    name=name,
+                    phone=normalized,
+                    district_code=district_code,
+                    sector_code=sector_code,
+                    email=email,
+                    source="seed",
+                )
+            )
+            added += 1
+        session.commit()
+        print(f"Outreach contacts: +{added}")
+
+
 def main() -> None:
     init_db()
     seed_users()
@@ -376,6 +406,7 @@ def main() -> None:
     seed_taluks_pincodes_hsn()
     seed_companies()
     seed_subitems()
+    seed_outreach_contacts()
 
 
 if __name__ == "__main__":

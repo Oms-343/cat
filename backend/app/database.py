@@ -59,6 +59,11 @@ def migrate_db() -> None:
     _sqlite_add_column_if_missing("companies", "taluk_code", "VARCHAR")
     _sqlite_add_column_if_missing("master_pincodes", "district_code", "VARCHAR")
     _sqlite_add_column_if_missing("master_pincodes", "taluk_code", "VARCHAR")
+    _sqlite_add_column_if_missing("onboarding_campaign_messages", "responded_at", "DATETIME")
+    _sqlite_add_column_if_missing("onboarding_campaign_messages", "updated_at", "DATETIME")
+    _sqlite_add_column_if_missing("onboarding_campaign_messages", "recipient_name", "VARCHAR")
+    _sqlite_add_column_if_missing("onboarding_campaign_messages", "outreach_contact_id", "INTEGER")
+    _sqlite_add_column_if_missing("onboarding_campaigns", "language_code", "VARCHAR")
     _remove_retired_districts()
     _sync_district_master()
     _sync_geo_masters()
@@ -109,6 +114,8 @@ def init_db() -> None:
     from app.models import report as _report  # noqa: F401
     from app.models import company_subitem as _company_subitem  # noqa: F401
     from app.models import edit_request as _edit_request  # noqa: F401
+    from app.models import onboarding_campaign as _onboarding_campaign  # noqa: F401
+    from app.models import outreach_contact as _outreach_contact  # noqa: F401
     SQLModel.metadata.create_all(engine)
     migrate_db()
 

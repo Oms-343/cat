@@ -20,6 +20,7 @@ import {
 import { CompanyLocationMap } from '../components/maps/CompanyLocationMap'
 import type { Company, LockedFields } from '../types/company'
 import type { MasterEntry } from '../types/master'
+import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 
 const SECTION_LABELS: { key: string; label: string }[] = [
   { key: 'basic_details', label: 'Basic Details' },
@@ -30,8 +31,6 @@ const SECTION_LABELS: { key: string; label: string }[] = [
   { key: 'machinery', label: 'Machinery / Services' },
   { key: 'tags', label: 'Tags' },
 ]
-
-const SUGGESTED_TAGS = ['Defence', 'Aerospace', 'EV', 'Forging', 'Export', 'GreenTech']
 
 export function CompanyProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -377,7 +376,7 @@ export function CompanyProfilePage() {
                 </div>
                 <div className="flex flex-wrap gap-1">
                   <span className="text-xs text-slate-500">Suggested:</span>
-                  {SUGGESTED_TAGS.filter((t) => !(editedTags ?? []).includes(t)).map((t) => (
+                  {SUGGESTED_COMPANY_TAGS.filter((t) => !(editedTags ?? []).includes(t)).map((t) => (
                     <button
                       key={t}
                       type="button"

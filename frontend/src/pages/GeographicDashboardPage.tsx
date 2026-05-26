@@ -21,8 +21,7 @@ import {
   loadLayoutData,
   loadTalukIndex,
 } from '../components/maps/tnLayoutMap'
-
-const SUGGESTED_TAGS = ['Defence', 'Aerospace', 'EV', 'Forging', 'Export']
+import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 
 type DrillItem = { code: string; name: string; count: number; subtitle?: string }
 
@@ -452,7 +451,7 @@ function FiltersPanel({
         </select>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-slate-500">Tag:</span>
-          {SUGGESTED_TAGS.map((t) => (
+          {SUGGESTED_COMPANY_TAGS.map((t) => (
             <button
               key={t}
               type="button"

@@ -11,6 +11,8 @@ from app.api import edit_requests as edit_requests_router
 from app.api import reports as reports_router
 from app.api import uploads as uploads_router
 from app.api import users as users_router
+from app.api import onboarding_drives as onboarding_drives_router
+from app.api import whatsapp_webhook as whatsapp_webhook_router
 from app.config import get_settings
 from app.database import init_db
 
@@ -49,3 +51,5 @@ app.include_router(uploads_router.router)
 app.include_router(dashboard_router.router)
 app.include_router(audit_router.router)
 app.include_router(reports_router.router)
+app.include_router(onboarding_drives_router.router)
+app.include_router(whatsapp_webhook_router.router)
