@@ -45,3 +45,39 @@ def profile_completion_pct(c: Company, session) -> int:
     if not sc:
         return 0
     return round(sum(1 for v in sc.values() if v) * 100 / len(sc))
+
+
+def tab1_complete(c: Company) -> bool:
+    """Basic details + registration sections filled (enrollment Tab 1)."""
+    def filled(fields: list[str]) -> bool:
+        return all(getattr(c, f) not in (None, "", 0) for f in fields)
+
+    return filled(SECTION_1_FIELDS) and filled(SECTION_2_FIELDS)
+
+
+def tab1_missing_fields(c: Company) -> list[str]:
+    """Human-readable list of missing Tab 1 fields."""
+    missing: list[str] = []
+    labels = {
+        "name": "Company name",
+        "address_line1": "Address",
+        "city": "City",
+        "district_code": "District",
+        "pincode": "Pincode",
+        "sector_code": "Sector",
+        "contact_name": "Contact name",
+        "contact_email": "Contact email",
+        "contact_phone": "Contact phone",
+        "workforce_count": "Workforce count",
+        "turnover_range_code": "Turnover range",
+        "business_activity": "Business activity",
+        "gst_number": "GSTIN",
+        "cin": "CIN",
+        "udyam_number": "Udyam number",
+        "pan": "PAN",
+    }
+    for field in SECTION_1_FIELDS + SECTION_2_FIELDS:
+        val = getattr(c, field)
+        if val in (None, "", 0):
+            missing.append(labels.get(field, field))
+    return missing

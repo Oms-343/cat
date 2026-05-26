@@ -18,8 +18,18 @@ export interface OnboardingConfig {
   unregistered_audience_available: boolean;
   outreach_contacts_count: number;
   webhook_url: string;
+  enroll_public_url: string;
   webhook_verify_token_set: boolean;
   webhook_signature_verification: boolean;
+}
+
+export interface CampaignFunnel {
+  sent: number;
+  opened: number;
+  onboarded: number;
+  partial: number;
+  complete: number;
+  total: number;
 }
 
 export interface ContactsImportResult {
@@ -152,6 +162,25 @@ export function simulateCampaignWebhook(
     {
       method: "POST",
       body: JSON.stringify({ step }),
+    },
+  );
+}
+
+export function getCampaignFunnel(campaignId: number): Promise<CampaignFunnel> {
+  return api<CampaignFunnel>(
+    `/api/onboarding-drives/campaigns/${campaignId}/funnel`,
+  );
+}
+
+export function remindCampaign(
+  campaignId: number,
+  cohort: "not_onboarded" | "partial",
+): Promise<{ invites_created: number; queued: number }> {
+  return api<{ invites_created: number; queued: number }>(
+    `/api/onboarding-drives/campaigns/${campaignId}/remind`,
+    {
+      method: "POST",
+      body: JSON.stringify({ cohort }),
     },
   );
 }

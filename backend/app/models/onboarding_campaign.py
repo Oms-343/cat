@@ -56,6 +56,7 @@ class OnboardingCampaignMessage(SQLModel, table=True):
     campaign_id: int = Field(foreign_key="onboarding_campaigns.id", index=True)
     company_id: int | None = Field(default=None, foreign_key="companies.id")
     outreach_contact_id: int | None = Field(default=None, foreign_key="outreach_contacts.id")
+    enrollment_invite_id: int | None = Field(default=None, foreign_key="enrollment_invites.id")
     phone: str = Field(index=True)
     recipient_name: str = Field(default="MSME")
     status: MessageStatus = Field(default=MessageStatus.PENDING)

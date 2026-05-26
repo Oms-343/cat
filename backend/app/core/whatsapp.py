@@ -32,11 +32,12 @@ def _build_template_payload(
     language_code: str,
     recipient_name: str,
     company_name: str,
+    registration_url: str | None = None,
 ) -> dict:
     params = resolve_template_params(
         template_name,
         recipient_name=recipient_name,
-        registration_url=settings.platform_registration_url,
+        registration_url=registration_url or settings.platform_registration_url,
     )
     components = []
     if params:
@@ -61,6 +62,7 @@ def send_template_message(
     language_code: str = "en",
     recipient_name: str = "MSME",
     company_name: str | None = None,
+    registration_url: str | None = None,
 ) -> SendResult:
     if effective_dry_run(settings):
         return SendResult(success=True, message_id=None)
@@ -75,6 +77,7 @@ def send_template_message(
         language_code=language_code,
         recipient_name=recipient_name,
         company_name=company_name or recipient_name,
+        registration_url=registration_url,
     )
     payload = {
         "messaging_product": "whatsapp",

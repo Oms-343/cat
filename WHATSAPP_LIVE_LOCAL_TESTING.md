@@ -174,7 +174,8 @@ Edit `cat/backend/.env` (copy from `.env.example` if missing):
 ```env
 # --- existing ---
 APP_ENV=development
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:5174
+ENROLL_PUBLIC_URL=http://localhost:5174
 
 # --- WhatsApp LIVE local ---
 WHATSAPP_ACCESS_TOKEN=EAAxxxxxxxx...paste_temporary_token
@@ -201,7 +202,8 @@ WHATSAPP_SEND_DELAY_SECONDS=0.08
 | `APP_PUBLIC_URL` | Shown in UI; must match ngrok host for webhook docs |
 | `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | Must match what you type in Meta webhook setup |
 | `WHATSAPP_APP_SECRET` | Validates `X-Hub-Signature-256` on webhook POSTs |
-| `PLATFORM_REGISTRATION_URL` | Inserted as `{{link}}` in templates — use your local frontend URL for testing |
+| `ENROLL_PUBLIC_URL` | Base URL for per-recipient enrollment links (`/enroll/{token}`) in campaign WhatsApp messages |
+| `PLATFORM_REGISTRATION_URL` | Fallback link when no enrollment invite exists (legacy / non-campaign sends) |
 
 **Restart uvicorn** after changing `.env`.
 
@@ -233,7 +235,9 @@ Expected response body: `test123`
 
 ---
 
-## 7. Start the frontend
+## 7. Start the frontends
+
+**Admin (TIDCO):**
 
 ```powershell
 cd cat\frontend
@@ -241,6 +245,16 @@ npm run dev
 ```
 
 Open http://localhost:5173 → log in as admin → **Onboarding Drives**.
+
+**Enrollment (MSME public signup):**
+
+```powershell
+cd cat\enroll
+npm install
+npm run dev
+```
+
+Runs at http://localhost:5174. WhatsApp campaign links open `/enroll/{token}` on this app. Set `ENROLL_PUBLIC_URL` to your ngrok URL for the enroll app when testing on a phone (e.g. `https://xxxx.ngrok-free.app` with enroll app tunneled on port 5174).
 
 You should see:
 

@@ -2,10 +2,12 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Up
 
 from app.config import get_settings
 from app.core.onboarding_audience import resolve_audience
+from app.core.enrollment import funnel_for_campaign
 from app.core.onboarding_campaigns import (
     launch_campaign,
     list_campaigns,
     process_campaign_sends,
+    remind_campaign_cohort,
 )
 from app.core.outreach_contacts import (
     count_active_contacts,
@@ -18,6 +20,7 @@ from app.data.whatsapp_templates import WHATSAPP_TEMPLATES, TEMPLATE_BY_ID
 from app.deps import SessionDep, require_roles
 from app.models.onboarding_campaign import OnboardingCampaign
 from app.models.user import User, UserRole
+from app.schemas.enrollment import CampaignFunnelOut, CampaignRemindIn, CampaignRemindOut
 from app.schemas.onboarding_drive import (
     AudienceEstimateIn,
     AudienceEstimateOut,
@@ -69,6 +72,7 @@ def get_config(session: SessionDep) -> OnboardingConfigOut:
         unregistered_audience_available=outreach_count > 0,
         outreach_contacts_count=outreach_count,
         webhook_url=settings.whatsapp_webhook_url,
+        enroll_public_url=settings.enroll_public_url,
         webhook_verify_token_set=bool(settings.whatsapp_webhook_verify_token),
         webhook_signature_verification=bool(settings.whatsapp_app_secret),
     )
@@ -250,3 +254,40 @@ def simulate_webhook_updates(
         updated=updated,
         campaign=_campaign_to_out(campaign, dry_run=effective_dry_run(settings)),
     )
+
+
+@router.get("/campaigns/{campaign_id}/funnel", response_model=CampaignFunnelOut)
+def get_campaign_funnel(session: SessionDep, campaign_id: int) -> CampaignFunnelOut:
+    campaign = session.get(OnboardingCampaign, campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="campaign not found")
+    stats = funnel_for_campaign(session, campaign_id)
+    return CampaignFunnelOut(**stats)
+
+
+@router.post("/campaigns/{campaign_id}/remind", response_model=CampaignRemindOut)
+def remind_campaign(
+    session: SessionDep,
+    campaign_id: int,
+    body: CampaignRemindIn,
+    background_tasks: BackgroundTasks,
+    actor: User = Depends(require_roles(UserRole.ADMIN)),
+) -> CampaignRemindOut:
+    if body.cohort not in ("not_onboarded", "partial"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="cohort must be not_onboarded or partial",
+        )
+    try:
+        created, queued = remind_campaign_cohort(
+            session,
+            actor,
+            campaign_id,
+            cohort=body.cohort,
+            message_ids=body.message_ids,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    if queued:
+        background_tasks.add_task(process_campaign_sends, campaign_id)
+    return CampaignRemindOut(invites_created=created, queued=queued)

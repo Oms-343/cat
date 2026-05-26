@@ -10,7 +10,10 @@ import {
   listCampaigns,
   listWhatsAppTemplates,
   simulateCampaignWebhook,
+  getCampaignFunnel,
+  remindCampaign,
   type Campaign,
+  type CampaignFunnel,
   type OnboardingConfig,
   type AudienceSource,
   type RegistrationFilter,
@@ -68,6 +71,11 @@ export function OnboardingDrivesPage() {
   const [estimateWarning, setEstimateWarning] = useState<string | null>(null);
   const [estimateLoading, setEstimateLoading] = useState(false);
   const [simulatingId, setSimulatingId] = useState<number | null>(null);
+  const [funnelById, setFunnelById] = useState<Record<number, CampaignFunnel>>(
+    {},
+  );
+  const [funnelLoadingId, setFunnelLoadingId] = useState<number | null>(null);
+  const [remindingId, setRemindingId] = useState<number | null>(null);
 
   const refreshCampaigns = useCallback(async () => {
     const campRes = await listCampaigns();
@@ -227,6 +235,41 @@ export function OnboardingDrivesPage() {
     }
   }
 
+  async function handleLoadFunnel(campaignId: number) {
+    setFunnelLoadingId(campaignId);
+    setError(null);
+    try {
+      const funnel = await getCampaignFunnel(campaignId);
+      setFunnelById((prev) => ({ ...prev, [campaignId]: funnel }));
+    } catch (err) {
+      if (err instanceof ApiError) setError(`${err.status}: ${err.detail}`);
+      else setError(String(err));
+    } finally {
+      setFunnelLoadingId(null);
+    }
+  }
+
+  async function handleRemind(
+    campaignId: number,
+    cohort: "not_onboarded" | "partial",
+  ) {
+    setRemindingId(campaignId);
+    setError(null);
+    try {
+      const res = await remindCampaign(campaignId, cohort);
+      setLaunchMessage(
+        `Reminder queued: ${res.invites_created} new enrollment link(s).`,
+      );
+      await refreshCampaigns();
+      await handleLoadFunnel(campaignId);
+    } catch (err) {
+      if (err instanceof ApiError) setError(`${err.status}: ${err.detail}`);
+      else setError(String(err));
+    } finally {
+      setRemindingId(null);
+    }
+  }
+
   async function handleWizardImport(file: File) {
     setImporting(true);
     setImportWizardMessage(null);
@@ -352,6 +395,14 @@ export function OnboardingDrivesPage() {
               ? " · Signature verification enabled (WHATSAPP_APP_SECRET set)"
               : " · Set WHATSAPP_APP_SECRET to verify X-Hub-Signature-256"}
           </p>
+          {config.enroll_public_url ? (
+            <p className="text-xs text-slate-600">
+              <strong>Enrollment app URL</strong> (links in WhatsApp messages):{" "}
+              <code className="bg-white border border-slate-200 rounded px-1">
+                {config.enroll_public_url}
+              </code>
+            </p>
+          ) : null}
           {hasRunningCampaigns && (
             <p className="text-xs text-blue-700">
               Refreshing campaign stats every 4 seconds…
@@ -434,6 +485,9 @@ export function OnboardingDrivesPage() {
                 {campaigns.map((c) => {
                   const rate = responseRate(c);
                   const busy = simulatingId === c.id;
+                  const funnel = funnelById[c.id];
+                  const funnelBusy = funnelLoadingId === c.id;
+                  const remindBusy = remindingId === c.id;
                   return (
                     <tr
                       key={c.id}
@@ -511,7 +565,45 @@ export function OnboardingDrivesPage() {
                             </button>
                           </div>
                         ) : (
-                          <span className="text-xs text-slate-400">—</span>
+                          <div className="flex flex-col gap-1">
+                            <button
+                              type="button"
+                              disabled={funnelBusy || c.sent === 0}
+                              onClick={() => handleLoadFunnel(c.id)}
+                              className="text-xs text-teal-700 hover:underline disabled:opacity-50 text-left"
+                            >
+                              {funnelBusy
+                                ? "Loading funnel…"
+                                : "Enrollment funnel"}
+                            </button>
+                            {funnel ? (
+                              <>
+                                <p className="text-[10px] text-slate-500 leading-snug">
+                                  Sent {funnel.sent} → Opened {funnel.opened} →
+                                  Onboarded {funnel.onboarded} → Partial{" "}
+                                  {funnel.partial} → Complete {funnel.complete}
+                                </p>
+                                <button
+                                  type="button"
+                                  disabled={remindBusy}
+                                  onClick={() =>
+                                    handleRemind(c.id, "not_onboarded")
+                                  }
+                                  className="text-xs text-amber-700 hover:underline disabled:opacity-50 text-left"
+                                >
+                                  Remind not onboarded
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={remindBusy}
+                                  onClick={() => handleRemind(c.id, "partial")}
+                                  className="text-xs text-slate-600 hover:underline disabled:opacity-50 text-left"
+                                >
+                                  Remind partial profiles
+                                </button>
+                              </>
+                            ) : null}
+                          </div>
                         )}
                       </td>
                     </tr>

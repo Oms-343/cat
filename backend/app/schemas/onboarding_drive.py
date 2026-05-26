@@ -24,6 +24,7 @@ class OnboardingConfigOut(BaseModel):
     unregistered_audience_available: bool = False
     outreach_contacts_count: int = 0
     webhook_url: str
+    enroll_public_url: str = ""
     webhook_verify_token_set: bool = True
     webhook_signature_verification: bool = False
 

@@ -15,5 +15,6 @@ class OutreachContact(SQLModel, table=True):
     sector_code: str | None = Field(default=None, index=True)
     source: str = Field(default="import")
     is_active: bool = Field(default=True, index=True)
+    converted_company_id: int | None = Field(default=None, foreign_key="companies.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

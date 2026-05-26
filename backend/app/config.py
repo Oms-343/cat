@@ -9,7 +9,9 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-secret-change-me"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440
-    cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    cors_origins: str = "http://localhost:5173,http://localhost:3000,http://localhost:5174"
+    enroll_public_url: str = "http://localhost:5174"
+    enrollment_invite_ttl_days: int = 30
     # Dev/demo auth — fixed OTP shown in API responses (no email provider).
     dummy_otp_code: str = "1234"
     dummy_otp_expire_minutes: int = 15
@@ -43,7 +45,11 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        origins = [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        enroll = self.enroll_public_url.rstrip("/")
+        if enroll and enroll not in origins:
+            origins.append(enroll)
+        return origins
 
 
 @lru_cache

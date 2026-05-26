@@ -9,8 +9,12 @@ from sqlmodel import Session, select
 
 from app.config import Settings, get_settings
 from app.core import audit
+from app.core.company_completion import profile_completion_pct, tab1_complete
+from app.core.enrollment import create_invite_for_message, enroll_link
 from app.core.onboarding_audience import AudienceRecipient, resolve_audience
 from app.core.whatsapp import effective_dry_run, send_template_message
+from app.models.company import Company
+from app.models.enrollment_invite import EnrollmentInvite, InviteKind, InviteStatus
 from app.data.whatsapp_templates import TEMPLATE_BY_ID
 from app.database import engine
 from app.models.onboarding_campaign import (
@@ -74,15 +78,22 @@ def create_campaign(
     session.flush()
 
     for recipient in audience.recipients:
-        session.add(
-            OnboardingCampaignMessage(
-                campaign_id=campaign.id,  # type: ignore[arg-type]
-                company_id=recipient.company_id,
-                outreach_contact_id=recipient.outreach_contact_id,
-                phone=recipient.phone,
-                recipient_name=recipient.name,
-                status=MessageStatus.PENDING,
-            )
+        msg = OnboardingCampaignMessage(
+            campaign_id=campaign.id,  # type: ignore[arg-type]
+            company_id=recipient.company_id,
+            outreach_contact_id=recipient.outreach_contact_id,
+            phone=recipient.phone,
+            recipient_name=recipient.name,
+            status=MessageStatus.PENDING,
+        )
+        session.add(msg)
+        session.flush()
+        create_invite_for_message(
+            session,
+            message=msg,
+            kind=InviteKind.INITIAL,
+            company_id=recipient.company_id,
+            outreach_contact_id=recipient.outreach_contact_id,
         )
 
     audit.record(
@@ -129,6 +140,13 @@ def process_campaign_sends(campaign_id: int) -> None:
         failed = 0
 
         for row in pending:
+            registration_url = settings.platform_registration_url
+            if row.enrollment_invite_id:
+                from app.models.enrollment_invite import EnrollmentInvite
+
+                inv = session.get(EnrollmentInvite, row.enrollment_invite_id)
+                if inv:
+                    registration_url = enroll_link(settings, inv.token)
             result = send_template_message(
                 settings,
                 to_phone=row.phone,
@@ -136,6 +154,7 @@ def process_campaign_sends(campaign_id: int) -> None:
                 language_code=campaign.language_code,
                 recipient_name=row.recipient_name,
                 company_name=row.recipient_name,
+                registration_url=registration_url,
             )
             if result.success:
                 row.status = MessageStatus.SENT
@@ -210,3 +229,108 @@ def list_campaigns(session: Session) -> list[OnboardingCampaign]:
             select(OnboardingCampaign).order_by(OnboardingCampaign.created_at.desc())  # type: ignore[union-attr]
         ).all()
     )
+
+
+def _revoke_active_invites_for_message(session: Session, message_id: int) -> None:
+    rows = session.exec(
+        select(EnrollmentInvite)
+        .where(EnrollmentInvite.campaign_message_id == message_id)
+        .where(EnrollmentInvite.status == InviteStatus.ACTIVE)
+    ).all()
+    for inv in rows:
+        inv.status = InviteStatus.REVOKED
+        session.add(inv)
+
+
+def remind_campaign_cohort(
+    session: Session,
+    actor: User,
+    campaign_id: int,
+    *,
+    cohort: str,
+    message_ids: list[int] | None = None,
+) -> tuple[int, int]:
+    """Create new enrollment invites and re-queue WhatsApp sends."""
+    campaign = session.get(OnboardingCampaign, campaign_id)
+    if not campaign:
+        raise ValueError("campaign not found")
+
+    stmt = select(OnboardingCampaignMessage).where(
+        OnboardingCampaignMessage.campaign_id == campaign_id
+    )
+    if message_ids:
+        stmt = stmt.where(OnboardingCampaignMessage.id.in_(message_ids))
+    messages = session.exec(stmt).all()
+
+    kind = (
+        InviteKind.REMINDER_PARTIAL
+        if cohort == "partial"
+        else InviteKind.REMINDER_NOT_ONBOARDED
+    )
+    created = 0
+    queued = 0
+
+    for msg in messages:
+        include = False
+        invite = None
+        if msg.enrollment_invite_id:
+            invite = session.get(EnrollmentInvite, msg.enrollment_invite_id)
+        if not invite:
+            invite = session.exec(
+                select(EnrollmentInvite)
+                .where(EnrollmentInvite.campaign_message_id == msg.id)
+                .order_by(EnrollmentInvite.created_at.desc())  # type: ignore[union-attr]
+            ).first()
+
+        company_id = msg.company_id or (invite.created_company_id if invite else None)
+        tab1_done = False
+        if company_id:
+            co = session.get(Company, company_id)
+            if co:
+                tab1_done = tab1_complete(co)
+
+        if cohort == "not_onboarded":
+            include = not tab1_done
+        elif cohort == "partial":
+            if company_id:
+                company = session.get(Company, company_id)
+                if (
+                    company
+                    and tab1_complete(company)
+                    and profile_completion_pct(company, session) < 100
+                ):
+                    include = True
+        else:
+            raise ValueError("cohort must be not_onboarded or partial")
+
+        if not include:
+            continue
+
+        _revoke_active_invites_for_message(session, msg.id)  # type: ignore[arg-type]
+        new_invite = create_invite_for_message(
+            session,
+            message=msg,
+            kind=kind,
+            company_id=company_id,
+            outreach_contact_id=msg.outreach_contact_id,
+            email=invite.email if invite else None,
+        )
+        msg.status = MessageStatus.PENDING
+        msg.enrollment_invite_id = new_invite.id
+        msg.updated_at = datetime.now(timezone.utc)
+        session.add(msg)
+        created += 1
+        queued += 1
+
+    if created:
+        audit.record(
+            session,
+            actor,
+            "enrollment.reminder_sent",
+            resource_type="onboarding_campaign",
+            resource_id=campaign_id,
+            resource_name=campaign.name,
+            details={"cohort": cohort, "invites_created": created},
+        )
+    session.commit()
+    return created, queued
