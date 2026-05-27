@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   getDistrictsOverview,
@@ -28,8 +28,14 @@ import {
   loadTalukIndex,
 } from "../components/maps/tnLayoutMap";
 import { SUGGESTED_COMPANY_TAGS } from "../constants/companyTags";
+import { DashboardStatCard } from "../components/dashboard/DashboardStatCard";
 import { Alert, PageShell, Select } from "../components/ui";
 import { cn } from "../utils/cn";
+import { Factory, MapPin, Scale } from "lucide-react";
+
+/** Matches backend `UNASSIGNED_TALUK_CODE` — MSMEs in district with no taluk/pincode. */
+const UNASSIGNED_TALUK_CODE = "_UNASSIGNED";
+const NO_PINCODE_LABEL = "—";
 
 type DrillItem = {
   code: string;
@@ -123,8 +129,22 @@ export function GeographicDashboardPage() {
     setLoading(true);
     setError(null);
     if (district && taluk && pincode) {
-      listCompanies({ district, pincode, ...filters, limit: 200 })
-        .then((res) => setCompanies(res.items))
+      const noPincode = pincode === NO_PINCODE_LABEL;
+      listCompanies({
+        district,
+        ...(noPincode ? {} : { pincode }),
+        ...filters,
+        limit: 200,
+      })
+        .then((res) => {
+          let items = res.items;
+          if (taluk === UNASSIGNED_TALUK_CODE) {
+            items = items.filter((c) => !c.taluk_code && !c.pincode);
+          } else if (noPincode) {
+            items = items.filter((c) => !c.pincode);
+          }
+          setCompanies(items);
+        })
         .catch((err) =>
           setError(err instanceof ApiError ? err.detail : String(err)),
         )
@@ -184,7 +204,10 @@ export function GeographicDashboardPage() {
     masters?.districts.find((d) => d.code === district)?.name ??
     district;
 
-  const talukName = pincodes?.taluk_name ?? layoutTalukName ?? taluk;
+  const talukName =
+    taluk === UNASSIGNED_TALUK_CODE
+      ? "Unassigned"
+      : pincodes?.taluk_name ?? layoutTalukName ?? taluk;
 
   let level: "state" | "district" | "taluk" | "pincode" = "state";
   if (district && taluk && pincode) level = "pincode";
@@ -229,6 +252,15 @@ export function GeographicDashboardPage() {
     [listItems],
   );
 
+  const topRegionInsight = useMemo(() => {
+    if (!overview?.items.length) return null;
+    const top = [...overview.items].sort(
+      (a, b) => b.company_count - a.company_count,
+    )[0];
+    if (!top || top.company_count === 0) return null;
+    return top;
+  }, [overview]);
+
   function onSelectItem(item: DrillItem) {
     if (level === "state")
       updateParams({ district: item.code, taluk: null, pincode: null });
@@ -237,10 +269,24 @@ export function GeographicDashboardPage() {
     else if (level === "taluk") updateParams({ pincode: item.code });
   }
 
+  const regionsPanelTitle =
+    level === "state"
+      ? "District Analytics"
+      : level === "district"
+        ? "Taluk Analytics"
+        : "Pincode Analytics";
+
+  const regionsNameColumn =
+    level === "state"
+      ? "District Name"
+      : level === "district"
+        ? "Taluk Name"
+        : "Pincode";
+
   return (
-    <PageShell className="!py-4">
+    <PageShell className="!py-5">
       <GeographicMapBreadcrumbs
-        className="mb-2"
+        className="mb-1"
         level={level}
         district={district || undefined}
         districtName={districtName}
@@ -250,11 +296,11 @@ export function GeographicDashboardPage() {
         onNavigate={updateParams}
       />
 
-      <header className="mb-3">
-        <h1 className="text-xl font-semibold tracking-tight text-ink">
+      <header className="mb-5">
+        <h1 className="text-2xl font-bold tracking-tight text-ink">
           Geographic Dashboard
         </h1>
-        <p className="text-sm text-muted mt-0.5">
+        <p className="text-sm text-muted mt-1">
           {level === "state" &&
             "All districts — click to drill into taluks and pincodes."}
           {level === "district" && `Taluks in ${districtName}.`}
@@ -263,28 +309,46 @@ export function GeographicDashboardPage() {
         </p>
       </header>
 
-      <FiltersPanel
-        sector={sector}
-        turnover={turnover}
-        tag={tag}
-        masters={masters}
-        onUpdate={updateParams}
-      />
-
-      {overview && level === "state" && !loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-          <Stat
-            label="Total MSMEs"
-            value={overview.total_companies.toLocaleString()}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-5">
+        <FiltersPanel
+          className="xl:col-span-7"
+          sector={sector}
+          turnover={turnover}
+          tag={tag}
+          masters={masters}
+          onUpdate={updateParams}
+        />
+        <div className="xl:col-span-5 flex flex-col gap-3 min-w-0">
+          <TagFiltersPanel
+            tag={tag}
+            sector={sector}
+            turnover={turnover}
+            onUpdate={updateParams}
           />
-          <Stat
-            label="Districts active"
-            value={`${overview.total_districts_with_msmes} of 38`}
-          />
+          {overview && level === "state" && !loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <DashboardStatCard
+                label="Total MSMEs"
+                value={overview.total_companies.toLocaleString()}
+                icon={Factory}
+                detail={
+                  topRegionInsight
+                    ? `Led by ${topRegionInsight.name} (${topRegionInsight.company_count.toLocaleString()})`
+                    : "No MSMEs in the current filter"
+                }
+              />
+              <DashboardStatCard
+                label="Districts active"
+                value={`${overview.total_districts_with_msmes} of 38`}
+                icon={MapPin}
+                detail={`${Math.round((overview.total_districts_with_msmes / 38) * 100)}% of Tamil Nadu districts have MSMEs`}
+              />
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {loading && <p className="text-sm text-muted mb-2">Loading…</p>}
+      {loading && <p className="text-sm text-muted mb-3">Loading…</p>}
       {error && (
         <Alert variant="error" className="mb-3">
           {error}
@@ -293,8 +357,8 @@ export function GeographicDashboardPage() {
 
       {level === "pincode" && companies && !loading && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[420px]">
-          <div className="lg:col-span-1 border border-hairline rounded-lg overflow-hidden">
-            <div className="px-4 py-3 border-b border-hairline bg-surface-card/80 text-xs font-semibold uppercase tracking-wide text-muted">
+          <div className="lg:col-span-1 bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden">
+            <div className="px-4 py-3.5 border-b border-hairline text-sm font-semibold text-ink">
               Companies
             </div>
             <div className="max-h-[480px] overflow-y-auto">
@@ -323,9 +387,13 @@ export function GeographicDashboardPage() {
       {level !== "pincode" &&
         !loading &&
         (listItems.length > 0 || district) && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
             <RegionsListPanel
               className="lg:col-span-1"
+              title={regionsPanelTitle}
+              nameColumnLabel={regionsNameColumn}
+              level={level}
+              maxRegionCount={maxRegionCount}
               items={listItems.map((item) => ({
                 ...item,
                 dotColor: regionListDotColor(level, item.count, maxRegionCount),
@@ -336,7 +404,7 @@ export function GeographicDashboardPage() {
               emptyMessage="No regions in the list yet — use the map to explore taluks and pincodes."
             />
 
-            <div className="lg:col-span-2 border border-hairline rounded-lg p-4 min-h-[420px]">
+            <div className="lg:col-span-2 bg-canvas border border-hairline rounded-xl shadow-sm p-5 min-h-[420px]">
               <GeographicMapPanel
                 title={
                   level === "state"
@@ -380,12 +448,47 @@ export function GeographicDashboardPage() {
   );
 }
 
+function FilterSelect({
+  icon: Icon,
+  value,
+  onChange,
+  children,
+}: {
+  icon: typeof Factory;
+  value: string;
+  onChange: (value: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="relative min-w-0">
+      <Icon
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none z-10"
+        strokeWidth={1.75}
+        aria-hidden
+      />
+      <Select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="pl-10 pr-9 bg-canvas appearance-none cursor-pointer"
+      >
+        {children}
+      </Select>
+      <span
+        className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted text-xs"
+        aria-hidden
+      >
+        ▾
+      </span>
+    </div>
+  );
+}
+
 function FiltersPanel({
   sector,
   turnover,
-  tag,
   masters,
   onUpdate,
+  className,
 }: {
   sector: string;
   turnover: string;
@@ -396,52 +499,91 @@ function FiltersPanel({
     turnoverRanges: MasterEntry[];
   } | null;
   onUpdate: (u: Record<string, string | null>) => void;
+  className?: string;
 }) {
   return (
-    <div className="mb-3 p-4 rounded-lg">
-      <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 min-w-0">
-          <Select
-            value={sector}
-            onChange={(e) => onUpdate({ sector: e.target.value || null })}
-          >
-            <option value="">All sectors</option>
-            {masters?.sectors.map((s) => (
-              <option key={s.code} value={s.code}>
-                {s.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            value={turnover}
-            onChange={(e) => onUpdate({ turnover: e.target.value || null })}
-          >
-            <option value="">All turnover ranges</option>
-            {masters?.turnoverRanges.map((t) => (
-              <option key={t.code} value={t.code}>
-                {t.name}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div className="flex items-center gap-1.5 flex-wrap lg:shrink-0">
-          <span className="text-xs text-muted shrink-0">Tag:</span>
-          {SUGGESTED_COMPANY_TAGS.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => onUpdate({ tag: tag === t ? null : t })}
-              className={cn(
-                "text-xs px-2 py-1 rounded-md border font-medium transition-colors",
-                tag === t
-                  ? "bg-primary text-on-primary border-primary"
-                  : "bg-transparent text-body border-hairline hover:bg-surface-card",
-              )}
-            >
-              {t}
-            </button>
+    <div
+      className={cn(
+        "bg-canvas border border-hairline rounded-xl shadow-sm p-4 sm:p-5",
+        className,
+      )}
+    >
+      <p className="text-xs font-medium text-muted mb-3">Refined by:</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <FilterSelect
+          icon={Factory}
+          value={sector}
+          onChange={(v) => onUpdate({ sector: v || null })}
+        >
+          <option value="">All sectors</option>
+          {masters?.sectors.map((s) => (
+            <option key={s.code} value={s.code}>
+              {s.name}
+            </option>
           ))}
-        </div>
+        </FilterSelect>
+        <FilterSelect
+          icon={Scale}
+          value={turnover}
+          onChange={(v) => onUpdate({ turnover: v || null })}
+        >
+          <option value="">All turnover ranges</option>
+          {masters?.turnoverRanges.map((t) => (
+            <option key={t.code} value={t.code}>
+              {t.name}
+            </option>
+          ))}
+        </FilterSelect>
+      </div>
+    </div>
+  );
+}
+
+function TagFiltersPanel({
+  tag,
+  sector,
+  turnover,
+  onUpdate,
+}: {
+  tag: string;
+  sector: string;
+  turnover: string;
+  onUpdate: (u: Record<string, string | null>) => void;
+}) {
+  const hasFilters = Boolean(tag || sector || turnover);
+
+  return (
+    <div className="bg-canvas border border-hairline rounded-xl shadow-sm px-4 py-3.5 sm:px-5">
+      <div className="flex items-center justify-between gap-2 mb-2.5">
+        <p className="text-xs font-semibold text-ink">Refine by Tag</p>
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() =>
+              onUpdate({ tag: null, sector: null, turnover: null })
+            }
+            className="text-xs text-brand-accent hover:underline font-medium shrink-0"
+          >
+            clear filters
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {SUGGESTED_COMPANY_TAGS.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => onUpdate({ tag: tag === t ? null : t })}
+            className={cn(
+              "text-xs px-3 py-1.5 rounded-full font-medium transition-colors",
+              tag === t
+                ? "bg-brand-accent text-white shadow-sm"
+                : "bg-brand-accent/10 text-brand-accent hover:bg-brand-accent/15",
+            )}
+          >
+            {t}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -500,15 +642,3 @@ function CompaniesTable({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border border-hairline rounded-lg px-3 py-2">
-      <p className="text-[10px] font-medium uppercase tracking-wide text-muted">
-        {label}
-      </p>
-      <p className="text-lg font-semibold text-ink leading-tight mt-0.5">
-        {value}
-      </p>
-    </div>
-  );
-}

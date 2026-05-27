@@ -4,6 +4,7 @@ import type { Feature, FeatureCollection, Geometry } from "geojson";
 import type { GeoDrillLevel } from "./geoTypes";
 import type { MapRegion } from "./mapTypes";
 import { talukGeoJsonUrl } from "../../constants/maps/mapAssets";
+import { DISTRICT_CHOROPLETH } from "./choroplethColors";
 import { fillColorByCount } from "./tnLayoutMap";
 import {
   formatTalukMapSubtitle,
@@ -41,8 +42,7 @@ export interface TalukChoroplethMapProps {
 const VIEW_W = 800;
 const VIEW_H = 760;
 
-const COLOR_NONE = "#fbcfe8";
-const COLOR_SELECTED = "#22c55e";
+const COLOR_SELECTED = DISTRICT_CHOROPLETH.selected;
 
 const geoCache = new Map<string, TalukFeatureCollection>();
 const geoPromises = new Map<string, Promise<TalukFeatureCollection>>();
@@ -75,15 +75,12 @@ async function loadDistrictTaluks(
 }
 
 function fillForRegion(args: {
-  level: Extract<GeoDrillLevel, "district" | "taluk">;
   count: number;
   isSelected: boolean;
-  hasRegion: boolean;
 }): string {
-  const { level, count, isSelected, hasRegion } = args;
+  const { count, isSelected } = args;
   if (isSelected) return COLOR_SELECTED;
-  if (level === "taluk") return COLOR_NONE;
-  if (!hasRegion || count === 0) return COLOR_NONE;
+  if (count === 0) return DISTRICT_CHOROPLETH.inactive;
   return fillColorByCount(count);
 }
 
@@ -221,12 +218,7 @@ export function TalukChoroplethMap({
             const isSelected = level === "taluk" && t.code === talukCode;
             const isHovered = hoveredCode === t.code;
 
-            const fill = fillForRegion({
-              level,
-              count,
-              isSelected,
-              hasRegion: Boolean(region),
-            });
+            const fill = fillForRegion({ count, isSelected });
 
             const stroke = isHovered || isSelected ? "#0f172a" : "#ffffff";
             const strokeWidth = isHovered || isSelected ? 2.5 : 1.2;

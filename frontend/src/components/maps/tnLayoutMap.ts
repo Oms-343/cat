@@ -210,6 +210,7 @@ export function findLayoutTaluk(
 }
 
 export function fillColorByCount(count: number): string {
+  if (count === 0) return '#e5e7eb'
   if (count >= 1000) return '#dc2626'
   if (count >= 500) return '#fbcfe8'
   if (count >= 100) return '#22c55e'
