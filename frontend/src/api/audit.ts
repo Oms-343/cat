@@ -17,8 +17,8 @@ export function listAudit(filters: AuditFilters = {}): Promise<AuditLogList> {
   return api<AuditLogList>(`/api/audit-log${toQuery(filters)}`)
 }
 
-/** Download the CSV — uses fetch directly because we want the Blob, not JSON. */
-export async function exportAuditCsv(filters: Omit<AuditFilters, 'limit' | 'offset'> = {}): Promise<void> {
+/** Download Excel — uses fetch directly because we want the Blob, not JSON. */
+export async function exportAuditExcel(filters: Omit<AuditFilters, 'limit' | 'offset'> = {}): Promise<void> {
   const token = getToken()
   const res = await fetch(`/api/audit-log/export${toQuery(filters)}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -30,7 +30,7 @@ export async function exportAuditCsv(filters: Omit<AuditFilters, 'limit' | 'offs
   const blob = await res.blob()
   const filename =
     res.headers.get('content-disposition')?.match(/filename="?([^"]+)"?/)?.[1] ??
-    `audit-log-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`
+    `audit-log-${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`
 
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')

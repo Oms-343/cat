@@ -1,77 +1,66 @@
-import { useEffect, useState } from 'react'
-import { exportAuditCsv, listAudit } from '../api/audit'
-import { ApiError } from '../api/client'
-import { ACTION_TYPES, RESOURCE_TYPES } from '../types/audit'
-import type { AuditLogEntry, AuditLogList } from '../types/audit'
+import { useEffect, useState } from "react";
+import { exportAuditExcel, listAudit } from "../api/audit";
+import { ApiError } from "../api/client";
+import { ACTION_TYPES, RESOURCE_TYPES } from "../types/audit";
+import type { AuditLogList } from "../types/audit";
+import {
+  Alert,
+  Button,
+  Card,
+  Input,
+  PageHeader,
+  PageShell,
+  Select,
+} from "../components/ui";
+import { formatAuditDetails } from "../utils/formatAuditDetails";
+import { cn } from "../utils/cn";
 
-const PAGE_SIZE = 25
+const PAGE_SIZE = 25;
 
 const roleStyles: Record<string, string> = {
-  super: 'bg-purple-100 text-purple-800 border-purple-200',
-  admin: 'bg-blue-100 text-blue-800 border-blue-200',
-  msme: 'bg-green-100 text-green-800 border-green-200',
-}
+  super: "bg-purple-100 text-purple-800 border-purple-200",
+  admin: "bg-blue-100 text-blue-800 border-blue-200",
+  msme: "bg-green-100 text-green-800 border-green-200",
+};
 
 const actionStyles: Record<string, string> = {
-  USER_LOGIN: 'bg-slate-100 text-slate-700 border-slate-200',
-  USER_CREATED: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  USER_UPDATED: 'bg-blue-50 text-blue-800 border-blue-200',
-  USER_DEACTIVATED: 'bg-red-50 text-red-800 border-red-200',
-  USER_PASSWORD_RESET: 'bg-amber-50 text-amber-800 border-amber-200',
-  COMPANY_CREATED: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  COMPANY_UPDATED: 'bg-blue-50 text-blue-800 border-blue-200',
-  COMPANY_TAGGED: 'bg-fuchsia-50 text-fuchsia-800 border-fuchsia-200',
-  COMPANY_DELETED: 'bg-red-50 text-red-800 border-red-200',
-  MASTER_ENTRY_CREATED: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  MASTER_ENTRY_UPDATED: 'bg-blue-50 text-blue-800 border-blue-200',
-  MASTER_ENTRY_DELETED: 'bg-red-50 text-red-800 border-red-200',
-}
+  USER_LOGIN: "bg-slate-100 text-slate-700 border-slate-200",
+  USER_CREATED: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  USER_UPDATED: "bg-blue-50 text-blue-800 border-blue-200",
+  USER_DEACTIVATED: "bg-red-50 text-red-800 border-red-200",
+  USER_PASSWORD_RESET: "bg-amber-50 text-amber-800 border-amber-200",
+  COMPANY_CREATED: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  COMPANY_UPDATED: "bg-blue-50 text-blue-800 border-blue-200",
+  COMPANY_TAGGED: "bg-fuchsia-50 text-fuchsia-800 border-fuchsia-200",
+  COMPANY_DELETED: "bg-red-50 text-red-800 border-red-200",
+  MASTER_ENTRY_CREATED: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  MASTER_ENTRY_UPDATED: "bg-blue-50 text-blue-800 border-blue-200",
+  MASTER_ENTRY_DELETED: "bg-red-50 text-red-800 border-red-200",
+};
 
-function formatDetails(entry: AuditLogEntry): string {
-  if (!entry.details || Object.keys(entry.details).length === 0) return ''
-
-  const d = entry.details as Record<string, unknown>
-  if (entry.action === 'COMPANY_TAGGED') {
-    const before = (d.tags_before as string[]) ?? []
-    const after = (d.tags_after as string[]) ?? []
-    const added = after.filter((t) => !before.includes(t))
-    const removed = before.filter((t) => !after.includes(t))
-    const parts: string[] = []
-    if (added.length) parts.push(`+${added.join(', ')}`)
-    if (removed.length) parts.push(`-${removed.join(', ')}`)
-    return parts.join(' · ') || `${after.length} tag${after.length === 1 ? '' : 's'}`
-  }
-  if (Array.isArray(d.fields_changed)) {
-    const fields = d.fields_changed as string[]
-    return `${fields.length} field${fields.length === 1 ? '' : 's'} updated: ${fields.join(', ')}`
-  }
-  if (typeof d.master_key === 'string') {
-    return `${d.master_key}${d.code ? ` · ${d.code}` : ''}`
-  }
-  if (typeof d.target_user_email === 'string') {
-    return `For user ${d.target_user_email}`
-  }
-  if (typeof d.role === 'string') {
-    return `Role: ${d.role}`
-  }
-  // Fallback — compact JSON
-  return JSON.stringify(d)
+function formatAuditTime(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 export function AuditLogPage() {
-  const [data, setData] = useState<AuditLogList | null>(null)
-  const [action, setAction] = useState('')
-  const [resourceType, setResourceType] = useState('')
-  const [userEmail, setUserEmail] = useState('')
-  const [since, setSince] = useState('')
-  const [until, setUntil] = useState('')
-  const [offset, setOffset] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [exporting, setExporting] = useState(false)
+  const [data, setData] = useState<AuditLogList | null>(null);
+  const [action, setAction] = useState("");
+  const [resourceType, setResourceType] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [since, setSince] = useState("");
+  const [until, setUntil] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     listAudit({
       action: action || undefined,
       resource_type: resourceType || undefined,
@@ -82,67 +71,67 @@ export function AuditLogPage() {
       offset,
     })
       .then(setData)
-      .catch((err) => setError(err instanceof ApiError ? err.detail : String(err)))
-      .finally(() => setLoading(false))
-  }, [action, resourceType, userEmail, since, until, offset])
+      .catch((err) =>
+        setError(err instanceof ApiError ? err.detail : String(err)),
+      )
+      .finally(() => setLoading(false));
+  }, [action, resourceType, userEmail, since, until, offset]);
 
   async function handleExport() {
-    setExporting(true)
+    setExporting(true);
     try {
-      await exportAuditCsv({
+      await exportAuditExcel({
         action: action || undefined,
         resource_type: resourceType || undefined,
         user_email: userEmail || undefined,
         since: since || undefined,
         until: until || undefined,
-      })
+      });
     } catch (err) {
-      alert(err instanceof Error ? err.message : String(err))
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
-      setExporting(false)
+      setExporting(false);
     }
   }
 
   function clearFilters() {
-    setAction('')
-    setResourceType('')
-    setUserEmail('')
-    setSince('')
-    setUntil('')
-    setOffset(0)
+    setAction("");
+    setResourceType("");
+    setUserEmail("");
+    setSince("");
+    setUntil("");
+    setOffset(0);
   }
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
-  const currentPage = Math.floor(offset / PAGE_SIZE) + 1
-  const anyFilter = action || resourceType || userEmail || since || until
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
+  const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
+  const anyFilter = action || resourceType || userEmail || since || until;
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
-      <header className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Audit Log</h1>
-          <p className="text-sm text-slate-500">
-            Every mutating action across the platform — logins, profile edits, tag changes, master updates, password resets.
-          </p>
-        </div>
-        <button
-          onClick={handleExport}
-          disabled={exporting}
-          className="text-sm border border-slate-300 px-3 py-2 rounded-md hover:bg-slate-100 disabled:opacity-50"
-        >
-          {exporting ? 'Exporting…' : 'Export CSV'}
-        </button>
-      </header>
+    <PageShell width="lg">
+      <PageHeader
+        title="Audit Log"
+        description="Every mutating action across the platform — logins, profile edits, tag changes, master updates, password resets."
+        actions={
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleExport}
+            disabled={exporting}
+          >
+            {exporting ? "Exporting…" : "Export Excel"}
+          </Button>
+        }
+      />
 
-      <div className="border border-hairline rounded-lg p-4 mb-4">
+      <Card padding="sm" className="mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-          <select
+          <Select
             value={action}
             onChange={(e) => {
-              setOffset(0)
-              setAction(e.target.value)
+              setOffset(0);
+              setAction(e.target.value);
             }}
-            className="px-3 py-2 border border-hairline rounded-md text-sm bg-transparent"
           >
             <option value="">All actions</option>
             {ACTION_TYPES.map((a) => (
@@ -150,14 +139,13 @@ export function AuditLogPage() {
                 {a}
               </option>
             ))}
-          </select>
-          <select
+          </Select>
+          <Select
             value={resourceType}
             onChange={(e) => {
-              setOffset(0)
-              setResourceType(e.target.value)
+              setOffset(0);
+              setResourceType(e.target.value);
             }}
-            className="px-3 py-2 border border-hairline rounded-md text-sm bg-transparent"
           >
             <option value="">All resource types</option>
             {RESOURCE_TYPES.map((r) => (
@@ -165,93 +153,147 @@ export function AuditLogPage() {
                 {r}
               </option>
             ))}
-          </select>
-          <input
+          </Select>
+          <Input
             type="email"
             value={userEmail}
             onChange={(e) => {
-              setOffset(0)
-              setUserEmail(e.target.value)
+              setOffset(0);
+              setUserEmail(e.target.value);
             }}
             placeholder="User email"
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <input
+          <Input
             type="datetime-local"
             value={since}
             onChange={(e) => {
-              setOffset(0)
-              setSince(e.target.value)
+              setOffset(0);
+              setSince(e.target.value);
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm"
+            aria-label="Since"
           />
-          <input
+          <Input
             type="datetime-local"
             value={until}
             onChange={(e) => {
-              setOffset(0)
-              setUntil(e.target.value)
+              setOffset(0);
+              setUntil(e.target.value);
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm"
+            aria-label="Until"
           />
         </div>
         {anyFilter && (
           <div className="mt-3">
-            <button onClick={clearFilters} className="text-xs text-slate-600 hover:text-slate-900 underline">
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-xs text-muted hover:text-ink underline"
+            >
               Clear filters
             </button>
           </div>
         )}
-      </div>
+      </Card>
 
-      <div className="bg-surface-card rounded-lg border border-hairline overflow-hidden">
-        {error && <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-200">{error}</div>}
-        {loading && <p className="p-6 text-sm text-slate-500">Loading…</p>}
+      <Card variant="elevated" padding="none" className="overflow-hidden">
+        {error && (
+          <Alert variant="error" className="rounded-none border-0 border-b">
+            {error}
+          </Alert>
+        )}
+        {loading && <p className="p-6 text-sm text-muted">Loading…</p>}
 
         {!loading && data && data.items.length === 0 && (
-          <p className="p-6 text-sm text-slate-500 text-center">No log entries match these filters.</p>
+          <p className="p-6 text-sm text-muted text-center">
+            No log entries match these filters.
+          </p>
         )}
 
         {!loading && data && data.items.length > 0 && (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-slate-500 bg-slate-50 border-b border-slate-200">
+            <thead className="text-left text-xs uppercase tracking-wide text-muted bg-surface-soft border-b border-hairline">
               <tr>
-                <th className="py-2 px-4">Time</th>
+                <th className="py-2 px-4 w-36">Time</th>
                 <th className="py-2 px-4">Action</th>
                 <th className="py-2 px-4">Resource</th>
                 <th className="py-2 px-4">Details</th>
                 <th className="py-2 px-4">Who</th>
-                <th className="py-2 px-4">Role</th>
+                <th className="py-2 px-4 w-24">Role</th>
               </tr>
             </thead>
             <tbody>
               {data.items.map((r) => (
-                <tr key={r.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 align-top">
-                  <td className="py-2 px-4 text-slate-500 whitespace-nowrap">
-                    {new Date(r.timestamp).toLocaleString()}
+                <tr
+                  key={r.id}
+                  className="border-b border-hairline-soft last:border-0 hover:bg-surface-soft"
+                >
+                  <td
+                    className="py-2 px-4 text-muted text-xs whitespace-nowrap"
+                    title={new Date(r.timestamp).toLocaleString()}
+                  >
+                    {formatAuditTime(r.timestamp)}
                   </td>
                   <td className="py-2 px-4">
                     <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded border uppercase whitespace-nowrap ${actionStyles[r.action] ?? 'bg-slate-50 text-slate-700 border-slate-200'}`}
+                      className={cn(
+                        "inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded border uppercase whitespace-nowrap",
+                        actionStyles[r.action] ??
+                          "bg-slate-50 text-slate-700 border-slate-200",
+                      )}
                     >
-                      {r.action.replace(/_/g, ' ')}
+                      {r.action.replace(/_/g, " ")}
                     </span>
                   </td>
-                  <td className="py-2 px-4 text-slate-700">
-                    <div className="font-medium">{r.resource_name ?? '—'}</div>
-                    {r.resource_type && (
-                      <div className="text-[10px] text-slate-500 uppercase">{r.resource_type}</div>
-                    )}
+                  <td className="py-2 px-4 text-body">
+                    <p
+                      className="truncate max-w-44"
+                      title={
+                        r.resource_type
+                          ? `${r.resource_name ?? "—"} · ${r.resource_type}`
+                          : (r.resource_name ?? "—")
+                      }
+                    >
+                      <span className="font-medium text-ink">
+                        {r.resource_name ?? "—"}
+                      </span>
+                      {r.resource_type && (
+                        <span className="text-muted text-xs">
+                          {" "}
+                          · {r.resource_type}
+                        </span>
+                      )}
+                    </p>
                   </td>
-                  <td className="py-2 px-4 text-slate-600 text-xs">{formatDetails(r)}</td>
-                  <td className="py-2 px-4 text-slate-700">
-                    <div className="font-medium">{r.user_name ?? '—'}</div>
-                    <div className="text-xs text-slate-500">{r.user_email ?? ''}</div>
+                  <td className="py-2 px-4 text-muted text-xs">
+                    {formatAuditDetails(r)}
+                  </td>
+                  <td className="py-2 px-4 text-body">
+                    <p
+                      className="truncate max-w-52"
+                      title={
+                        r.user_email
+                          ? `${r.user_name ?? "—"} · ${r.user_email}`
+                          : (r.user_name ?? "—")
+                      }
+                    >
+                      <span className="font-medium text-ink">
+                        {r.user_name ?? "—"}
+                      </span>
+                      {r.user_email && (
+                        <span className="text-muted text-xs">
+                          {" "}
+                          · {r.user_email}
+                        </span>
+                      )}
+                    </p>
                   </td>
                   <td className="py-2 px-4">
                     {r.user_role && (
                       <span
-                        className={`text-xs font-semibold px-2 py-0.5 rounded border uppercase ${roleStyles[r.user_role] ?? ''}`}
+                        className={cn(
+                          "text-xs font-semibold px-2 py-0.5 rounded border uppercase",
+                          roleStyles[r.user_role] ?? "",
+                        )}
                       >
                         {r.user_role}
                       </span>
@@ -264,29 +306,32 @@ export function AuditLogPage() {
         )}
 
         {!loading && data && data.total > PAGE_SIZE && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 text-sm">
-            <p className="text-slate-500">
-              Page {currentPage} of {totalPages} · {data.total.toLocaleString()} entries
+          <div className="flex items-center justify-between px-4 py-3 border-t border-hairline text-sm">
+            <p className="text-muted">
+              Page {currentPage} of {totalPages} · {data.total.toLocaleString()}{" "}
+              entries
             </p>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={offset === 0}
                 onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-                className="px-3 py-1.5 border border-slate-300 rounded-md disabled:opacity-50 hover:bg-slate-100"
               >
-                ← Prev
-              </button>
-              <button
+                Prev
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={offset + PAGE_SIZE >= data.total}
                 onClick={() => setOffset(offset + PAGE_SIZE)}
-                className="px-3 py-1.5 border border-slate-300 rounded-md disabled:opacity-50 hover:bg-slate-100"
               >
-                Next →
-              </button>
+                Next
+              </Button>
             </div>
           </div>
         )}
-      </div>
-    </div>
-  )
+      </Card>
+    </PageShell>
+  );
 }

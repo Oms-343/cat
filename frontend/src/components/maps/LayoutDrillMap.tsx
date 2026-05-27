@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { formatTalukMapSubtitle } from './GeographicMapBreadcrumbs'
 import type { GeoDrillLevel } from './geoTypes'
 import type { MapRegion } from './mapTypes'
 import {
@@ -183,7 +184,11 @@ export function LayoutDrillMap({
           <p className="text-xs text-slate-500">
             {level === 'district'
               ? 'Click any taluk to drill into pincodes.'
-              : `${districtName} · ${pincodes.length} pincodes · ${totalMsmeCount.toLocaleString()} MSMEs`}
+              : formatTalukMapSubtitle(
+                  districtName,
+                  pincodes.length,
+                  totalMsmeCount,
+                )}
           </p>
         </div>
         <button
@@ -295,7 +300,8 @@ export function LayoutDrillMap({
                       onClick={() => onSelectPincode(p.p)}
                     >
                       <title>
-                        {p.p} — {p.n} — {p.count.toLocaleString()} MSMEs
+                        {p.p}
+                        {p.n && p.n !== p.p ? ` — ${p.n}` : ''} — {p.count.toLocaleString()} MSMEs
                       </title>
                     </circle>
                     <text
@@ -313,21 +319,23 @@ export function LayoutDrillMap({
                     >
                       {p.p}
                     </text>
-                    <text
-                      x={p.x}
-                      y={p.y + r + 22}
-                      fontSize={8.5}
-                      fontWeight={500}
-                      fill="#475569"
-                      textAnchor="middle"
-                      paintOrder="stroke"
-                      stroke="#ffffff"
-                      strokeWidth={2}
-                      strokeLinejoin="round"
-                      pointerEvents="none"
-                    >
-                      {p.n.length > 18 ? `${p.n.slice(0, 17)}…` : p.n}
-                    </text>
+                    {p.n && p.n !== p.p ? (
+                      <text
+                        x={p.x}
+                        y={p.y + r + 22}
+                        fontSize={8.5}
+                        fontWeight={500}
+                        fill="#475569"
+                        textAnchor="middle"
+                        paintOrder="stroke"
+                        stroke="#ffffff"
+                        strokeWidth={2}
+                        strokeLinejoin="round"
+                        pointerEvents="none"
+                      >
+                        {p.n.length > 18 ? `${p.n.slice(0, 17)}…` : p.n}
+                      </text>
+                    ) : null}
                   </g>
                 )
               })}

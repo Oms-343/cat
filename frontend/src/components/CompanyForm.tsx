@@ -132,6 +132,8 @@ export function formToPayload(
   return payload
 }
 
+export type CompanyFormSection = 'basic_details' | 'registration'
+
 interface CompanyFormProps {
   values: CompanyFormValues
   onChange: (v: CompanyFormValues) => void
@@ -141,6 +143,8 @@ interface CompanyFormProps {
   turnoverRanges: MasterEntry[]
   lockedFields?: Set<string>
   readOnly?: boolean
+  /** Which sections to render. Defaults to both. */
+  sections?: CompanyFormSection[] | 'all'
 }
 
 function LockIcon() {
@@ -162,6 +166,7 @@ export function CompanyForm({
   turnoverRanges,
   lockedFields,
   readOnly = false,
+  sections = 'all',
 }: CompanyFormProps) {
   const [talukIndex, setTalukIndex] = useState<TalukIndex | null>(null)
 
@@ -184,8 +189,12 @@ export function CompanyForm({
   const inputCls =
     inputClassName + ' disabled:bg-surface-soft disabled:text-muted'
 
+  const showSection = (key: CompanyFormSection) =>
+    sections === 'all' || sections.includes(key)
+
   return (
     <div className="space-y-8">
+      {showSection('basic_details') && (
       <Section title="1. Basic Details">
         <Field label="Company Name" required locked={isLocked('name')}>
           <input
@@ -431,7 +440,9 @@ export function CompanyForm({
           </label>
         </Field>
       </Section>
+      )}
 
+      {showSection('registration') && (
       <Section title="2. Registration">
         <Field label="GST Number" locked={isLocked('gst_number')}>
           <input
@@ -470,6 +481,7 @@ export function CompanyForm({
           />
         </Field>
       </Section>
+      )}
     </div>
   )
 }

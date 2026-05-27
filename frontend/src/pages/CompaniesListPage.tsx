@@ -153,7 +153,6 @@ export function CompaniesListPage() {
           <>
             <Button
               type="button"
-              variant="secondary"
               size="sm"
               onClick={handleExport}
               disabled={exporting}

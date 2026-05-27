@@ -14,6 +14,11 @@ import {
   type LayoutPincode,
   type TalukIndex,
 } from "./tnLayoutMap";
+import {
+  formatTalukMapSubtitle,
+  MapDrillHeader,
+} from "./GeographicMapBreadcrumbs";
+import type { GeoDrillLevel } from "./geoTypes";
 
 interface TalukProperties {
   code: string;
@@ -29,23 +34,39 @@ const geoCache = new Map<
 >();
 
 export interface TalukPincodeMapProps {
+  level: Extract<GeoDrillLevel, "taluk">;
+  district?: string;
   districtCode: string;
   districtName: string;
+  taluk?: string;
   talukCode: string;
   talukName: string;
   regions: MapRegion[];
   hoveredCode: string | null;
   onHover: (code: string | null) => void;
   onSelectPincode: (pincode: string) => void;
+  onNavigate: (updates: Record<string, string | null>) => void;
   onBack: () => void;
 }
 
 interface PincodeMarker {
   pincode: string;
+  /** Area label when distinct from pincode; empty otherwise */
   name: string;
   count: number;
   x: number;
   y: number;
+}
+
+function pincodeSubtitle(
+  pincode: string,
+  apiName: string,
+  layoutName?: string,
+): string {
+  for (const candidate of [apiName, layoutName ?? ""]) {
+    if (candidate && candidate !== pincode) return candidate;
+  }
+  return "";
 }
 
 function distributeMarkers(
@@ -58,7 +79,7 @@ function distributeMarkers(
     return [
       {
         pincode: regions[0].code,
-        name: regions[0].name,
+        name: pincodeSubtitle(regions[0].code, regions[0].name),
         count: regions[0].count,
         x: cx,
         y: cy,
@@ -70,7 +91,7 @@ function distributeMarkers(
     const angle = (2 * Math.PI * i) / regions.length - Math.PI / 2;
     return {
       pincode: r.code,
-      name: r.name,
+      name: pincodeSubtitle(r.code, r.name),
       count: r.count,
       x: cx + radius * Math.cos(angle),
       y: cy + radius * Math.sin(angle),
@@ -93,7 +114,7 @@ function layoutToMarkers(
       const api = byPin.get(p.p)!;
       return {
         pincode: p.p,
-        name: api.name || p.n,
+        name: pincodeSubtitle(p.p, api.name, p.n),
         count: api.count,
         x: p.x * scaleX,
         y: p.y * scaleY,
@@ -115,14 +136,18 @@ async function loadDistrictTaluks(districtCode: string) {
 }
 
 export function TalukPincodeMap({
+  level,
+  district,
   districtCode,
   districtName,
+  taluk,
   talukCode,
   talukName,
   regions,
   hoveredCode,
   onHover,
   onSelectPincode,
+  onNavigate,
   onBack,
 }: TalukPincodeMapProps) {
   const [geo, setGeo] = useState<FeatureCollection<
@@ -211,22 +236,21 @@ export function TalukPincodeMap({
 
   return (
     <div className="relative">
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div>
-          <p className="text-sm font-bold text-slate-900">{talukLabel} Taluk</p>
-          <p className="text-xs text-slate-500">
-            {districtName} · {markers.length} pincodes ·{" "}
-            {totalCount.toLocaleString()} MSMEs
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onBack}
-          className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded border border-hairline bg-surface-card/90 text-body hover:bg-surface-soft"
-        >
-          Taluk
-        </button>
-      </div>
+      <MapDrillHeader
+        level={level}
+        district={district ?? districtCode}
+        districtName={districtName}
+        taluk={taluk ?? talukCode}
+        talukName={talukName || talukLabel}
+        onNavigate={onNavigate}
+        subtitle={formatTalukMapSubtitle(
+          districtName,
+          markers.length,
+          totalCount,
+        )}
+        levelPill="Taluk"
+        onBack={onBack}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-md p-3 mb-2">
@@ -277,7 +301,9 @@ export function TalukPincodeMap({
                   onClick={() => onSelectPincode(p.pincode)}
                 >
                   <title>
-                    {p.pincode} — {p.name} — {p.count.toLocaleString()} MSMEs
+                    {p.pincode}
+                    {p.name ? ` — ${p.name}` : ""} — {p.count.toLocaleString()}{" "}
+                    MSMEs
                   </title>
                 </circle>
                 <text
@@ -294,20 +320,22 @@ export function TalukPincodeMap({
                 >
                   {p.pincode}
                 </text>
-                <text
-                  x={p.x}
-                  y={p.y + r + 22}
-                  fontSize={8.5}
-                  fontWeight={500}
-                  fill="#475569"
-                  textAnchor="middle"
-                  paintOrder="stroke"
-                  stroke="#ffffff"
-                  strokeWidth={2}
-                  pointerEvents="none"
-                >
-                  {p.name.length > 18 ? `${p.name.slice(0, 17)}…` : p.name}
-                </text>
+                {p.name ? (
+                  <text
+                    x={p.x}
+                    y={p.y + r + 22}
+                    fontSize={8.5}
+                    fontWeight={500}
+                    fill="#475569"
+                    textAnchor="middle"
+                    paintOrder="stroke"
+                    stroke="#ffffff"
+                    strokeWidth={2}
+                    pointerEvents="none"
+                  >
+                    {p.name.length > 18 ? `${p.name.slice(0, 17)}…` : p.name}
+                  </text>
+                ) : null}
               </g>
             );
           })}

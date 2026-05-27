@@ -43,8 +43,8 @@ export function DashboardLayout() {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-surface-card text-ink'
-                    : 'text-body hover:bg-surface-soft hover:text-ink'
+                    ? 'bg-canvas text-ink shadow-sm'
+                    : 'text-body hover:bg-surface-strong/40 hover:text-ink'
                 }`
               }
             >

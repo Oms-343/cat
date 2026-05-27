@@ -1,15 +1,37 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FileSpreadsheet, History, ScrollText } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import {
+  Award,
+  BarChart3,
+  ClipboardCheck,
+  History,
+  MapPin,
+  ScrollText,
+  SlidersHorizontal,
+  Tags,
+  TrendingUp,
+} from 'lucide-react'
 import { listReports } from '../api/reports'
 import { ApiError } from '../api/client'
 import type { ReportMeta } from '../types/report'
 import { Alert, Badge, Button, Card, PageHeader, PageShell } from '../components/ui'
 
+const reportIconMap: Record<string, LucideIcon> = {
+  'sector-summary': BarChart3,
+  'district-profile': MapPin,
+  'growth-trends': TrendingUp,
+  'tag-analytics': Tags,
+  'profile-completion': ClipboardCheck,
+  'certification-report': Award,
+  'custom-summary': SlidersHorizontal,
+}
+
+const reportCardIconClass = 'h-8 w-8 text-muted mb-3'
+
 function ReportCardIcon({ slug }: { slug: string }) {
-  const cls = 'h-8 w-8 text-muted mb-3'
-  if (slug.includes('audit')) return <ScrollText className={cls} strokeWidth={1.75} />
-  return <FileSpreadsheet className={cls} strokeWidth={1.75} />
+  const Icon = reportIconMap[slug] ?? BarChart3
+  return <Icon className={reportCardIconClass} strokeWidth={1.75} aria-hidden />
 }
 
 export function ReportsListPage() {
@@ -26,7 +48,7 @@ export function ReportsListPage() {
     <PageShell width="lg">
       <PageHeader
         title="MIS Reports"
-        description="Pre-built reports for sector, district, growth, tag analytics, profile completion — exportable to Excel/CSV."
+        description="Pre-built reports for sector, district, growth, tag analytics, profile completion — exportable to Excel."
         actions={
           <Link to="/reports/history">
             <Button variant="secondary" size="sm" type="button" className="gap-2">
@@ -55,11 +77,9 @@ export function ReportsListPage() {
                     {r.filters.map((f) => (
                       <Badge
                         key={f.key}
-                        tone={f.required ? 'error' : 'neutral'}
                         className="normal-case tracking-normal"
                       >
                         {f.label}
-                        {f.required && ' *'}
                       </Badge>
                     ))}
                   </div>
@@ -73,10 +93,10 @@ export function ReportsListPage() {
               padding="md"
               className="h-full transition-shadow group-hover:shadow-md group-hover:border-ink/20"
             >
-              <ScrollText className="h-8 w-8 text-muted mb-3" strokeWidth={1.75} aria-hidden />
+              <ScrollText className={reportCardIconClass} strokeWidth={1.75} aria-hidden />
               <h3 className="font-semibold text-ink mb-1">Audit Trail Export</h3>
               <p className="text-sm text-muted mb-3">
-                Every action on the platform, exportable as CSV. Lives in the Audit Log page.
+                Every action on the platform, exportable to Excel. Lives in the Audit Log page.
               </p>
               <span className="text-xs font-semibold text-ink">Open Audit Log →</span>
             </Card>

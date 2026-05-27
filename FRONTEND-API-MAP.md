@@ -155,7 +155,7 @@ Filter dropdowns on the same page use `listEntries()` from `masters.ts` (`distri
 | Frontend API | Backend | Called from | Database |
 | --- | --- | --- | --- |
 | `listAudit()` | `GET /api/audit-log` | `AuditLogPage` (load, filters, pagination) | `audit_logs` R |
-| `exportAuditCsv()` | `GET /api/audit-log/export` | `AuditLogPage` — Export CSV | `audit_logs` R |
+| `exportAuditExcel()` | `GET /api/audit-log/export` | `AuditLogPage` — Export Excel | `audit_logs` R |
 
 Most other APIs also **write** `audit_logs` when data changes; this page only reads them.
 
@@ -179,7 +179,7 @@ Most other APIs also **write** `audit_logs` when data changes; this page only re
 | `/reports` | `listReports()` |
 | `/reports/:slug` | `listReports()`, `listEntries()`, `runReport()`, `exportReport()` |
 | `/reports/history` | `listReportHistory()`, `downloadHistory()` |
-| `/audit-log` | `listAudit()`, `exportAuditCsv()` |
+| `/audit-log` | `listAudit()`, `exportAuditExcel()` |
 
 ---
 

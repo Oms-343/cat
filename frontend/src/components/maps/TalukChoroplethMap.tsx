@@ -5,6 +5,10 @@ import type { GeoDrillLevel } from "./geoTypes";
 import type { MapRegion } from "./mapTypes";
 import { talukGeoJsonUrl } from "../../constants/maps/mapAssets";
 import { fillColorByCount } from "./tnLayoutMap";
+import {
+  formatTalukMapSubtitle,
+  MapDrillHeader,
+} from "./GeographicMapBreadcrumbs";
 
 interface TalukProperties {
   code: string;
@@ -19,14 +23,18 @@ type TalukFeatureCollection = FeatureCollection<Geometry, TalukProperties>;
 
 export interface TalukChoroplethMapProps {
   level: Extract<GeoDrillLevel, "district" | "taluk">;
+  district?: string;
   districtCode: string;
   districtName: string;
+  taluk?: string;
+  talukName?: string;
   talukCode?: string;
   regions: MapRegion[];
   hoveredCode: string | null;
   onHover: (code: string | null) => void;
   onSelectTaluk: (code: string) => void;
   onSelectPincode?: (pincode: string) => void;
+  onNavigate: (updates: Record<string, string | null>) => void;
   onBack: () => void;
 }
 
@@ -95,13 +103,17 @@ interface TalukLayout {
 
 export function TalukChoroplethMap({
   level,
+  district,
   districtCode,
   districtName,
+  taluk,
+  talukName,
   talukCode = "",
   regions,
   hoveredCode,
   onHover,
   onSelectTaluk,
+  onNavigate,
   onBack,
 }: TalukChoroplethMapProps) {
   const [geo, setGeo] = useState<TalukFeatureCollection | null>(
@@ -160,32 +172,27 @@ export function TalukChoroplethMap({
   const levelPill = level === "district" ? "District" : "Taluk";
   const totalMsmeCount = regions.reduce((sum, r) => sum + r.count, 0);
 
-  const selectedTaluk =
-    level === "taluk" ? layouts.find((t) => t.code === talukCode) : null;
-
   return (
     <div className="relative">
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <div>
-          <p className="text-sm font-bold text-slate-900">
-            {level === "district"
-              ? `${districtName} District`
-              : `${selectedTaluk?.name ?? talukCode} Taluk`}
-          </p>
-          <p className="text-xs text-slate-500">
-            {level === "district"
-              ? "Click any taluk to drill into pincodes."
-              : `${districtName} · ${regions.length} pincodes · ${totalMsmeCount.toLocaleString()} MSMEs`}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onBack}
-          className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded border border-hairline bg-surface-card/90 text-body hover:bg-surface-soft"
-        >
-          {levelPill}
-        </button>
-      </div>
+      <MapDrillHeader
+        level={level}
+        district={district ?? districtCode}
+        districtName={districtName}
+        taluk={taluk ?? (talukCode || undefined)}
+        talukName={talukName}
+        onNavigate={onNavigate}
+        subtitle={
+          level === "district"
+            ? "Click any taluk to drill into pincodes."
+            : formatTalukMapSubtitle(
+                districtName,
+                regions.length,
+                totalMsmeCount,
+              )
+        }
+        levelPill={levelPill}
+        onBack={onBack}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-md p-3 mb-2">

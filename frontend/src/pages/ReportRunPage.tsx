@@ -6,11 +6,11 @@ import { ApiError } from '../api/client'
 import type {
   ReportColumn,
   ReportFilterSpec,
-  ReportFormat,
   ReportMeta,
   ReportRunResult,
 } from '../types/report'
 import type { MasterEntry } from '../types/master'
+import { Button } from '../components/ui'
 
 export function ReportRunPage() {
   const { slug = '' } = useParams<{ slug: string }>()
@@ -21,7 +21,7 @@ export function ReportRunPage() {
   const [result, setResult] = useState<ReportRunResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [exportingFormat, setExportingFormat] = useState<ReportFormat | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   // Load report metadata + any required masters
   useEffect(() => {
@@ -79,18 +79,18 @@ export function ReportRunPage() {
     }
   }
 
-  async function handleExport(format: ReportFormat) {
+  async function handleExport() {
     if (!report) return
-    setExportingFormat(format)
+    setExporting(true)
     try {
       const cleaned = Object.fromEntries(
         Object.entries(filters).filter(([, v]) => v !== '' && v !== undefined),
       )
-      await exportReport(report.slug, cleaned, format)
+      await exportReport(report.slug, cleaned, 'xlsx')
     } catch (err) {
       alert(err instanceof Error ? err.message : String(err))
     } finally {
-      setExportingFormat(null)
+      setExporting(false)
     }
   }
 
@@ -140,20 +140,18 @@ export function ReportRunPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              type="button"
+              size="sm"
               onClick={handleRun}
               disabled={!allRequiredFilled || loading}
-              className="text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium px-4 py-1.5 rounded-md"
             >
               {loading ? 'Running…' : 'Run report'}
-            </button>
+            </Button>
             {Object.values(filters).some(Boolean) && (
-              <button
-                onClick={clearFilters}
-                className="text-sm border border-slate-300 px-3 py-1.5 rounded-md hover:bg-slate-100"
-              >
+              <Button type="button" variant="secondary" size="sm" onClick={clearFilters}>
                 Clear
-              </button>
+              </Button>
             )}
             {!allRequiredFilled && (
               <span className="text-xs text-amber-700 ml-2">
@@ -177,22 +175,9 @@ export function ReportRunPage() {
               Generated {new Date(result.generated_at).toLocaleString()} ·{' '}
               {result.rows.length} row{result.rows.length === 1 ? '' : 's'}
             </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleExport('csv')}
-                disabled={exportingFormat !== null}
-                className="text-sm border border-slate-300 px-3 py-1.5 rounded-md hover:bg-slate-100 disabled:opacity-50"
-              >
-                {exportingFormat === 'csv' ? 'Exporting…' : 'Export CSV'}
-              </button>
-              <button
-                onClick={() => handleExport('xlsx')}
-                disabled={exportingFormat !== null}
-                className="text-sm bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-400 text-white font-medium px-3 py-1.5 rounded-md"
-              >
-                {exportingFormat === 'xlsx' ? 'Exporting…' : 'Export Excel'}
-              </button>
-            </div>
+            <Button type="button" size="sm" onClick={handleExport} disabled={exporting}>
+              {exporting ? 'Exporting…' : 'Export Excel'}
+            </Button>
           </div>
 
           {Object.keys(result.summary).length > 0 && (

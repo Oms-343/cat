@@ -17,6 +17,7 @@ export interface GeographicMapPanelProps {
   onSelectDistrict: (code: string) => void
   onSelectTaluk: (code: string) => void
   onSelectPincode: (pincode: string) => void
+  onNavigate: (updates: Record<string, string | null>) => void
   onBack: () => void
   disableEmpty?: boolean
 }
@@ -35,20 +36,25 @@ export function GeographicMapPanel({
   talukName = '',
   onSelectTaluk,
   onSelectPincode,
+  onNavigate,
   onBack,
   ...rest
 }: GeographicMapPanelProps) {
   if (level === 'taluk') {
     return (
       <TalukPincodeMap
+        level="taluk"
+        district={districtCode || undefined}
         districtCode={districtCode}
         districtName={districtName}
+        taluk={talukCode || undefined}
         talukCode={talukCode}
         talukName={talukName}
         regions={rest.regions}
         hoveredCode={rest.hoveredCode}
         onHover={rest.onHover}
         onSelectPincode={onSelectPincode}
+        onNavigate={onNavigate}
         onBack={onBack}
       />
     )
@@ -58,12 +64,14 @@ export function GeographicMapPanel({
     return (
       <TalukChoroplethMap
         level="district"
+        district={districtCode || undefined}
         districtCode={districtCode}
         districtName={districtName}
         regions={rest.regions}
         hoveredCode={rest.hoveredCode}
         onHover={rest.onHover}
         onSelectTaluk={onSelectTaluk}
+        onNavigate={onNavigate}
         onBack={onBack}
       />
     )
@@ -76,6 +84,7 @@ export function GeographicMapPanel({
       districtCode={districtCode}
       districtName={districtName}
       onSelectDistrict={rest.onSelectDistrict}
+      onNavigate={onNavigate}
     />
   )
 }

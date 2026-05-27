@@ -1,10 +1,10 @@
-import csv
-import io
-import json
-from datetime import datetime
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, Query
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from sqlmodel import desc, func, select
+
+from app.core.audit_export import audit_logs_to_xlsx
 from app.deps import SessionDep, require_roles
 from app.models.audit import AuditLog
 from app.models.user import UserRole
@@ -70,46 +70,16 @@ def export_audit(
     user_email: str | None = Query(default=None),
     since: datetime | None = Query(default=None),
     until: datetime | None = Query(default=None),
-) -> StreamingResponse:
+) -> Response:
     stmt = _build_query(action, resource_type, user_email, since, until).order_by(
         desc(AuditLog.timestamp)
     )
     rows = session.exec(stmt).all()
+    data = audit_logs_to_xlsx(rows)
 
-    buf = io.StringIO()
-    writer = csv.writer(buf)
-    writer.writerow(
-        [
-            "timestamp",
-            "action",
-            "resource_type",
-            "resource_id",
-            "resource_name",
-            "user_email",
-            "user_name",
-            "user_role",
-            "details_json",
-        ]
-    )
-    for r in rows:
-        writer.writerow(
-            [
-                r.timestamp.isoformat(),
-                r.action,
-                r.resource_type or "",
-                r.resource_id if r.resource_id is not None else "",
-                r.resource_name or "",
-                r.user_email or "",
-                r.user_name or "",
-                r.user_role or "",
-                json.dumps(r.details, separators=(",", ":")) if r.details else "",
-            ]
-        )
-    buf.seek(0)
-
-    filename = f"audit-log-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}.csv"
-    return StreamingResponse(
-        iter([buf.getvalue()]),
-        media_type="text/csv",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="audit-log-{ts}.xlsx"'},
     )

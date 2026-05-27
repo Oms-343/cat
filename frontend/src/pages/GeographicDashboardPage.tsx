@@ -18,6 +18,7 @@ import type { MasterEntry } from "../types/master";
 import type { MapRegion } from "../components/maps/mapTypes";
 import { regionListDotColor } from "../components/maps/choroplethColors";
 import { RegionsListPanel } from "../components/dashboard/RegionsListPanel";
+import { GeographicMapBreadcrumbs } from "../components/maps/GeographicMapBreadcrumbs";
 import { GeographicMapPanel } from "../components/maps/GeographicMapPanel";
 import { PincodeAreaMap } from "../components/maps/PincodeAreaMap";
 import {
@@ -238,44 +239,16 @@ export function GeographicDashboardPage() {
 
   return (
     <PageShell className="!py-4">
-      <nav className="mb-2 text-sm text-muted flex flex-wrap items-center gap-1">
-        <Crumb
-          active={level === "state"}
-          onClick={() =>
-            updateParams({ district: null, taluk: null, pincode: null })
-          }
-        >
-          Tamil Nadu
-        </Crumb>
-        {district && (
-          <>
-            <span className="text-slate-400">›</span>
-            <Crumb
-              active={level === "district"}
-              onClick={() => updateParams({ taluk: null, pincode: null })}
-            >
-              {districtName}
-            </Crumb>
-          </>
-        )}
-        {taluk && (
-          <>
-            <span className="text-slate-400">›</span>
-            <Crumb
-              active={level === "taluk"}
-              onClick={() => updateParams({ pincode: null })}
-            >
-              {talukName}
-            </Crumb>
-          </>
-        )}
-        {pincode && (
-          <>
-            <span className="text-slate-400">›</span>
-            <span className="font-semibold text-slate-900">{pincode}</span>
-          </>
-        )}
-      </nav>
+      <GeographicMapBreadcrumbs
+        className="mb-2"
+        level={level}
+        district={district || undefined}
+        districtName={districtName}
+        taluk={taluk || undefined}
+        talukName={talukName}
+        pincode={pincode || undefined}
+        onNavigate={updateParams}
+      />
 
       <header className="mb-3">
         <h1 className="text-xl font-semibold tracking-tight text-ink">
@@ -338,6 +311,10 @@ export function GeographicDashboardPage() {
               pincode={pincode}
               districtName={districtName}
               districtCode={district}
+              level={level}
+              taluk={taluk || undefined}
+              talukName={talukName}
+              onNavigate={updateParams}
             />
           </div>
         </div>
@@ -383,6 +360,7 @@ export function GeographicDashboardPage() {
                   updateParams({ taluk: code, pincode: null })
                 }
                 onSelectPincode={(pc) => updateParams({ pincode: pc })}
+                onNavigate={updateParams}
                 onBack={() => {
                   if (level === "taluk")
                     updateParams({ taluk: null, pincode: null });
@@ -399,30 +377,6 @@ export function GeographicDashboardPage() {
           </div>
         )}
     </PageShell>
-  );
-}
-
-function Crumb({
-  children,
-  active,
-  onClick,
-}: {
-  children: React.ReactNode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        active
-          ? "font-semibold text-slate-900"
-          : "hover:text-blue-700 hover:underline"
-      }
-    >
-      {children}
-    </button>
   );
 }
 

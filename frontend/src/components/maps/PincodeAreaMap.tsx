@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react'
 import { geocodePlace } from './geocode'
+import { MapDrillHeader } from './GeographicMapBreadcrumbs'
 import { OsmMap, type OsmMapMarker } from './OsmMap'
+import type { GeoDrillLevel } from './geoTypes'
 import { getDistrictGeo, TN_CENTER, type LatLng } from './tamilNaduGeo'
 
 export function PincodeAreaMap({
   pincode,
   districtName,
   districtCode,
+  level,
+  taluk,
+  talukName,
+  onNavigate,
 }: {
   pincode: string
   districtName: string
   districtCode: string
+  level: GeoDrillLevel
+  taluk?: string
+  talukName?: string
+  onNavigate: (updates: Record<string, string | null>) => void
 }) {
   const [position, setPosition] = useState<LatLng | null>(null)
 
@@ -46,7 +56,16 @@ export function PincodeAreaMap({
 
   return (
     <div className="h-full min-h-[420px] border border-hairline rounded-lg p-4 flex flex-col">
-      <p className="text-xs text-slate-500 mb-2">Pincode {pincode} on map</p>
+      <MapDrillHeader
+        level={level}
+        district={districtCode}
+        districtName={districtName}
+        taluk={taluk}
+        talukName={talukName}
+        pincode={pincode}
+        onNavigate={onNavigate}
+        subtitle={`Pincode ${pincode} on map`}
+      />
       <div className="flex-1 min-h-0">
         <OsmMap center={center} zoom={13} markers={markers} height="min(480px, 60vh)" />
       </div>

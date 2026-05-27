@@ -80,3 +80,31 @@ body {
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-muted-soft);
 }
+
+/* Horizontal-only thin scrollbar (e.g. profile section tabs) */
+.scrollbar-thin-x {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-muted-soft) 50%, transparent) transparent;
+}
+
+.scrollbar-thin-x::-webkit-scrollbar {
+  height: 4px;
+}
+
+.scrollbar-thin-x::-webkit-scrollbar:vertical {
+  width: 0;
+  display: none;
+}
+
+.scrollbar-thin-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin-x::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-muted-soft) 45%, transparent);
+  border-radius: var(--radius-pill);
+}
+
+.scrollbar-thin-x::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-muted-soft) 70%, transparent);
+}

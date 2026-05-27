@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Modal } from "../components/Modal";
+import { Button, PageHeader } from "../components/ui";
 import { ApiError } from "../api/client";
 import { listEntries } from "../api/masters";
 import {
@@ -341,26 +342,26 @@ export function OnboardingDrivesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-8">
-      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Onboarding Drives
-          </h1>
-          <p className="text-sm text-slate-500 max-w-2xl">
+      <PageHeader
+        title="Onboarding Drives"
+        description={
+          <>
             WhatsApp campaigns to invite and remind MSMEs to register or
             complete their profiles. Pre-approved bilingual templates, audience
             targeting, and delivery tracking.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={openWizard}
-          disabled={!templates.length}
-          className="text-sm font-medium bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
-        >
-          + New campaign
-        </button>
-      </header>
+          </>
+        }
+        actions={
+          <Button
+            type="button"
+            size="sm"
+            onClick={openWizard}
+            disabled={!templates.length}
+          >
+            + New campaign
+          </Button>
+        }
+      />
 
       {config?.dry_run && (
         <div className="mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
@@ -662,38 +663,39 @@ export function OnboardingDrivesPage() {
         onClose={closeWizard}
         footer={
           <div className="flex justify-between w-full">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => (step > 1 ? setStep(step - 1) : closeWizard())}
-              className="text-sm border border-hairline px-3 py-1.5 rounded-md hover:bg-surface-card"
               disabled={launching}
             >
               {step === 1 ? "Cancel" : "Back"}
-            </button>
+            </Button>
             {step < 4 ? (
-              <button
+              <Button
                 type="button"
+                size="sm"
                 onClick={() => setStep(step + 1)}
                 disabled={
                   step === 3 &&
                   audienceSource === "excel" &&
                   importedContactIds.length === 0
                 }
-                className="text-sm font-medium bg-blue-600 text-white px-4 py-1.5 rounded-md hover:bg-blue-700 disabled:opacity-60"
               >
                 Next
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
+                size="sm"
                 onClick={handleLaunch}
                 disabled={
                   launching || estimateCount === 0 || estimateCount === null
                 }
-                className="text-sm font-medium bg-green-600 text-white px-4 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-60"
               >
                 {launching ? "Launching…" : "Launch campaign"}
-              </button>
+              </Button>
             )}
           </div>
         }

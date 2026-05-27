@@ -8,6 +8,7 @@ import {
   districtStateFillColor,
 } from "./choroplethColors";
 import { TN_DISTRICTS_GEOJSON_URL } from "../../constants/maps/mapAssets";
+import { MapDrillHeader } from "./GeographicMapBreadcrumbs";
 
 interface DistrictProperties {
   code: string;
@@ -31,6 +32,7 @@ export interface GeographicChoroplethMapProps {
   onHover: (code: string | null) => void;
   /** Fires when a district polygon is clicked on the map. Always navigates by district. */
   onSelectDistrict: (code: string) => void;
+  onNavigate: (updates: Record<string, string | null>) => void;
   disableEmpty?: boolean;
 }
 
@@ -85,6 +87,7 @@ export function GeographicChoroplethMap({
   hoveredCode,
   onHover,
   onSelectDistrict,
+  onNavigate,
   disableEmpty = false,
 }: GeographicChoroplethMapProps) {
   const [geo, setGeo] = useState<DistrictFeatureCollection | null>(cachedGeo);
@@ -146,7 +149,13 @@ export function GeographicChoroplethMap({
 
   return (
     <div className="relative">
-      <p className="text-xs text-slate-500 mb-2">{title}</p>
+      <MapDrillHeader
+        level={level}
+        district={districtCode || undefined}
+        districtName={districtName}
+        onNavigate={onNavigate}
+        subtitle={title}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-md p-3 mb-2">

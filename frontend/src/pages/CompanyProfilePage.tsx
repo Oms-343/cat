@@ -20,6 +20,7 @@ import {
 import { CompanyLocationMap } from '../components/maps/CompanyLocationMap'
 import type { Company, LockedFields } from '../types/company'
 import type { MasterEntry } from '../types/master'
+import { ProfileSectionTabs } from '../components/ProfileSectionTabs'
 import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 
 const SECTION_LABELS: { key: string; label: string }[] = [
@@ -58,6 +59,7 @@ export function CompanyProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [activeSection, setActiveSection] = useState(SECTION_LABELS[0].key)
 
   function refreshCompletion() {
     getCompany(companyId)
@@ -251,17 +253,29 @@ export function CompanyProfilePage() {
             <h3 className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">
               Profile Sections
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-1 text-sm">
               {SECTION_LABELS.map((s) => {
                 const done = company.section_completion[s.key]
+                const isActive = activeSection === s.key
                 return (
-                  <li key={s.key} className="flex items-center justify-between">
-                    <span className="text-slate-700">{s.label}</span>
-                    {done ? (
-                      <span className="text-green-600 text-xs">✓ Complete</span>
-                    ) : (
-                      <span className="text-slate-400 text-xs">⬜ Pending</span>
-                    )}
+                  <li key={s.key}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSection(s.key)}
+                      className={[
+                        'w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-left transition-colors',
+                        isActive
+                          ? 'bg-surface-soft text-ink font-medium'
+                          : 'text-slate-700 hover:bg-surface-soft/60',
+                      ].join(' ')}
+                    >
+                      <span>{s.label}</span>
+                      {done ? (
+                        <span className="text-green-600 text-xs shrink-0">✓ Complete</span>
+                      ) : (
+                        <span className="text-slate-400 text-xs shrink-0">⬜ Pending</span>
+                      )}
+                    </button>
                   </li>
                 )
               })}
@@ -270,62 +284,91 @@ export function CompanyProfilePage() {
         </aside>
 
         <main className="lg:col-span-3 border border-hairline rounded-lg p-6">
-          <CompanyForm
-            values={formValues}
-            onChange={setFormValues}
-            districts={masters.districts}
-            sectors={masters.sectors}
-            legalStructures={masters.legalStructures}
-            turnoverRanges={masters.turnoverRanges}
-            lockedFields={undefined}
-            readOnly={!editing}
-          />
+        <ProfileSectionTabs
+          sections={SECTION_LABELS}
+          active={activeSection}
+          onChange={setActiveSection}
+          completion={company.section_completion}
+        />
 
-          <div className="mt-8 pt-6 border-t border-slate-200">
-            <CompanyLocationMap
-              name={company.name}
-              addressLine1={company.address_line1}
-              addressLine2={company.address_line2}
-              city={company.city}
-              districtCode={company.district_code}
-              districtName={
-                masters.districts.find((d) => d.code === company.district_code)?.name ?? undefined
+        <div role="tabpanel">
+          {(activeSection === 'basic_details' || activeSection === 'registration') && (
+            <CompanyForm
+              values={formValues}
+              onChange={setFormValues}
+              districts={masters.districts}
+              sectors={masters.sectors}
+              legalStructures={masters.legalStructures}
+              turnoverRanges={masters.turnoverRanges}
+              lockedFields={undefined}
+              readOnly={!editing}
+              sections={
+                activeSection === 'basic_details'
+                  ? ['basic_details']
+                  : ['registration']
               }
-              pincode={company.pincode}
-              state={company.state}
             />
-          </div>
+          )}
 
-          <div className="mt-8 pt-6 border-t border-slate-200 space-y-0">
+          {activeSection === 'basic_details' && (
+            <div className="mt-8 pt-6 border-t border-slate-200">
+              <CompanyLocationMap
+                name={company.name}
+                addressLine1={company.address_line1}
+                addressLine2={company.address_line2}
+                city={company.city}
+                districtCode={company.district_code}
+                districtName={
+                  masters.districts.find((d) => d.code === company.district_code)?.name ??
+                  undefined
+                }
+                pincode={company.pincode}
+                state={company.state}
+              />
+            </div>
+          )}
+
+          {activeSection === 'products' && (
             <ProductsSection
               companyId={companyId}
               canEdit={canEditAnything}
               onChange={refreshCompletion}
             />
+          )}
+          {activeSection === 'certifications' && (
             <CertificationsSection
               companyId={companyId}
               canEdit={canEditAnything}
               certifications={masters.certifications}
               onChange={refreshCompletion}
             />
+          )}
+          {activeSection === 'customers' && (
             <CustomersSection
               companyId={companyId}
               canEdit={canEditAnything}
               onChange={refreshCompletion}
             />
+          )}
+          {activeSection === 'machinery' && (
             <MachinerySection
               companyId={companyId}
               canEdit={canEditAnything}
               productionCapacities={masters.productionCapacities}
               onChange={refreshCompletion}
             />
-          </div>
+          )}
 
-          <div className="mt-2 pt-6 border-t border-slate-200">
-            <h3 className="text-base font-semibold text-slate-900 mb-3">
-              7. Tags
-              {!canEditTags && <span className="ml-2 text-xs font-normal text-slate-500">(TIDCO-only edits)</span>}
-            </h3>
+          {activeSection === 'tags' && (
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-3">
+                7. Tags
+                {!canEditTags && (
+                  <span className="ml-2 text-xs font-normal text-slate-500">
+                    (TIDCO-only edits)
+                  </span>
+                )}
+              </h3>
 
             <div className="flex flex-wrap gap-2 mb-3">
               {(editing && canEditTags ? editedTags ?? [] : company.tags).map((t) => (
@@ -389,7 +432,9 @@ export function CompanyProfilePage() {
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          )}
+        </div>
 
           {editing && (
             <div className="mt-6 pt-6 border-t border-slate-200 flex items-center justify-end gap-3">
