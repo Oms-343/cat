@@ -4,6 +4,11 @@ import type { FeatureCollection, Geometry } from "geojson";
 import { talukGeoJsonUrl } from "../../constants/maps/mapAssets";
 import type { MapRegion } from "./mapTypes";
 import {
+  getTalukPlaceholder,
+  loadTalukPlaceholders,
+  type TalukPlaceholderMap,
+} from "./talukPlaceholders";
+import {
   fillColorByCount,
   findLayoutTaluk,
   getLayoutDistrictKey,
@@ -122,6 +127,25 @@ function layoutToMarkers(
     });
 }
 
+function placeholderToMarkers(
+  layoutPins: LayoutPincode[],
+  regions: MapRegion[],
+): PincodeMarker[] {
+  const byPin = new Map(regions.map((r) => [r.code, r]));
+  return layoutPins
+    .filter((p) => byPin.has(p.p))
+    .map((p) => {
+      const api = byPin.get(p.p)!;
+      return {
+        pincode: p.p,
+        name: pincodeSubtitle(p.p, api.name, p.n),
+        count: api.count,
+        x: p.x,
+        y: p.y,
+      };
+    });
+}
+
 async function loadDistrictTaluks(districtCode: string) {
   const cached = geoCache.get(districtCode);
   if (cached) return cached;
@@ -156,6 +180,9 @@ export function TalukPincodeMap({
   > | null>(null);
   const [layout, setLayout] = useState<LayoutData | null>(null);
   const [index, setIndex] = useState<TalukIndex | null>(null);
+  const [placeholders, setPlaceholders] = useState<TalukPlaceholderMap | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -164,12 +191,14 @@ export function TalukPincodeMap({
       loadDistrictTaluks(districtCode),
       loadLayoutData().catch(() => null),
       loadTalukIndex().catch(() => null),
+      loadTalukPlaceholders().catch(() => null),
     ])
-      .then(([geoData, layoutData, indexData]) => {
+      .then(([geoData, layoutData, indexData, placeholderData]) => {
         if (cancelled) return;
         setGeo(geoData);
         setLayout(layoutData);
         setIndex(indexData);
+        setPlaceholders(placeholderData);
       })
       .catch((err) => {
         if (!cancelled)
@@ -180,36 +209,62 @@ export function TalukPincodeMap({
     };
   }, [districtCode]);
 
-  const { pathD, cx, cy, talukLabel } = useMemo(() => {
-    if (!geo)
-      return {
-        pathD: "",
-        cx: VIEW_W / 2,
-        cy: VIEW_H / 2,
-        talukLabel: talukName,
-      };
-    const feature = geo.features.find((f) => f.properties.code === talukCode);
-    if (!feature)
-      return {
-        pathD: "",
-        cx: VIEW_W / 2,
-        cy: VIEW_H / 2,
-        talukLabel: talukName,
-      };
+  const placeholder = useMemo(
+    () => getTalukPlaceholder(placeholders, talukCode),
+    [placeholders, talukCode],
+  );
 
-    const fc = { type: "FeatureCollection" as const, features: [feature] };
-    const projection = geoMercator().fitSize(
-      [VIEW_W, VIEW_H],
-      fc as GeoPermissibleObjects,
-    );
-    const path = geoPath(projection);
-    const d = path(feature as GeoPermissibleObjects) ?? "";
-    const [px, py] = path.centroid(feature as GeoPermissibleObjects);
-    return { pathD: d, cx: px, cy: py, talukLabel: feature.properties.name };
-  }, [geo, talukCode, talukName]);
+  const { pathD, cx, cy, talukLabel, isPlaceholder, boundaryFill } = useMemo(() => {
+    if (geo) {
+      const feature = geo.features.find((f) => f.properties.code === talukCode);
+      if (feature) {
+        const fc = { type: "FeatureCollection" as const, features: [feature] };
+        const projection = geoMercator().fitSize(
+          [VIEW_W, VIEW_H],
+          fc as GeoPermissibleObjects,
+        );
+        const path = geoPath(projection);
+        const d = path(feature as GeoPermissibleObjects) ?? "";
+        const [px, py] = path.centroid(feature as GeoPermissibleObjects);
+        return {
+          pathD: d,
+          cx: px,
+          cy: py,
+          talukLabel: feature.properties.name,
+          isPlaceholder: false,
+          boundaryFill: "#dc2626",
+        };
+      }
+    }
+
+    if (placeholder) {
+      return {
+        pathD: placeholder.d,
+        cx: placeholder.cx,
+        cy: placeholder.cy,
+        talukLabel: placeholder.name || talukName,
+        isPlaceholder: true,
+        boundaryFill: placeholder.fill,
+      };
+    }
+
+    return {
+      pathD: "",
+      cx: VIEW_W / 2,
+      cy: VIEW_H / 2,
+      talukLabel: talukName,
+      isPlaceholder: false,
+      boundaryFill: "#dc2626",
+    };
+  }, [geo, talukCode, talukName, placeholder]);
 
   const markers = useMemo(() => {
-    if (!geo || regions.length === 0) return [];
+    if (regions.length === 0) return [];
+
+    if (placeholder?.pincodes?.length) {
+      const fromPlaceholder = placeholderToMarkers(placeholder.pincodes, regions);
+      if (fromPlaceholder.length > 0) return fromPlaceholder;
+    }
 
     const layoutKey = getLayoutDistrictKey(districtCode);
     if (layout && index && layoutKey) {
@@ -230,7 +285,16 @@ export function TalukPincodeMap({
       }
     }
     return distributeMarkers(regions, cx, cy);
-  }, [geo, layout, index, districtCode, talukCode, regions, cx, cy]);
+  }, [
+    layout,
+    index,
+    districtCode,
+    talukCode,
+    regions,
+    cx,
+    cy,
+    placeholder,
+  ]);
 
   const totalCount = regions.reduce((sum, r) => sum + r.count, 0);
 
@@ -264,7 +328,15 @@ export function TalukPincodeMap({
         </div>
       )}
 
-      {geo && pathD && (
+      {geo && !pathD && !placeholder && (
+        <div className="flex items-center justify-center bg-slate-50 border border-slate-200 rounded-lg h-[480px]">
+          <p className="text-xs text-slate-400">
+            Taluk boundary unavailable for this selection.
+          </p>
+        </div>
+      )}
+
+      {pathD && (
         <svg
           viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           className="w-full h-auto max-h-[640px] bg-[#eef6fb] rounded-lg border border-slate-200"
@@ -273,12 +345,27 @@ export function TalukPincodeMap({
         >
           <path
             d={pathD}
-            fill="#dc2626"
+            fill={boundaryFill}
             fillOpacity={0.35}
             stroke="#0b1220"
             strokeWidth={1.2}
+            strokeDasharray={isPlaceholder ? "8 6" : undefined}
             pointerEvents="none"
           />
+
+          {isPlaceholder && (
+            <text
+              x={VIEW_W / 2}
+              y={56}
+              fontSize={12}
+              fontWeight={600}
+              fill="#64748b"
+              textAnchor="middle"
+              pointerEvents="none"
+            >
+              Approximate area — official boundary unavailable
+            </text>
+          )}
 
           {markers.map((p) => {
             const r = pincodeRadius(p.count);
@@ -357,9 +444,15 @@ export function TalukPincodeMap({
       )}
 
       <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-slate-500">
-        <span className="text-slate-400">
-          · Boundaries © LGD / Bharatmaps (Govt. of India)
-        </span>
+        {isPlaceholder ? (
+          <span className="text-slate-400">
+            · Placeholder layout — pincode locations shown; official taluk boundary not available
+          </span>
+        ) : (
+          <span className="text-slate-400">
+            · Boundaries © LGD / Bharatmaps (Govt. of India)
+          </span>
+        )}
       </div>
     </div>
   );
