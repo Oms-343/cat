@@ -52,12 +52,7 @@ export function MastersListPage() {
               </div>
               <p className="text-sm text-slate-500 mb-3">{m.description}</p>
               <div className="text-xs text-slate-400">
-                {m.active_count} active{' '}
-                {m.count > m.active_count && (
-                  <span className="text-slate-500">
-                    · {m.count - m.active_count} inactive
-                  </span>
-                )}
+                {m.count} {m.count === 1 ? 'entry' : 'entries'}
               </div>
             </Link>
           ))}

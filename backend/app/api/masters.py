@@ -30,7 +30,6 @@ def list_masters(session: SessionDep, _user: CurrentUser) -> list[MasterSummary]
     summaries: list[MasterSummary] = []
     for key, cfg in MASTERS.items():
         model = cfg["model"]
-        total = session.exec(select(func.count()).select_from(model)).one()
         active = session.exec(
             select(func.count()).select_from(model).where(model.is_active == True)  # noqa: E712
         ).one()
@@ -39,7 +38,7 @@ def list_masters(session: SessionDep, _user: CurrentUser) -> list[MasterSummary]
                 key=key,
                 label=cfg["label"],
                 description=cfg["description"],
-                count=int(total),
+                count=int(active),
                 active_count=int(active),
             )
         )

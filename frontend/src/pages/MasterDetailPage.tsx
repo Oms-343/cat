@@ -46,7 +46,7 @@ export function MasterDetailPage() {
 
   function refresh() {
     setLoading(true)
-    Promise.all([listMasters(), listEntries(key, { q: search || undefined })])
+    Promise.all([listMasters(), listEntries(key, { q: search || undefined, active: true })])
       .then(([all, rows]) => {
         setSummary(all.find((m) => m.key === key) ?? null)
         setEntries(rows)
@@ -205,7 +205,6 @@ export function MasterDetailPage() {
                 <th className="py-2 px-4">Code</th>
                 <th className="py-2 px-4">Name</th>
                 <th className="py-2 px-4">Description</th>
-                <th className="py-2 px-4">Status</th>
                 <th className="py-2 px-4">Sort</th>
                 <th className="py-2 px-4 text-right">Actions</th>
               </tr>
@@ -216,17 +215,6 @@ export function MasterDetailPage() {
                   <td className="py-2 px-4 font-mono text-xs text-slate-700">{entry.code}</td>
                   <td className="py-2 px-4 font-medium text-slate-900">{entry.name}</td>
                   <td className="py-2 px-4 text-slate-500">{entry.description || '—'}</td>
-                  <td className="py-2 px-4">
-                    {entry.is_active ? (
-                      <span className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
-                        Inactive
-                      </span>
-                    )}
-                  </td>
                   <td className="py-2 px-4 text-slate-500">{entry.sort_order}</td>
                   <td className="py-2 px-4 text-right space-x-2">
                     <button
