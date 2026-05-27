@@ -9,6 +9,7 @@ import {
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { Modal } from '../components/Modal'
+import { Button } from '../components/ui'
 import type {
   PasswordResetResponse,
   User,
@@ -126,12 +127,9 @@ export function UsersPage() {
             Adds, password resets and activation changes are all audit-logged.
           </p>
         </div>
-        <button
-          onClick={openAdd}
-          className="text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md"
-        >
+        <Button size="sm" onClick={openAdd}>
           + Add User
-        </button>
+        </Button>
       </header>
 
       {welcomeMessage && (
@@ -155,14 +153,14 @@ export function UsersPage() {
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value as UserRole | '')}
-          className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
+          className="px-3 py-2 border border-hairline rounded-md text-sm bg-transparent"
         >
           <option value="">All roles</option>
           <option value="admin">Admin</option>
         </select>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-surface-card rounded-lg border border-hairline overflow-hidden">
         {error && <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-200">{error}</div>}
         {loading && <p className="p-6 text-sm text-slate-500">Loading…</p>}
         {!loading && users && users.length === 0 && (
@@ -253,20 +251,12 @@ export function UsersPage() {
         onClose={() => setAddOpen(false)}
         footer={
           <>
-            <button
-              onClick={() => setAddOpen(false)}
-              className="text-sm border border-slate-300 px-3 py-1.5 rounded-md hover:bg-slate-100"
-            >
+            <Button type="button" variant="secondary" size="sm" onClick={() => setAddOpen(false)}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              form="add-user-form"
-              disabled={saving}
-              className="text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium px-4 py-1.5 rounded-md"
-            >
+            </Button>
+            <Button type="submit" form="add-user-form" size="sm" disabled={saving}>
               {saving ? 'Creating…' : 'Create user'}
-            </button>
+            </Button>
           </>
         }
       >
@@ -314,7 +304,7 @@ export function UsersPage() {
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
+              className="w-full px-3 py-2 border border-hairline rounded-md text-sm bg-transparent"
             >
               <option value="admin">Admin</option>
             </select>
@@ -345,12 +335,9 @@ export function UsersPage() {
         title="Password Reset"
         onClose={() => setResetResult(null)}
         footer={
-          <button
-            onClick={() => setResetResult(null)}
-            className="text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1.5 rounded-md"
-          >
+          <Button size="sm" onClick={() => setResetResult(null)}>
             Done
-          </button>
+          </Button>
         }
       >
         {resetResult && (

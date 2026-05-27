@@ -7,6 +7,8 @@ import { useAuth } from '../auth/AuthContext'
 import type { CompanyListResponse } from '../types/company'
 import type { MasterEntry } from '../types/master'
 import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
+import { Alert, Badge, Button, Card, Input, PageHeader, PageShell, Select } from '../components/ui'
+import { cn } from '../utils/cn'
 
 interface MasterMap {
   districts: MasterEntry[]
@@ -143,56 +145,58 @@ export function CompaniesListPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-8">
-      <header className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">All Companies</h1>
-          <p className="text-sm text-slate-500">
-            {data ? `${data.total.toLocaleString()} MSMEs registered` : 'Loading…'}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exporting}
-            className="text-sm border border-slate-300 px-4 py-2 rounded-md hover:bg-slate-100 disabled:opacity-50"
-          >
-            {exporting ? 'Exporting…' : selected.size ? `Export ${selected.size} selected` : 'Export Excel'}
-          </button>
-          {canAdd && (
-            <button
-              onClick={() => navigate('/companies/new')}
-              className="text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-md"
+    <PageShell>
+      <PageHeader
+        title="All Companies"
+        description={data ? `${data.total.toLocaleString()} MSMEs registered` : 'Loading…'}
+        actions={
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleExport}
+              disabled={exporting}
             >
-              + Add MSME
-            </button>
-          )}
-        </div>
-      </header>
+              {exporting ? 'Exporting…' : selected.size ? `Export ${selected.size} selected` : 'Export Excel'}
+            </Button>
+            {canAdd && (
+              <Button size="sm" onClick={() => navigate('/companies/new')}>
+                Add MSME
+              </Button>
+            )}
+          </>
+        }
+      />
 
       {canBulk && selected.size > 0 && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 text-sm bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+        <Alert variant="info" className="mb-4 flex flex-wrap items-center gap-2">
           <span>{selected.size} selected</span>
           {SUGGESTED_COMPANY_TAGS.map((t) => (
-            <button
+            <Button
               key={t}
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => handleBulkTag(t)}
-              className="text-xs px-2 py-1 rounded border bg-white hover:bg-slate-50"
+              className="!h-7 !px-2 !text-xs"
             >
-              + Tag {t}
-            </button>
+              Tag {t}
+            </Button>
           ))}
-          <button type="button" onClick={() => setSelected(new Set())} className="ml-auto text-xs underline">
+          <button
+            type="button"
+            onClick={() => setSelected(new Set())}
+            className="ml-auto text-xs text-ink underline"
+          >
             Clear
           </button>
-        </div>
+        </Alert>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+      <Card padding="sm" className="mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-          <input
+          <Input
             type="search"
             value={q}
             onChange={(e) => {
@@ -200,15 +204,14 @@ export function CompaniesListPage() {
               setQ(e.target.value)
             }}
             placeholder="Search name, GST, CIN, Udyam…"
-            className="lg:col-span-2 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="lg:col-span-2"
           />
-          <select
+          <Select
             value={district}
             onChange={(e) => {
               setOffset(0)
               setDistrict(e.target.value)
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
           >
             <option value="">All districts</option>
             {masters?.districts.map((d) => (
@@ -216,14 +219,13 @@ export function CompaniesListPage() {
                 {d.name}
               </option>
             ))}
-          </select>
-          <select
+          </Select>
+          <Select
             value={sector}
             onChange={(e) => {
               setOffset(0)
               setSector(e.target.value)
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
           >
             <option value="">All sectors</option>
             {masters?.sectors.map((s) => (
@@ -231,14 +233,13 @@ export function CompaniesListPage() {
                 {s.name}
               </option>
             ))}
-          </select>
-          <select
+          </Select>
+          <Select
             value={turnover}
             onChange={(e) => {
               setOffset(0)
               setTurnover(e.target.value)
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
           >
             <option value="">All turnover</option>
             {masters?.turnoverRanges.map((t) => (
@@ -246,54 +247,53 @@ export function CompaniesListPage() {
                 {t.name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
-        <div className="flex items-center gap-2 mt-3">
-          <span className="text-xs text-slate-500">Tag:</span>
+        <div className="flex flex-wrap items-center gap-2 mt-3">
+          <span className="text-xs text-muted">Tag:</span>
           {SUGGESTED_COMPANY_TAGS.map((t) => (
             <button
               key={t}
+              type="button"
               onClick={() => {
                 setOffset(0)
                 setTag(tag === t ? '' : t)
               }}
-              className={`text-xs px-2 py-1 rounded border ${
+              className={cn(
+                'text-xs px-2.5 py-1 rounded-md border font-medium transition-colors',
                 tag === t
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
-              }`}
+                  ? 'bg-primary text-on-primary border-primary'
+                  : 'bg-transparent text-body border-hairline hover:bg-surface-card',
+              )}
             >
               {t}
             </button>
           ))}
           {(q || sector || district || turnover || tag) && (
             <button
+              type="button"
               onClick={clearFilters}
-              className="ml-auto text-xs text-slate-600 hover:text-slate-900 underline"
+              className="ml-auto text-xs text-muted hover:text-ink underline"
             >
               Clear filters
             </button>
           )}
         </div>
-      </div>
+      </Card>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-200">{error}</div>
-        )}
+      <Card variant="elevated" padding="none" className="overflow-hidden">
+        {error && <Alert variant="error" className="rounded-none border-0 border-b">{error}</Alert>}
 
-        {loading && <p className="p-6 text-sm text-slate-500">Loading…</p>}
+        {loading && <p className="p-6 text-sm text-muted">Loading…</p>}
 
         {!loading && data && data.items.length === 0 && (
-          <p className="p-6 text-sm text-slate-500 text-center">
-            No companies match these filters.
-          </p>
+          <p className="p-6 text-sm text-muted text-center">No companies match these filters.</p>
         )}
 
         {!loading && data && data.items.length > 0 && (
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wide text-slate-500 bg-slate-50 border-b border-slate-200">
+            <thead className="text-left text-xs uppercase tracking-wide text-muted bg-surface-soft border-b border-hairline">
               <tr>
                 {canBulk && (
                   <th className="py-2 px-2 w-10">
@@ -321,7 +321,7 @@ export function CompaniesListPage() {
               {data.items.map((c) => (
                 <tr
                   key={c.id}
-                  className="border-b border-slate-100 last:border-0 hover:bg-slate-50 cursor-pointer"
+                  className="border-b border-hairline-soft last:border-0 hover:bg-surface-soft cursor-pointer"
                   onClick={() => navigate(`/companies/${c.id}`)}
                 >
                   {canBulk && (
@@ -337,33 +337,30 @@ export function CompaniesListPage() {
                     <Link
                       to={`/companies/${c.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="font-medium text-slate-900 hover:text-blue-700"
+                      className="font-medium text-ink hover:underline"
                     >
                       {c.name}
                     </Link>
                   </td>
-                  <td className="py-2 px-4 font-mono text-xs text-slate-600">
+                  <td className="py-2 px-4 font-mono text-xs text-muted">
                     {c.gst_number ?? '—'}
                   </td>
-                  <td className="py-2 px-4 text-slate-600">
+                  <td className="py-2 px-4 text-body">
                     {masters?.sectors.find((s) => s.code === c.sector_code)?.name ?? c.sector_code ?? '—'}
                   </td>
-                  <td className="py-2 px-4 text-slate-600">
+                  <td className="py-2 px-4 text-body">
                     {masters?.districts.find((d) => d.code === c.district_code)?.name ?? c.district_code ?? '—'}
                   </td>
-                  <td className="py-2 px-4 text-slate-600">
+                  <td className="py-2 px-4 text-body">
                     {masters?.turnoverRanges.find((t) => t.code === c.turnover_range_code)?.name ?? c.turnover_range_code ?? '—'}
                   </td>
                   <td className="py-2 px-4">
                     <div className="flex flex-wrap gap-1">
-                      {c.tags.length === 0 && <span className="text-slate-400 text-xs">—</span>}
+                      {c.tags.length === 0 && <span className="text-muted-soft text-xs">—</span>}
                       {c.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded border bg-slate-100 text-slate-700 border-slate-200"
-                        >
+                        <Badge key={t} className="normal-case tracking-normal">
                           {t}
-                        </span>
+                        </Badge>
                       ))}
                     </div>
                   </td>
@@ -383,29 +380,31 @@ export function CompaniesListPage() {
         )}
 
         {!loading && data && data.total > PAGE_SIZE && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 text-sm">
-            <p className="text-slate-500">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-hairline text-sm">
+            <p className="text-muted">
               Page {currentPage} of {totalPages} · {data.total.toLocaleString()} total
             </p>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={offset === 0}
                 onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-                className="px-3 py-1.5 border border-slate-300 rounded-md disabled:opacity-50 hover:bg-slate-100"
               >
-                ← Prev
-              </button>
-              <button
+                Prev
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
                 disabled={offset + PAGE_SIZE >= data.total}
                 onClick={() => setOffset(offset + PAGE_SIZE)}
-                className="px-3 py-1.5 border border-slate-300 rounded-md disabled:opacity-50 hover:bg-slate-100"
               >
-                Next →
-              </button>
+                Next
+              </Button>
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageShell>
   )
 }

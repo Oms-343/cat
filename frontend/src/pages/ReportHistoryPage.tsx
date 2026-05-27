@@ -53,7 +53,7 @@ export function ReportHistoryPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-surface-card rounded-lg border border-hairline overflow-hidden">
         {loading && <p className="p-6 text-sm text-slate-500">Loading…</p>}
 
         {!loading && data && data.items.length === 0 && (

@@ -1,4 +1,7 @@
+import { Award, Cog, Handshake, Package, type LucideIcon } from 'lucide-react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { Button } from './ui/Button'
+import { inputClassName } from './ui/Input'
 import {
   certifications as certsApi,
   customers as customersApi,
@@ -18,31 +21,28 @@ import type { MasterEntry } from '../types/master'
 
 interface SectionShellProps {
   title: string
-  icon: string
+  icon: LucideIcon
   count: number
   canEdit: boolean
   onAdd: () => void
   children: ReactNode
 }
 
-function SectionShell({ title, icon, count, canEdit, onAdd, children }: SectionShellProps) {
+function SectionShell({ title, icon: Icon, count, canEdit, onAdd, children }: SectionShellProps) {
   return (
-    <section className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-6">
-      <header className="flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-slate-50">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">{icon}</span>
-          <h3 className="font-semibold text-slate-900">{title}</h3>
-          <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-300 px-2 py-0.5 rounded">
+    <section className="border border-hairline rounded-lg overflow-hidden mb-6">
+      <header className="flex items-center justify-between px-5 py-3 border-b border-hairline bg-surface-soft">
+        <div className="flex items-center gap-2.5">
+          <Icon className="h-5 w-5 text-muted shrink-0" strokeWidth={1.75} aria-hidden />
+          <h3 className="font-semibold text-ink">{title}</h3>
+          <span className="text-xs font-semibold text-body bg-surface-card border border-hairline px-2 py-0.5 rounded-md">
             {count}
           </span>
         </div>
         {canEdit && (
-          <button
-            onClick={onAdd}
-            className="text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1 rounded-md"
-          >
-            + Add
-          </button>
+          <Button type="button" size="sm" onClick={onAdd}>
+            Add
+          </Button>
         )}
       </header>
       {children}
@@ -76,8 +76,7 @@ function RowActions({
   )
 }
 
-const inputCls =
-  'w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
+const inputCls = inputClassName
 
 // ---------------------------------------------------------------------------
 // Products
@@ -161,7 +160,7 @@ export function ProductsSection({ companyId, canEdit, onChange }: ProductsSectio
   }
 
   return (
-    <SectionShell title="Products / Services" icon="📦" count={items.length} canEdit={canEdit} onAdd={openAdd}>
+    <SectionShell title="Products / Services" icon={Package} count={items.length} canEdit={canEdit} onAdd={openAdd}>
       {items.length === 0 ? (
         <EmptyState message={canEdit ? 'No products yet. Click + Add to create one.' : 'No products listed.'} />
       ) : (
@@ -332,7 +331,7 @@ export function CertificationsSection({
   }
 
   return (
-    <SectionShell title="Certifications" icon="🏆" count={items.length} canEdit={canEdit} onAdd={openAdd}>
+    <SectionShell title="Certifications" icon={Award} count={items.length} canEdit={canEdit} onAdd={openAdd}>
       {items.length === 0 ? (
         <EmptyState message={canEdit ? 'No certifications yet. Click + Add to create one.' : 'No certifications listed.'} />
       ) : (
@@ -387,7 +386,7 @@ export function CertificationsSection({
         <form id="cert-form" onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Certification *</label>
-            <select required value={form.certification_code} onChange={(e) => setForm({ ...form, certification_code: e.target.value })} className={inputCls + ' bg-white'}>
+            <select required value={form.certification_code} onChange={(e) => setForm({ ...form, certification_code: e.target.value })} className={inputCls}>
               <option value="">Select…</option>
               {certifications.map((c) => (<option key={c.code} value={c.code}>{c.name}</option>))}
             </select>
@@ -499,7 +498,7 @@ export function CustomersSection({
   }
 
   return (
-    <SectionShell title="Customers" icon="🤝" count={items.length} canEdit={canEdit} onAdd={openAdd}>
+    <SectionShell title="Customers" icon={Handshake} count={items.length} canEdit={canEdit} onAdd={openAdd}>
       {items.length === 0 ? (
         <EmptyState message={canEdit ? 'No customers yet. Click + Add to create one.' : 'No customers listed.'} />
       ) : (
@@ -551,7 +550,7 @@ export function CustomersSection({
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Type *</label>
-            <select value={form.customer_type} onChange={(e) => setForm({ ...form, customer_type: e.target.value as CustomerType })} className={inputCls + ' bg-white'}>
+            <select value={form.customer_type} onChange={(e) => setForm({ ...form, customer_type: e.target.value as CustomerType })} className={inputCls}>
               <option value="business">Business</option>
               <option value="government">Government</option>
               <option value="export">Export</option>
@@ -656,7 +655,7 @@ export function MachinerySection({
   }
 
   return (
-    <SectionShell title="Machinery / Capabilities" icon="⚙️" count={items.length} canEdit={canEdit} onAdd={openAdd}>
+    <SectionShell title="Machinery / Capabilities" icon={Cog} count={items.length} canEdit={canEdit} onAdd={openAdd}>
       {items.length === 0 ? (
         <EmptyState message={canEdit ? 'No machinery yet. Click + Add to create one.' : 'No machinery listed.'} />
       ) : (
@@ -718,7 +717,7 @@ export function MachinerySection({
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Capacity Unit</label>
-              <select value={form.capacity_unit} onChange={(e) => setForm({ ...form, capacity_unit: e.target.value })} className={inputCls + ' bg-white'}>
+              <select value={form.capacity_unit} onChange={(e) => setForm({ ...form, capacity_unit: e.target.value })} className={inputCls}>
                 <option value="">Select…</option>
                 {productionCapacities.map((u) => (<option key={u.code} value={u.code}>{u.name}</option>))}
               </select>

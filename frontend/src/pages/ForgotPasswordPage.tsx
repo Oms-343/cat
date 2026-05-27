@@ -9,11 +9,10 @@ import {
   AuthError,
   AuthField,
   AuthLayout,
-  authBtnPrimary,
-  authInputCls,
 } from '../layouts/AuthLayout'
 import { PasswordStrengthHints } from '../components/PasswordStrengthHints'
 import { passwordIsStrong } from '../utils/passwordStrength'
+import { Alert, Button, Input } from '../components/ui'
 
 type Step = 'email' | 'otp' | 'password' | 'done'
 
@@ -75,9 +74,9 @@ export function ForgotPasswordPage() {
   if (step === 'done') {
     return (
       <AuthLayout title="Password updated" subtitle="You can sign in with your new password.">
-        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+        <Alert variant="success" className="mb-4">
           Your password has been reset successfully.
-        </p>
+        </Alert>
         <AuthBackLink>Go to sign in →</AuthBackLink>
       </AuthLayout>
     )
@@ -87,20 +86,20 @@ export function ForgotPasswordPage() {
     return (
       <AuthLayout title="New password" subtitle="Choose a strong password.">
         <form onSubmit={handlePassword} className="space-y-4">
-          <AuthField label="New password">
-            <input
+          <AuthField label="New password" htmlFor="new-password">
+            <Input
+              id="new-password"
               type="password"
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className={authInputCls}
             />
             <PasswordStrengthHints password={newPassword} />
           </AuthField>
           {error && <AuthError message={error} />}
-          <button type="submit" disabled={submitting} className={authBtnPrimary}>
+          <Button type="submit" fullWidth disabled={submitting}>
             {submitting ? 'Saving…' : 'Reset password'}
-          </button>
+          </Button>
         </form>
         <AuthBackLink />
       </AuthLayout>
@@ -112,24 +111,25 @@ export function ForgotPasswordPage() {
       <AuthLayout title="Enter code" subtitle="Check your email (demo code shown below).">
         <form onSubmit={handleOtp} className="space-y-4">
           {demoOtp && (
-            <p className="text-xs text-blue-800 bg-blue-50 border border-blue-200 rounded-md p-2">
-              Demo OTP: <strong className="font-mono">{demoOtp}</strong>
-            </p>
+            <Alert variant="info">
+              Demo OTP: <strong className="font-mono text-ink">{demoOtp}</strong>
+            </Alert>
           )}
-          <AuthField label="Verification code">
-            <input
+          <AuthField label="Verification code" htmlFor="otp">
+            <Input
+              id="otp"
               required
               maxLength={8}
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className={authInputCls + ' font-mono'}
+              className="font-mono"
               placeholder="1234"
             />
           </AuthField>
           {error && <AuthError message={error} />}
-          <button type="submit" className={authBtnPrimary}>
+          <Button type="submit" fullWidth>
             Continue
-          </button>
+          </Button>
         </form>
         <AuthBackLink />
       </AuthLayout>
@@ -139,21 +139,21 @@ export function ForgotPasswordPage() {
   return (
     <AuthLayout title="Forgot password" subtitle="We'll send a verification code (demo: 1234).">
       <form onSubmit={handleEmail} className="space-y-4">
-        <AuthField label="Registered email">
-          <input
+        <AuthField label="Registered email" htmlFor="forgot-email">
+          <Input
+            id="forgot-email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={authInputCls}
           />
         </AuthField>
         {error && <AuthError message={error} />}
-        <button type="submit" disabled={submitting} className={authBtnPrimary}>
+        <Button type="submit" fullWidth disabled={submitting}>
           {submitting ? 'Sending…' : 'Send code'}
-        </button>
+        </Button>
       </form>
-      <p className="text-xs text-slate-400 mt-4">Use your TIDCO admin email e.g. admin@tidco.com</p>
+      <p className="text-xs text-muted-soft mt-4">Use your TIDCO admin email e.g. admin@tidco.com</p>
       <AuthBackLink />
     </AuthLayout>
   )

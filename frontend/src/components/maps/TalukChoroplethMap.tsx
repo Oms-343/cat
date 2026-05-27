@@ -181,7 +181,7 @@ export function TalukChoroplethMap({
         <button
           type="button"
           onClick={onBack}
-          className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+          className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded border border-hairline bg-surface-card/90 text-body hover:bg-surface-soft"
         >
           {levelPill}
         </button>
@@ -300,7 +300,7 @@ export function TalukChoroplethMap({
       )}
 
       {hoveredRegion && (
-        <div className="absolute top-16 right-3 bg-white/95 border border-slate-200 shadow-md rounded-lg px-3 py-2 text-sm pointer-events-none z-10">
+        <div className="absolute top-16 right-3 bg-surface-card/95 border border-hairline shadow-md rounded-lg px-3 py-2 text-sm pointer-events-none z-10">
           <p className="font-semibold text-slate-900">{hoveredRegion.name}</p>
           <p className="text-slate-600 tabular-nums">
             <strong>{hoveredRegion.count.toLocaleString()}</strong> MSMEs

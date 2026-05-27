@@ -42,7 +42,7 @@ export function MastersListPage() {
             <Link
               key={m.key}
               to={`/masters/${m.key}`}
-              className="block bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:shadow-md hover:border-blue-300 transition"
+              className="block border border-hairline rounded-lg p-5 hover:border-brand-accent/40 hover:bg-surface-card/50 transition"
             >
               <div className="flex items-start justify-between mb-2">
                 <h3 className="font-semibold text-slate-900">{m.label}</h3>

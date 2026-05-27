@@ -127,7 +127,7 @@ export function ReportRunPage() {
       </header>
 
       {report.filters.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+        <div className="border border-hairline rounded-lg p-4 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             {report.filters.map((f) => (
               <FilterInput
@@ -238,7 +238,7 @@ function FilterInput({
           {spec.label}
           {spec.required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
-        <select value={value} onChange={(e) => onChange(e.target.value)} className={cls + ' bg-white'}>
+        <select value={value} onChange={(e) => onChange(e.target.value)} className={cls}>
           <option value="">{spec.required ? `Select ${spec.label}…` : `All ${spec.label.toLowerCase()}`}</option>
           {opts.map((o) => (
             <option key={o.code} value={o.code}>
@@ -271,7 +271,7 @@ function SummaryCards({ summary }: { summary: Record<string, unknown> }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
       {entries.map(([k, v]) => (
-        <div key={k} className="bg-white border border-slate-200 rounded-xl p-3">
+        <div key={k} className="border border-hairline rounded-lg p-3">
           <p className="text-[10px] uppercase tracking-wide text-slate-500">
             {k.replace(/_/g, ' ')}
           </p>
@@ -303,7 +303,7 @@ function ResultTable({
             .join(' · ')}
         </p>
       )}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="bg-surface-card border border-hairline rounded-lg overflow-hidden">
         {rows.length === 0 ? (
           <p className="p-6 text-sm text-slate-500 text-center">No rows.</p>
         ) : (

@@ -19,12 +19,12 @@ export function EditRequestsPanel() {
   if (items.length === 0 && !error) return null
 
   return (
-    <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+    <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
       <h2 className="text-sm font-semibold text-amber-900 mb-2">Pending profile change requests</h2>
       {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
       <ul className="space-y-2">
         {items.map((r) => (
-          <li key={r.id} className="bg-white border border-amber-100 rounded-lg p-3 text-sm flex flex-wrap gap-2 items-start justify-between">
+          <li key={r.id} className="bg-amber-50/60 border border-amber-200/80 rounded-lg p-3 text-sm flex flex-wrap gap-2 items-start justify-between">
             <div>
               <p className="font-medium text-slate-900">{r.company_name}</p>
               <p className="text-slate-500 text-xs">

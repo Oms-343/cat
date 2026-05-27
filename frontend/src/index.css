@@ -1,11 +1,82 @@
 @import "tailwindcss";
+@import "./theme/tokens.css";
 
-html, body, #root {
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-active: var(--color-primary-active);
+  --color-primary-disabled: var(--color-primary-disabled);
+  --color-ink: var(--color-ink);
+  --color-body: var(--color-body);
+  --color-muted: var(--color-muted);
+  --color-muted-soft: var(--color-muted-soft);
+  --color-hairline: var(--color-hairline);
+  --color-hairline-soft: var(--color-hairline-soft);
+  --color-canvas: var(--color-canvas);
+  --color-surface-soft: var(--color-surface-soft);
+  --color-surface-card: var(--color-surface-card);
+  --color-surface-strong: var(--color-surface-strong);
+  --color-surface-dark: var(--color-surface-dark);
+  --color-on-primary: var(--color-on-primary);
+  --color-on-dark-soft: var(--color-on-dark-soft);
+  --color-brand-accent: var(--color-brand-accent);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+}
+
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-body);
+  background-color: var(--color-surface-soft);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .leaflet-container {
   font-family: inherit;
   z-index: 0;
+}
+
+/* Subtle scrollbars for dense panels (e.g. regions list) */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-strong) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--color-hairline);
+  border-radius: var(--radius-pill);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-muted-soft);
 }

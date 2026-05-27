@@ -258,7 +258,7 @@ export function GeographicChoroplethMap({
       )}
 
       {hoveredRegion && (
-        <div className="absolute top-10 right-3 bg-white/95 border border-slate-200 shadow-md rounded-lg px-3 py-2 text-sm pointer-events-none z-10">
+        <div className="absolute top-10 right-3 bg-surface-card/95 border border-hairline shadow-md rounded-lg px-3 py-2 text-sm pointer-events-none z-10">
           <p className="font-semibold text-slate-900">{hoveredRegion.name}</p>
           <p className="text-slate-600 tabular-nums">
             <strong>{hoveredRegion.count.toLocaleString()}</strong> MSMEs
@@ -267,7 +267,7 @@ export function GeographicChoroplethMap({
       )}
 
       {level !== "state" && districtName && !hoveredRegion && (
-        <div className="absolute top-10 right-3 bg-white/95 border border-slate-200 shadow-md rounded-lg px-3 py-2 text-sm pointer-events-none z-10">
+        <div className="absolute top-10 right-3 bg-surface-card/95 border border-hairline shadow-md rounded-lg px-3 py-2 text-sm pointer-events-none z-10">
           <p className="text-[10px] uppercase tracking-wide text-slate-400">
             {level === "district" ? "District" : "Taluk in"}
           </p>

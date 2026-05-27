@@ -45,7 +45,7 @@ export function PincodeAreaMap({
     : []
 
   return (
-    <div className="h-full min-h-[420px] bg-white border border-slate-200 rounded-xl p-4 flex flex-col">
+    <div className="h-full min-h-[420px] border border-hairline rounded-lg p-4 flex flex-col">
       <p className="text-xs text-slate-500 mb-2">Pincode {pincode} on map</p>
       <div className="flex-1 min-h-0">
         <OsmMap center={center} zoom={13} markers={markers} height="min(480px, 60vh)" />

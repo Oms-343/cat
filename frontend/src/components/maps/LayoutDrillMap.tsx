@@ -163,7 +163,7 @@ export function LayoutDrillMap({
         <button
           type="button"
           onClick={onBack}
-          className="mt-2 text-xs px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100"
+          className="mt-2 text-xs px-3 py-1.5 rounded border border-hairline bg-surface-card/90 hover:bg-surface-soft"
         >
           Back to Tamil Nadu
         </button>
@@ -189,7 +189,7 @@ export function LayoutDrillMap({
         <button
           type="button"
           onClick={onBack}
-          className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+          className="shrink-0 text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded border border-hairline bg-surface-card/90 text-body hover:bg-surface-soft"
         >
           {levelPill}
         </button>

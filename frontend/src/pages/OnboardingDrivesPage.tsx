@@ -386,7 +386,7 @@ export function OnboardingDrivesPage() {
             <strong>Webhook URL</strong> (register in Meta Developer Console →
             WhatsApp → Configuration):
           </p>
-          <code className="block text-xs bg-white border border-slate-200 rounded px-2 py-1.5 break-all">
+          <code className="block text-xs border border-hairline rounded px-2 py-1.5 break-all">
             {config.webhook_url}
           </code>
           <p className="text-xs text-slate-500">
@@ -398,7 +398,7 @@ export function OnboardingDrivesPage() {
           {config.enroll_public_url ? (
             <p className="text-xs text-slate-600">
               <strong>Enrollment app URL</strong> (links in WhatsApp messages):{" "}
-              <code className="bg-white border border-slate-200 rounded px-1">
+              <code className="border border-hairline rounded px-1">
                 {config.enroll_public_url}
               </code>
             </p>
@@ -432,7 +432,7 @@ export function OnboardingDrivesPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="border border-hairline rounded-lg p-4">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
             Campaigns
           </p>
@@ -440,7 +440,7 @@ export function OnboardingDrivesPage() {
             {summary.campaign_count}
           </p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="border border-hairline rounded-lg p-4">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
             Messages sent
           </p>
@@ -448,7 +448,7 @@ export function OnboardingDrivesPage() {
             {formatNumber(summary.total_sent)}
           </p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
+        <div className="border border-hairline rounded-lg p-4">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
             Avg delivery · responses
           </p>
@@ -463,7 +463,7 @@ export function OnboardingDrivesPage() {
         <h2 className="text-lg font-semibold text-slate-900 mb-3">
           Campaign performance
         </h2>
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div className="border border-hairline rounded-lg overflow-hidden">
           {campaigns.length === 0 ? (
             <p className="px-4 py-8 text-sm text-slate-500 text-center">
               No campaigns yet. Launch your first onboarding drive.
@@ -627,7 +627,7 @@ export function OnboardingDrivesPage() {
           {templates.map((t) => (
             <div
               key={t.id}
-              className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col"
+              className="border border-hairline rounded-lg p-5 flex flex-col"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <h3 className="font-semibold text-slate-900 text-sm">
@@ -665,7 +665,7 @@ export function OnboardingDrivesPage() {
             <button
               type="button"
               onClick={() => (step > 1 ? setStep(step - 1) : closeWizard())}
-              className="text-sm border border-slate-300 px-3 py-1.5 rounded-md hover:bg-white"
+              className="text-sm border border-hairline px-3 py-1.5 rounded-md hover:bg-surface-card"
               disabled={launching}
             >
               {step === 1 ? "Cancel" : "Back"}

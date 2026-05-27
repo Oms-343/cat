@@ -80,7 +80,7 @@ export function CompanyAddPage() {
       {!masters && <p className="text-sm text-slate-500">Loading…</p>}
 
       {masters && (
-        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-6">
+        <form onSubmit={handleSubmit} className="border border-hairline rounded-lg p-6">
           <CompanyForm
             values={values}
             onChange={setValues}

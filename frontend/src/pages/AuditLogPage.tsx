@@ -134,7 +134,7 @@ export function AuditLogPage() {
         </button>
       </header>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+      <div className="border border-hairline rounded-lg p-4 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           <select
             value={action}
@@ -142,7 +142,7 @@ export function AuditLogPage() {
               setOffset(0)
               setAction(e.target.value)
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
+            className="px-3 py-2 border border-hairline rounded-md text-sm bg-transparent"
           >
             <option value="">All actions</option>
             {ACTION_TYPES.map((a) => (
@@ -157,7 +157,7 @@ export function AuditLogPage() {
               setOffset(0)
               setResourceType(e.target.value)
             }}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
+            className="px-3 py-2 border border-hairline rounded-md text-sm bg-transparent"
           >
             <option value="">All resource types</option>
             {RESOURCE_TYPES.map((r) => (
@@ -204,7 +204,7 @@ export function AuditLogPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-surface-card rounded-lg border border-hairline overflow-hidden">
         {error && <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-200">{error}</div>}
         {loading && <p className="p-6 text-sm text-slate-500">Loading…</p>}
 

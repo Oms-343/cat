@@ -1,7 +1,9 @@
+import { Lock } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Company, CompanyCreate } from '../types/company'
 import type { MasterEntry } from '../types/master'
 import { loadTalukIndex, type TalukIndex } from './maps/tnLayoutMap'
+import { inputClassName } from './ui/Input'
 
 export interface CompanyFormValues {
   name: string
@@ -124,7 +126,7 @@ export function formToPayload(
   }
   if (options?.omitFields) {
     for (const field of options.omitFields) {
-      delete (payload as Record<string, unknown>)[field]
+      delete (payload as unknown as Record<string, unknown>)[field]
     }
   }
   return payload
@@ -143,9 +145,11 @@ interface CompanyFormProps {
 
 function LockIcon() {
   return (
-    <span title="Verified from government records — read-only" className="ml-1 text-slate-400">
-      🔒
-    </span>
+    <Lock
+      className="inline h-3.5 w-3.5 ml-1 text-muted-soft align-middle"
+      strokeWidth={2}
+      aria-label="Verified from government records — read-only"
+    />
   )
 }
 
@@ -178,7 +182,7 @@ export function CompanyForm({
   }
 
   const inputCls =
-    'w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-500'
+    inputClassName + ' disabled:bg-surface-soft disabled:text-muted'
 
   return (
     <div className="space-y-8">
@@ -198,7 +202,7 @@ export function CompanyForm({
             disabled={readOnly || isLocked('legal_structure_code')}
             value={values.legal_structure_code}
             onChange={(e) => set('legal_structure_code', e.target.value)}
-            className={inputCls + ' bg-white'}
+            className={inputCls}
           >
             <option value="">Select…</option>
             {legalStructures.map((l) => (
@@ -222,7 +226,7 @@ export function CompanyForm({
             disabled={readOnly}
             value={values.business_activity}
             onChange={(e) => set('business_activity', e.target.value)}
-            className={inputCls + ' bg-white'}
+            className={inputCls}
           >
             <option value="">Select…</option>
             <option value="manufacturing">Manufacturing</option>
@@ -265,7 +269,7 @@ export function CompanyForm({
             onChange={(e) =>
               onChange({ ...values, district_code: e.target.value, taluk_code: '' })
             }
-            className={inputCls + ' bg-white'}
+            className={inputCls}
           >
             <option value="">Select…</option>
             {districts.map((d) => (
@@ -280,7 +284,7 @@ export function CompanyForm({
             disabled={readOnly || !values.district_code}
             value={values.taluk_code}
             onChange={(e) => set('taluk_code', e.target.value)}
-            className={inputCls + ' bg-white'}
+            className={inputCls}
           >
             <option value="">
               {!values.district_code
@@ -320,7 +324,7 @@ export function CompanyForm({
             disabled={readOnly}
             value={values.sector_code}
             onChange={(e) => set('sector_code', e.target.value)}
-            className={inputCls + ' bg-white'}
+            className={inputCls}
           >
             <option value="">Select…</option>
             {sectors.map((s) => (
@@ -393,7 +397,7 @@ export function CompanyForm({
             disabled={readOnly}
             value={values.turnover_range_code}
             onChange={(e) => set('turnover_range_code', e.target.value)}
-            className={inputCls + ' bg-white'}
+            className={inputCls}
           >
             <option value="">Select…</option>
             {turnoverRanges.map((t) => (

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Alert, Card, Field } from '../components/ui'
 
 export function AuthLayout({
   title,
@@ -10,37 +11,39 @@ export function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-screen flex items-center justify-center bg-surface-soft p-4">
+      <Card variant="elevated" className="w-full max-w-md shadow-md" padding="md">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
-          <p className="text-sm text-slate-500">{subtitle}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted mb-2">
+            MSME Platform
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
+          <p className="text-sm text-muted mt-1">{subtitle}</p>
         </header>
         {children}
-      </div>
+      </Card>
     </div>
   )
 }
 
-export const authInputCls =
-  'w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-
-export const authBtnPrimary =
-  'w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-medium py-2 rounded-md transition'
-
-export function AuthField({ label, children }: { label: string; children: React.ReactNode }) {
+export function AuthField({
+  label,
+  htmlFor,
+  children,
+}: {
+  label: string
+  htmlFor?: string
+  children: React.ReactNode
+}) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+    <Field label={label} htmlFor={htmlFor}>
       {children}
-    </div>
+    </Field>
   )
 }
 
 export function AuthError({ message }: { message: string }) {
-  return (
-    <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">{message}</div>
-  )
+  return <Alert variant="error">{message}</Alert>
 }
 
 export function DummyAccounts<T extends { role: string; email: string }>({
@@ -51,32 +54,38 @@ export function DummyAccounts<T extends { role: string; email: string }>({
   onPick: (acc: T) => void
 }) {
   return (
-    <div className="mt-8 pt-6 border-t border-slate-200">
-      <p className="text-xs uppercase tracking-wide text-slate-500 mb-2">Quick fill (dev)</p>
+    <div className="mt-8 pt-6 border-t border-hairline">
+      <p className="text-xs uppercase tracking-wide text-muted mb-2">Quick fill (dev)</p>
       <div className="space-y-1">
         {accounts.map((acc) => (
           <button
             key={acc.email}
             type="button"
             onClick={() => onPick(acc)}
-            className="w-full text-left text-sm px-3 py-2 rounded-md hover:bg-slate-100 border border-slate-200"
+            className="w-full text-left text-sm px-3 py-2 rounded-md hover:bg-surface-soft border border-hairline transition-colors"
           >
-            <span className="font-medium text-slate-900">{acc.role}</span>
-            <span className="text-slate-500"> · {acc.email}</span>
+            <span className="font-medium text-ink">{acc.role}</span>
+            <span className="text-muted"> · {acc.email}</span>
           </button>
         ))}
       </div>
-      <p className="text-xs text-slate-400 mt-2">
-        Demo OTP for password reset: <strong>1234</strong>
+      <p className="text-xs text-muted-soft mt-2">
+        Demo OTP for password reset: <strong className="text-ink">1234</strong>
       </p>
     </div>
   )
 }
 
-export function AuthBackLink({ to = '/login', children = '← Back to sign in' }: { to?: string; children?: string }) {
+export function AuthBackLink({
+  to = '/login',
+  children = '← Back to sign in',
+}: {
+  to?: string
+  children?: string
+}) {
   return (
     <p className="mt-4 text-center text-sm">
-      <Link to={to} className="text-blue-600 hover:underline">
+      <Link to={to} className="text-ink font-medium hover:underline">
         {children}
       </Link>
     </p>

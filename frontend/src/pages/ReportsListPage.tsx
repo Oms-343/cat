@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FileSpreadsheet, History, ScrollText } from 'lucide-react'
 import { listReports } from '../api/reports'
 import { ApiError } from '../api/client'
 import type { ReportMeta } from '../types/report'
+import { Alert, Badge, Button, Card, PageHeader, PageShell } from '../components/ui'
+
+function ReportCardIcon({ slug }: { slug: string }) {
+  const cls = 'h-8 w-8 text-muted mb-3'
+  if (slug.includes('audit')) return <ScrollText className={cls} strokeWidth={1.75} />
+  return <FileSpreadsheet className={cls} strokeWidth={1.75} />
+}
 
 export function ReportsListPage() {
   const [reports, setReports] = useState<ReportMeta[] | null>(null)
@@ -15,75 +23,66 @@ export function ReportsListPage() {
   }, [])
 
   return (
-    <div className="max-w-6xl mx-auto px-8 py-8">
-      <header className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">MIS Reports</h1>
-          <p className="text-sm text-slate-500">
-            Pre-built reports for sector, district, growth, tag analytics, profile completion — exportable to Excel/CSV.
-          </p>
-        </div>
-        <Link
-          to="/reports/history"
-          className="text-sm border border-slate-300 px-3 py-2 rounded-md hover:bg-slate-100"
-        >
-          📜 Export history
-        </Link>
-      </header>
+    <PageShell width="lg">
+      <PageHeader
+        title="MIS Reports"
+        description="Pre-built reports for sector, district, growth, tag analytics, profile completion — exportable to Excel/CSV."
+        actions={
+          <Link to="/reports/history">
+            <Button variant="secondary" size="sm" type="button" className="gap-2">
+              <History className="h-4 w-4" aria-hidden />
+              Export history
+            </Button>
+          </Link>
+        }
+      />
 
-      {error && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 mb-4">
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       {reports && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {reports.map((r) => (
-            <Link
-              key={r.slug}
-              to={`/reports/${r.slug}`}
-              className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-blue-300 transition"
-            >
-              <div className="text-2xl mb-2">{r.icon}</div>
-              <h3 className="font-semibold text-slate-900 mb-1">{r.name}</h3>
-              <p className="text-sm text-slate-500 mb-3">{r.description}</p>
-              {r.filters.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {r.filters.map((f) => (
-                    <span
-                      key={f.key}
-                      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
-                        f.required
-                          ? 'bg-red-50 text-red-700 border-red-200'
-                          : 'bg-slate-100 text-slate-700 border-slate-200'
-                      }`}
-                    >
-                      {f.label}
-                      {f.required && ' *'}
-                    </span>
-                  ))}
-                </div>
-              )}
+            <Link key={r.slug} to={`/reports/${r.slug}`} className="block group">
+              <Card
+                padding="md"
+                className="h-full transition-shadow group-hover:shadow-md group-hover:border-ink/20"
+              >
+                <ReportCardIcon slug={r.slug} />
+                <h3 className="font-semibold text-ink mb-1">{r.name}</h3>
+                <p className="text-sm text-muted mb-3">{r.description}</p>
+                {r.filters.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {r.filters.map((f) => (
+                      <Badge
+                        key={f.key}
+                        tone={f.required ? 'error' : 'neutral'}
+                        className="normal-case tracking-normal"
+                      >
+                        {f.label}
+                        {f.required && ' *'}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </Card>
             </Link>
           ))}
 
-          {/* Audit trail — references existing audit log page */}
-          <Link
-            to="/audit-log"
-            className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md hover:border-blue-300 transition"
-          >
-            <div className="text-2xl mb-2">🧾</div>
-            <h3 className="font-semibold text-slate-900 mb-1">Audit Trail Export</h3>
-            <p className="text-sm text-slate-500 mb-3">
-              Every action on the platform, exportable as CSV. Lives in the Audit Log page.
-            </p>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded border bg-blue-50 text-blue-700 border-blue-200">
-              Open Audit Log →
-            </span>
+          <Link to="/audit-log" className="block group">
+            <Card
+              padding="md"
+              className="h-full transition-shadow group-hover:shadow-md group-hover:border-ink/20"
+            >
+              <ScrollText className="h-8 w-8 text-muted mb-3" strokeWidth={1.75} aria-hidden />
+              <h3 className="font-semibold text-ink mb-1">Audit Trail Export</h3>
+              <p className="text-sm text-muted mb-3">
+                Every action on the platform, exportable as CSV. Lives in the Audit Log page.
+              </p>
+              <span className="text-xs font-semibold text-ink">Open Audit Log →</span>
+            </Card>
           </Link>
         </div>
       )}
-    </div>
+    </PageShell>
   )
 }

@@ -7,10 +7,9 @@ import {
   AuthError,
   AuthField,
   AuthLayout,
-  authBtnPrimary,
-  authInputCls,
   DummyAccounts,
 } from '../layouts/AuthLayout'
+import { Button, Input } from '../components/ui'
 
 const dummyAccounts = [
   { role: 'TIDCO Admin', email: 'admin@tidco.com', password: 'admin123' },
@@ -49,36 +48,36 @@ export function LoginPage() {
   return (
     <AuthLayout title="Sign in" subtitle="TIDCO · MSME Platform">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <AuthField label="Email">
-          <input
+        <AuthField label="Email" htmlFor="login-email">
+          <Input
+            id="login-email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={authInputCls}
             placeholder="you@tidco.com"
           />
         </AuthField>
 
-        <AuthField label="Password">
-          <input
+        <AuthField label="Password" htmlFor="login-password">
+          <Input
+            id="login-password"
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={authInputCls}
           />
         </AuthField>
 
         {error && <AuthError message={error} />}
 
-        <button type="submit" disabled={submitting} className={authBtnPrimary}>
+        <Button type="submit" fullWidth disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
-        </button>
+        </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-slate-600">
-        <Link to="/forgot-password" className="text-blue-600 hover:underline">
+      <p className="mt-4 text-center text-sm text-muted">
+        <Link to="/forgot-password" className="text-ink font-medium hover:underline">
           Forgot password?
         </Link>
       </p>

@@ -247,7 +247,7 @@ export function CompanyProfilePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <aside className="lg:col-span-1">
-          <div className="bg-white border border-slate-200 rounded-xl p-4 sticky top-4">
+          <div className="border border-hairline rounded-lg p-4 sticky top-4">
             <h3 className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">
               Profile Sections
             </h3>
@@ -269,7 +269,7 @@ export function CompanyProfilePage() {
           </div>
         </aside>
 
-        <main className="lg:col-span-3 bg-white border border-slate-200 rounded-xl p-6">
+        <main className="lg:col-span-3 border border-hairline rounded-lg p-6">
           <CompanyForm
             values={formValues}
             onChange={setFormValues}
@@ -381,7 +381,7 @@ export function CompanyProfilePage() {
                       key={t}
                       type="button"
                       onClick={() => addTag(t)}
-                      className="text-xs px-2 py-0.5 rounded border bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                      className="text-xs px-2 py-0.5 rounded border bg-transparent text-body border-hairline hover:bg-surface-card"
                     >
                       + {t}
                     </button>

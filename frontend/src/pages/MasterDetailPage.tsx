@@ -183,7 +183,7 @@ export function MasterDetailPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-surface-card rounded-lg border border-hairline overflow-hidden">
         {loading && <p className="p-6 text-sm text-slate-500">Loading…</p>}
 
         {error && (
