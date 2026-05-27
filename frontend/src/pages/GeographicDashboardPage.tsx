@@ -28,10 +28,13 @@ import {
   loadTalukIndex,
 } from "../components/maps/tnLayoutMap";
 import { SUGGESTED_COMPANY_TAGS } from "../constants/companyTags";
-import { DashboardStatCard } from "../components/dashboard/DashboardStatCard";
+import {
+  DashboardStatCard,
+  MsmeCountChartIcon,
+} from "../components/dashboard/DashboardStatCard";
 import { Alert, PageShell, Select } from "../components/ui";
 import { cn } from "../utils/cn";
-import { Factory, MapPin, Scale } from "lucide-react";
+import { Briefcase, Factory, MapPin, Scale } from "lucide-react";
 
 /** Matches backend `UNASSIGNED_TALUK_CODE` — MSMEs in district with no taluk/pincode. */
 const UNASSIGNED_TALUK_CODE = "_UNASSIGNED";
@@ -302,50 +305,58 @@ export function GeographicDashboardPage() {
         </h1>
         <p className="text-sm text-muted mt-1">
           {level === "state" &&
-            "All districts — click to drill into taluks and pincodes."}
+            "An interactive view of micro, small, and medium enterprise distribution across Tamil Nadu districts."}
           {level === "district" && `Taluks in ${districtName}.`}
           {level === "taluk" && `Pincodes in ${talukName}.`}
           {level === "pincode" && `Companies in pincode ${pincode}.`}
         </p>
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-5">
-        <FiltersPanel
-          className="xl:col-span-7"
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-5 items-stretch">
+        <RefinementPanel
+          className={
+            overview && level === "state" && !loading
+              ? "xl:col-span-6"
+              : "xl:col-span-12"
+          }
           sector={sector}
           turnover={turnover}
           tag={tag}
           masters={masters}
           onUpdate={updateParams}
         />
-        <div className="xl:col-span-5 flex flex-col gap-3 min-w-0">
-          <TagFiltersPanel
-            tag={tag}
-            sector={sector}
-            turnover={turnover}
-            onUpdate={updateParams}
-          />
-          {overview && level === "state" && !loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <DashboardStatCard
-                label="Total MSMEs"
-                value={overview.total_companies.toLocaleString()}
-                icon={Factory}
-                detail={
-                  topRegionInsight
-                    ? `Led by ${topRegionInsight.name} (${topRegionInsight.company_count.toLocaleString()})`
-                    : "No MSMEs in the current filter"
-                }
-              />
-              <DashboardStatCard
-                label="Districts active"
-                value={`${overview.total_districts_with_msmes} of 38`}
-                icon={MapPin}
-                detail={`${Math.round((overview.total_districts_with_msmes / 38) * 100)}% of Tamil Nadu districts have MSMEs`}
-              />
-            </div>
-          )}
-        </div>
+        {overview && level === "state" && !loading && (
+          <>
+            <DashboardStatCard
+              className="xl:col-span-3"
+              label="Total MSMEs"
+              value={overview.total_companies.toLocaleString()}
+              icon={<MsmeCountChartIcon />}
+              detail={
+                topRegionInsight ? (
+                  <>
+                    Led by{" "}
+                    <span className="font-semibold text-ink">
+                      {topRegionInsight.name} (
+                      {topRegionInsight.company_count.toLocaleString()})
+                    </span>
+                  </>
+                ) : (
+                  "No MSMEs in the current filter"
+                )
+              }
+              footer="Total registered MSMEs"
+            />
+            <DashboardStatCard
+              className="xl:col-span-3"
+              label="Active districts"
+              value={`${overview.total_districts_with_msmes} of 38`}
+              secondaryValue={`${Math.round((overview.total_districts_with_msmes / 38) * 100)}%`}
+              icon={<MapPin className="w-10 h-10" strokeWidth={1.5} />}
+              footer="Registered MSMEs across all districts."
+            />
+          </>
+        )}
       </div>
 
       {loading && <p className="text-sm text-muted mb-3">Loading…</p>}
@@ -483,9 +494,10 @@ function FilterSelect({
   );
 }
 
-function FiltersPanel({
+function RefinementPanel({
   sector,
   turnover,
+  tag,
   masters,
   onUpdate,
   className,
@@ -501,6 +513,8 @@ function FiltersPanel({
   onUpdate: (u: Record<string, string | null>) => void;
   className?: string;
 }) {
+  const hasFilters = Boolean(tag || sector || turnover);
+
   return (
     <div
       className={cn(
@@ -508,10 +522,24 @@ function FiltersPanel({
         className,
       )}
     >
-      <p className="text-xs font-medium text-muted mb-3">Refined by:</p>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <p className="text-sm font-semibold text-ink">Refinement Panel</p>
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() =>
+              onUpdate({ tag: null, sector: null, turnover: null })
+            }
+            className="text-xs text-brand-accent hover:underline font-medium shrink-0"
+          >
+            clear filters
+          </button>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FilterSelect
-          icon={Factory}
+          icon={Briefcase}
           value={sector}
           onChange={(v) => onUpdate({ sector: v || null })}
         >
@@ -535,39 +563,8 @@ function FiltersPanel({
           ))}
         </FilterSelect>
       </div>
-    </div>
-  );
-}
 
-function TagFiltersPanel({
-  tag,
-  sector,
-  turnover,
-  onUpdate,
-}: {
-  tag: string;
-  sector: string;
-  turnover: string;
-  onUpdate: (u: Record<string, string | null>) => void;
-}) {
-  const hasFilters = Boolean(tag || sector || turnover);
-
-  return (
-    <div className="bg-canvas border border-hairline rounded-xl shadow-sm px-4 py-3.5 sm:px-5">
-      <div className="flex items-center justify-between gap-2 mb-2.5">
-        <p className="text-xs font-semibold text-ink">Refine by Tag</p>
-        {hasFilters && (
-          <button
-            type="button"
-            onClick={() =>
-              onUpdate({ tag: null, sector: null, turnover: null })
-            }
-            className="text-xs text-brand-accent hover:underline font-medium shrink-0"
-          >
-            clear filters
-          </button>
-        )}
-      </div>
+      <p className="text-xs font-semibold text-ink mt-4 mb-2.5">Refine by Tag</p>
       <div className="flex flex-wrap gap-1.5">
         {SUGGESTED_COMPANY_TAGS.map((t) => (
           <button
