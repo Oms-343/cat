@@ -11,7 +11,7 @@ import {
   AuthLayout,
   authBtnPrimary,
   authInputCls,
-} from '../components/AuthLayout'
+} from '../layouts/AuthLayout'
 import { PasswordStrengthHints } from '../components/PasswordStrengthHints'
 import { passwordIsStrong } from '../utils/passwordStrength'
 

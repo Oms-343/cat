@@ -10,7 +10,7 @@ import {
   authBtnPrimary,
   authInputCls,
   DummyAccounts,
-} from '../components/AuthLayout'
+} from '../layouts/AuthLayout'
 
 const dummyAccounts = [
   { role: 'TIDCO Admin', email: 'admin@tidco.com', password: 'admin123' },
