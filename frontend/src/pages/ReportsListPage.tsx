@@ -27,7 +27,7 @@ const reportIconMap: Record<string, LucideIcon> = {
   'custom-summary': SlidersHorizontal,
 }
 
-const reportCardIconClass = 'h-8 w-8 text-muted mb-3'
+const reportCardIconClass = 'h-5 w-5 text-muted mb-2'
 
 function ReportCardIcon({ slug }: { slug: string }) {
   const Icon = reportIconMap[slug] ?? BarChart3
@@ -62,16 +62,16 @@ export function ReportsListPage() {
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       {reports && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {reports.map((r) => (
             <Link key={r.slug} to={`/reports/${r.slug}`} className="block group">
               <Card
-                padding="md"
+                padding="sm"
                 className="h-full transition-shadow group-hover:shadow-md group-hover:border-ink/20"
               >
                 <ReportCardIcon slug={r.slug} />
-                <h3 className="font-semibold text-ink mb-1">{r.name}</h3>
-                <p className="text-sm text-muted mb-3">{r.description}</p>
+                <h3 className="text-sm font-semibold text-ink mb-0.5">{r.name}</h3>
+                <p className="text-xs text-muted mb-2 leading-snug">{r.description}</p>
                 {r.filters.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {r.filters.map((f) => (
@@ -90,12 +90,12 @@ export function ReportsListPage() {
 
           <Link to="/audit-log" className="block group">
             <Card
-              padding="md"
+              padding="sm"
               className="h-full transition-shadow group-hover:shadow-md group-hover:border-ink/20"
             >
               <ScrollText className={reportCardIconClass} strokeWidth={1.75} aria-hidden />
-              <h3 className="font-semibold text-ink mb-1">Audit Trail Export</h3>
-              <p className="text-sm text-muted mb-3">
+              <h3 className="text-sm font-semibold text-ink mb-0.5">Audit Trail Export</h3>
+              <p className="text-xs text-muted mb-2 leading-snug">
                 Every action on the platform, exportable to Excel. Lives in the Audit Log page.
               </p>
               <span className="text-xs font-semibold text-ink">Open Audit Log →</span>

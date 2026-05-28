@@ -14,6 +14,18 @@ export interface GeographicMapBreadcrumbsProps {
   variant?: "page" | "panel";
 }
 
+const panelPillBase =
+  "px-1.5 py-px rounded-full border text-xs leading-tight transition-colors";
+
+function panelPillClass(active: boolean) {
+  return cn(
+    panelPillBase,
+    active
+      ? "border-slate-300 bg-slate-100 font-semibold text-slate-900"
+      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-blue-700",
+  );
+}
+
 function Crumb({
   children,
   active,
@@ -29,15 +41,13 @@ function Crumb({
     <button
       type="button"
       onClick={onClick}
-      className={
-        active
-          ? variant === "page"
+      className={cn(
+        variant === "panel"
+          ? cn(panelPillClass(active), "cursor-pointer")
+          : active
             ? "font-semibold text-slate-900"
-            : "font-bold text-slate-900"
-          : variant === "page"
-            ? "hover:text-blue-700 hover:underline"
-            : "text-slate-600 hover:text-blue-700 hover:underline"
-      }
+            : "hover:text-blue-700 hover:underline",
+      )}
     >
       {children}
     </button>
@@ -55,13 +65,17 @@ export function GeographicMapBreadcrumbs({
   className,
   variant = "page",
 }: GeographicMapBreadcrumbsProps) {
-  const separatorClass = "text-slate-400";
+  const separatorClass = cn(
+    "text-slate-400",
+    variant === "panel" && "text-[10px] mx-px",
+  );
 
   return (
     <nav
       className={cn(
-        "flex flex-wrap items-center gap-1",
-        variant === "page" ? "text-sm text-muted" : "text-sm",
+        "flex flex-wrap items-center",
+        "gap-1",
+        variant === "page" ? "text-sm text-muted" : "text-xs",
         className,
       )}
       aria-label="Map location"
@@ -103,11 +117,13 @@ export function GeographicMapBreadcrumbs({
         <>
           <span className={separatorClass}>›</span>
           <span
-            className={
-              level === "pincode"
-                ? "font-semibold text-slate-900"
-                : "text-slate-600"
-            }
+            className={cn(
+              variant === "panel"
+                ? panelPillClass(level === "pincode")
+                : level === "pincode"
+                  ? "font-semibold text-slate-900"
+                  : "text-slate-600",
+            )}
           >
             {pincode}
           </span>

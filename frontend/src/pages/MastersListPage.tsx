@@ -4,6 +4,9 @@ import { listMasters } from '../api/masters'
 import { ApiError } from '../api/client'
 import type { MasterSummary } from '../types/master'
 
+/** Shown via API/seed for geo taluk inference; not admin-maintained in UI yet. */
+const HIDDEN_MASTER_KEYS = new Set(['pincodes'])
+
 export function MastersListPage() {
   const [masters, setMasters] = useState<MasterSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -37,21 +40,21 @@ export function MastersListPage() {
       )}
 
       {masters && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {masters.map((m) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {masters.filter((m) => !HIDDEN_MASTER_KEYS.has(m.key)).map((m) => (
             <Link
               key={m.key}
               to={`/masters/${m.key}`}
-              className="block border border-hairline rounded-lg p-5 hover:border-brand-accent/40 hover:bg-surface-card/50 transition"
+              className="block border border-hairline rounded-lg p-4 hover:border-brand-accent/40 hover:bg-surface-card/50 transition"
             >
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-slate-900">{m.label}</h3>
-                <span className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <h3 className="text-sm font-semibold text-slate-900">{m.label}</h3>
+                <span className="shrink-0 text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
                   {m.count}
                 </span>
               </div>
-              <p className="text-sm text-slate-500 mb-3">{m.description}</p>
-              <div className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 mb-1.5 leading-snug">{m.description}</p>
+              <div className="text-[10px] text-slate-400">
                 {m.count} {m.count === 1 ? 'entry' : 'entries'}
               </div>
             </Link>

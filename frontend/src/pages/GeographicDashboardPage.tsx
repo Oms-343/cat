@@ -289,6 +289,7 @@ export function GeographicDashboardPage() {
   return (
     <PageShell className="!py-5">
       <GeographicMapBreadcrumbs
+        variant="panel"
         className="mb-1"
         level={level}
         district={district || undefined}
