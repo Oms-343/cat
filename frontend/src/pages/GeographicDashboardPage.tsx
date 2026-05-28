@@ -210,7 +210,7 @@ export function GeographicDashboardPage() {
   const talukName =
     taluk === UNASSIGNED_TALUK_CODE
       ? "Unassigned"
-      : pincodes?.taluk_name ?? layoutTalukName ?? taluk;
+      : (pincodes?.taluk_name ?? layoutTalukName ?? taluk);
 
   let level: "state" | "district" | "taluk" | "pincode" = "state";
   if (district && taluk && pincode) level = "pincode";
@@ -565,7 +565,9 @@ function RefinementPanel({
         </FilterSelect>
       </div>
 
-      <p className="text-xs font-semibold text-ink mt-4 mb-2.5">Refine by Tag</p>
+      <p className="text-xs font-semibold text-ink mt-4 mb-2.5">
+        Refine by Tag
+      </p>
       <div className="flex flex-wrap gap-1.5">
         {SUGGESTED_COMPANY_TAGS.map((t) => (
           <button
@@ -639,4 +641,3 @@ function CompaniesTable({
     </div>
   );
 }
-
