@@ -101,6 +101,8 @@ class CompanyListItem(BaseModel):
     gst_number: str | None
     sector_code: str | None
     district_code: str | None
+    taluk_code: str | None
+    pincode: str | None
     turnover_range_code: str | None
     tags: list[str]
     profile_completion: int

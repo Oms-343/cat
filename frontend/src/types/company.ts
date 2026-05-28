@@ -49,6 +49,8 @@ export interface CompanyListItem {
   gst_number: string | null
   sector_code: string | null
   district_code: string | null
+  taluk_code: string | null
+  pincode: string | null
   turnover_range_code: string | null
   tags: string[]
   profile_completion: number

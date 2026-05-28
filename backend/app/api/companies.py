@@ -41,6 +41,8 @@ def _to_list_item(c: Company, session) -> CompanyListItem:
         gst_number=c.gst_number,
         sector_code=c.sector_code,
         district_code=c.district_code,
+        taluk_code=c.taluk_code,
+        pincode=c.pincode,
         turnover_range_code=c.turnover_range_code,
         tags=list(c.tags or []),
         profile_completion=profile_completion_pct(c, session),
