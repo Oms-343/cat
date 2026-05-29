@@ -161,7 +161,7 @@ def link_demo_msme_owner() -> None:
         company.contact_designation = user.designation
         session.add(company)
         session.commit()
-        print(f"Demo MSME linked: {user.email} → {company.name} (id={company.id}).")
+        print(f"Demo MSME linked: {user.email} -> {company.name} (id={company.id}).")
 
 
 def seed_subitems() -> None:
