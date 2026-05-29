@@ -33,7 +33,14 @@ import {
 } from "../components/dashboard/DashboardStatCard";
 import { Alert, PageShell, Select } from "../components/ui";
 import { cn } from "../utils/cn";
-import { Briefcase, Factory, MapPin, Scale, X } from "lucide-react";
+import {
+  Briefcase,
+  Factory,
+  Loader2,
+  MapPin,
+  Scale,
+  X,
+} from "lucide-react";
 
 /** Matches backend `UNASSIGNED_TALUK_CODE` — MSMEs in district with no taluk/pincode. */
 const UNASSIGNED_TALUK_CODE = "_UNASSIGNED";
@@ -374,19 +381,33 @@ export function GeographicDashboardPage() {
         </Alert>
       )}
 
-      {level === "pincode" && companies && !loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[420px]">
+      {level === "pincode" && (loading || companies) && (
+        <div
+          className={cn(
+            "grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[420px]",
+            loading && "opacity-60 pointer-events-none",
+          )}
+          aria-busy={loading}
+        >
           <div className="lg:col-span-1 bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden">
             <div className="px-4 py-3.5 border-b border-hairline text-sm font-semibold text-ink">
               Companies
             </div>
             <div className="max-h-[480px] overflow-y-auto">
-              <CompaniesTable
-                companies={companies}
-                masters={masters}
-                onOpen={(id) => navigate(`/companies/${id}`)}
-                embedded
-              />
+              {loading ? (
+                <PincodeCompaniesLoading />
+              ) : companies && companies.length > 0 ? (
+                <CompaniesTable
+                  companies={companies}
+                  masters={masters}
+                  onOpen={(id) => navigate(`/companies/${id}`)}
+                  embedded
+                />
+              ) : (
+                <p className="px-4 py-8 text-sm text-muted text-center">
+                  No MSMEs in this pincode for the current filter.
+                </p>
+              )}
             </div>
           </div>
           <div className="lg:col-span-2">
@@ -403,10 +424,7 @@ export function GeographicDashboardPage() {
         </div>
       )}
 
-      {level !== "pincode" &&
-        (listItems.length > 0 ||
-          district ||
-          (loading && (overview || taluks || pincodes))) && (
+      {level !== "pincode" && (listItems.length > 0 || district || loading) && (
           <div
             className={cn(
               "grid grid-cols-1 lg:grid-cols-3 gap-5 items-start",
@@ -420,6 +438,7 @@ export function GeographicDashboardPage() {
               nameColumnLabel={regionsNameColumn}
               level={level}
               maxRegionCount={maxRegionCount}
+              loading={loading}
               items={listItems.map((item) => ({
                 ...item,
                 dotColor: regionListDotColor(level, item.count, maxRegionCount),
@@ -634,6 +653,23 @@ function RefinementPanel({
           </span>
         ))}
       </div>
+    </div>
+  );
+}
+
+function PincodeCompaniesLoading() {
+  return (
+    <div
+      className="flex flex-col items-center justify-center gap-2 px-4 py-12 min-h-[12rem]"
+      role="status"
+      aria-live="polite"
+    >
+      <Loader2
+        className="w-5 h-5 text-muted animate-spin"
+        strokeWidth={2}
+        aria-hidden
+      />
+      <p className="text-sm text-muted">Loading companies…</p>
     </div>
   );
 }

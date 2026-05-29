@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import type { GeoDrillLevel } from "../maps/geoTypes";
 import { regionActivityMeta } from "../maps/choroplethColors";
 import { cn } from "../../utils/cn";
@@ -18,6 +18,7 @@ interface RegionsListPanelProps {
   hoveredCode: string | null;
   onHover: (code: string | null) => void;
   onSelect: (item: RegionListItem) => void;
+  loading?: boolean;
   emptyMessage?: string;
   className?: string;
   title?: string;
@@ -32,6 +33,7 @@ export function RegionsListPanel({
   hoveredCode,
   onHover,
   onSelect,
+  loading = false,
   emptyMessage = "No regions in the list yet — use the map to explore.",
   className,
   title = "District Analytics",
@@ -85,7 +87,20 @@ export function RegionsListPanel({
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <div
+          className="flex flex-col items-center justify-center gap-2 px-4 py-12 min-h-[12rem]"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2
+            className="w-5 h-5 text-muted animate-spin"
+            strokeWidth={2}
+            aria-hidden
+          />
+          <p className="text-sm text-muted">Loading…</p>
+        </div>
+      ) : items.length === 0 ? (
         <p className="px-4 py-8 text-sm text-muted text-center">{emptyMessage}</p>
       ) : filtered.length === 0 ? (
         <p className="px-4 py-8 text-sm text-muted text-center">
