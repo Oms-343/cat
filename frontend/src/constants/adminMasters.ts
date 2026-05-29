@@ -20,6 +20,6 @@ export function isAdminVisibleMaster(key: string): key is AdminVisibleMasterKey 
 export function sortMastersForAdmin<T extends { key: string }>(items: T[]): T[] {
   const order = new Map(ADMIN_VISIBLE_MASTER_KEYS.map((k, i) => [k, i]))
   return items
-    .filter((m) => isAdminVisibleMaster(m.key))
+    .filter((m): m is T & { key: AdminVisibleMasterKey } => isAdminVisibleMaster(m.key))
     .sort((a, b) => (order.get(a.key) ?? 99) - (order.get(b.key) ?? 99))
 }
