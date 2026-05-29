@@ -313,42 +313,62 @@ export function GeographicDashboardPage() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-4 items-stretch">
         <RefinementPanel
           className={
-            overview && level === "state" && !loading
-              ? "xl:col-span-6"
-              : "xl:col-span-12"
+            level === "state" ? "xl:col-span-6" : "xl:col-span-12"
           }
           sector={sector}
           turnover={turnover}
           masters={masters}
           onUpdate={updateParams}
         />
-        {overview && level === "state" && !loading && (
+        {level === "state" && (
           <>
             <DashboardStatCard
-              className="xl:col-span-3"
+              className={cn(
+                "xl:col-span-3",
+                loading && "opacity-60 pointer-events-none",
+              )}
               label="Total MSMEs"
-              value={overview.total_companies.toLocaleString()}
+              value={
+                overview
+                  ? overview.total_companies.toLocaleString()
+                  : "—"
+              }
               icon={<MsmeCountChartIcon />}
               detail={
-                topRegionInsight ? (
-                  <>
-                    Led by{" "}
-                    <span className="font-semibold text-ink">
-                      {topRegionInsight.name} (
-                      {topRegionInsight.company_count.toLocaleString()})
-                    </span>
-                  </>
+                overview ? (
+                  topRegionInsight ? (
+                    <>
+                      Led by{" "}
+                      <span className="font-semibold text-ink">
+                        {topRegionInsight.name} (
+                        {topRegionInsight.company_count.toLocaleString()})
+                      </span>
+                    </>
+                  ) : (
+                    "No MSMEs in the current filter"
+                  )
                 ) : (
-                  "No MSMEs in the current filter"
+                  "Loading…"
                 )
               }
               footer="Total registered MSMEs"
             />
             <DashboardStatCard
-              className="xl:col-span-3"
+              className={cn(
+                "xl:col-span-3",
+                loading && "opacity-60 pointer-events-none",
+              )}
               label="Active districts"
-              value={`${overview.total_districts_with_msmes} of 38`}
-              secondaryValue={`${Math.round((overview.total_districts_with_msmes / 38) * 100)}%`}
+              value={
+                overview
+                  ? `${overview.total_districts_with_msmes} of 38`
+                  : "—"
+              }
+              secondaryValue={
+                overview
+                  ? `${Math.round((overview.total_districts_with_msmes / 38) * 100)}%`
+                  : undefined
+              }
               icon={<MapPin className="w-8 h-8" strokeWidth={1.5} />}
               footer="Registered MSMEs across all districts."
             />
@@ -356,7 +376,6 @@ export function GeographicDashboardPage() {
         )}
       </div>
 
-      {loading && <p className="text-sm text-muted mb-3">Loading…</p>}
       {error && (
         <Alert variant="error" className="mb-3">
           {error}
@@ -393,9 +412,16 @@ export function GeographicDashboardPage() {
       )}
 
       {level !== "pincode" &&
-        !loading &&
-        (listItems.length > 0 || district) && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+        (listItems.length > 0 ||
+          district ||
+          (loading && (overview || taluks || pincodes))) && (
+          <div
+            className={cn(
+              "grid grid-cols-1 lg:grid-cols-3 gap-5 items-start",
+              loading && "opacity-60 pointer-events-none",
+            )}
+            aria-busy={loading}
+          >
             <RegionsListPanel
               className="lg:col-span-1"
               title={regionsPanelTitle}
@@ -542,19 +568,21 @@ function RefinementPanel({
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-2 mb-2">
+      <div className="flex items-center justify-between gap-2 mb-2 min-h-[1.25rem]">
         <p className="text-sm font-semibold text-ink">
           Sector & turnover filters
         </p>
-        {hasFilters && (
-          <button
-            type="button"
-            onClick={() => onUpdate({ sector: null, turnover: null })}
-            className="text-xs text-brand-accent hover:underline font-medium shrink-0"
-          >
-            clear filters
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => onUpdate({ sector: null, turnover: null })}
+          disabled={!hasFilters}
+          className={cn(
+            "text-xs text-brand-accent hover:underline font-medium shrink-0",
+            !hasFilters && "invisible",
+          )}
+        >
+          clear filters
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -584,27 +612,31 @@ function RefinementPanel({
         </FilterSelect>
       </div>
 
-      {activeTags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-          {activeTags.map(({ key, icon: TagIcon, label, onRemove }) => (
-            <span
-              key={key}
-              className="inline-flex items-center gap-1.5 rounded-full border border-brand-accent/25 bg-brand-accent/10 pl-2.5 pr-1.5 py-1 text-xs font-medium text-brand-accent"
+      <div
+        className={cn(
+          "flex flex-wrap items-center gap-1.5 mt-2.5 min-h-[1.875rem]",
+          activeTags.length === 0 && "invisible",
+        )}
+        aria-hidden={activeTags.length === 0}
+      >
+        {activeTags.map(({ key, icon: TagIcon, label, onRemove }) => (
+          <span
+            key={key}
+            className="inline-flex items-center gap-1.5 rounded-full border border-brand-accent/25 bg-brand-accent/10 pl-2.5 pr-1.5 py-1 text-xs font-medium text-brand-accent"
+          >
+            <TagIcon className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden />
+            <span className="max-w-[180px] truncate">{label}</span>
+            <button
+              type="button"
+              onClick={onRemove}
+              aria-label={`Remove ${label} filter`}
+              className="grid place-items-center w-4 h-4 rounded-full text-brand-accent/70 hover:bg-brand-accent/20 hover:text-brand-accent transition-colors"
             >
-              <TagIcon className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden />
-              <span className="max-w-[180px] truncate">{label}</span>
-              <button
-                type="button"
-                onClick={onRemove}
-                aria-label={`Remove ${label} filter`}
-                className="grid place-items-center w-4 h-4 rounded-full text-brand-accent/70 hover:bg-brand-accent/20 hover:text-brand-accent transition-colors"
-              >
-                <X className="w-3 h-3" strokeWidth={2.25} aria-hidden />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
+              <X className="w-3 h-3" strokeWidth={2.25} aria-hidden />
+            </button>
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
