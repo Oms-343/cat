@@ -10,6 +10,7 @@ from app.core.onboarding_campaigns import (
     remind_campaign_cohort,
 )
 from app.core.outreach_contacts import (
+    IMPORT_COLUMNS_HINT,
     count_active_contacts,
     import_contacts_csv,
     import_contacts_xlsx,
@@ -93,8 +94,7 @@ async def import_outreach_contacts(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                "upload a CSV or Excel (.xlsx) file with columns: "
-                "name, phone, district_code, sector_code"
+                f"upload a CSV or Excel (.xlsx) file with columns: {IMPORT_COLUMNS_HINT}"
             ),
         )
     raw = await file.read()

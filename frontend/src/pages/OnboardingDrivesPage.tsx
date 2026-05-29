@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Modal } from "../components/Modal";
 import { Button, PageHeader } from "../components/ui";
 import { ApiError } from "../api/client";
@@ -16,7 +16,6 @@ import {
   type Campaign,
   type CampaignFunnel,
   type OnboardingConfig,
-  type AudienceSource,
   type RegistrationFilter,
   type WhatsAppTemplate,
 } from "../api/onboardingDrives";
@@ -28,6 +27,17 @@ function responseRate(c: Campaign): number {
 
 function formatNumber(n: number): string {
   return n.toLocaleString("en-IN");
+}
+
+/** Audience is implied by the WhatsApp template chosen in step 1. */
+function registrationFilterForTemplate(templateId: string): RegistrationFilter {
+  if (templateId === "onboarding_reminder_v1") return "unregistered";
+  if (templateId === "profile_completion_invite_v2") return "incomplete";
+  return "all";
+}
+
+function templateUsesExcelAudience(templateId: string): boolean {
+  return templateId === "onboarding_reminder_v1";
 }
 
 export function OnboardingDrivesPage() {
@@ -52,15 +62,13 @@ export function OnboardingDrivesPage() {
   const [campaignName, setCampaignName] = useState("");
   const [districtCode, setDistrictCode] = useState("");
   const [sectorCode, setSectorCode] = useState("");
-  const [registrationFilter, setRegistrationFilter] =
-    useState<RegistrationFilter>("incomplete");
   const [languageCode, setLanguageCode] = useState<"en" | "ta">("en");
-  const [audienceSource, setAudienceSource] =
-    useState<AudienceSource>("platform");
   const [importedContactIds, setImportedContactIds] = useState<number[]>([]);
   const [importWizardMessage, setImportWizardMessage] = useState<string | null>(
     null,
   );
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const contactFileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [launching, setLaunching] = useState(false);
   const [launchMessage, setLaunchMessage] = useState<string | null>(null);
@@ -126,9 +134,12 @@ export function OnboardingDrivesPage() {
   const selectedTemplate =
     templates.find((t) => t.id === selectedTemplateId) ?? templates[0];
 
+  const registrationFilter = registrationFilterForTemplate(selectedTemplateId);
+  const usesExcelImport = templateUsesExcelAudience(selectedTemplateId);
+
   const refreshEstimate = useCallback(async () => {
     if (!wizardOpen || (step !== 3 && step !== 4)) return;
-    if (audienceSource === "excel" && importedContactIds.length === 0) {
+    if (usesExcelImport && importedContactIds.length === 0) {
       setEstimateCount(0);
       setEstimateWarning("Upload an Excel or CSV file to see estimated reach.");
       setEstimateLoading(false);
@@ -138,13 +149,10 @@ export function OnboardingDrivesPage() {
     setEstimateWarning(null);
     try {
       const est = await estimateAudience({
-        district_code:
-          audienceSource === "platform" ? districtCode || null : null,
-        sector_code: audienceSource === "platform" ? sectorCode || null : null,
-        registration_filter:
-          audienceSource === "excel" ? "unregistered" : registrationFilter,
-        outreach_contact_ids:
-          audienceSource === "excel" ? importedContactIds : null,
+        district_code: usesExcelImport ? null : districtCode || null,
+        sector_code: usesExcelImport ? null : sectorCode || null,
+        registration_filter: usesExcelImport ? "unregistered" : registrationFilter,
+        outreach_contact_ids: usesExcelImport ? importedContactIds : null,
       });
       setEstimateCount(est.count);
       setEstimateWarning(est.warning);
@@ -157,7 +165,7 @@ export function OnboardingDrivesPage() {
   }, [
     wizardOpen,
     step,
-    audienceSource,
+    usesExcelImport,
     importedContactIds,
     districtCode,
     sectorCode,
@@ -174,11 +182,10 @@ export function OnboardingDrivesPage() {
     setCampaignName("");
     setDistrictCode("");
     setSectorCode("");
-    setRegistrationFilter("incomplete");
     setLanguageCode("en");
-    setAudienceSource("platform");
     setImportedContactIds([]);
     setImportWizardMessage(null);
+    setSelectedFileName(null);
     setEstimateCount(null);
     setEstimateWarning(null);
     setWizardOpen(true);
@@ -190,9 +197,9 @@ export function OnboardingDrivesPage() {
   }
 
   function audienceLabelPreview(): string {
-    if (audienceSource === "excel") {
+    if (usesExcelImport) {
       const n = importedContactIds.length;
-      return n ? `Excel import · ${n} contact(s)` : "Excel import";
+      return n ? `Excel import · ${n} contact(s)` : "Excel import (upload required)";
     }
     const district = districtCode
       ? (districts.find((d) => d.code === districtCode)?.name ?? districtCode)
@@ -202,10 +209,10 @@ export function OnboardingDrivesPage() {
       : "All sectors";
     const reg =
       registrationFilter === "unregistered"
-        ? "Unregistered"
+        ? "Unregistered prospects"
         : registrationFilter === "incomplete"
-          ? "Incomplete profile"
-          : "All MSMEs";
+          ? "Registered — profile incomplete"
+          : "All MSMEs matching filters";
     return `${district} · ${sector} · ${reg}`;
   }
 
@@ -272,14 +279,20 @@ export function OnboardingDrivesPage() {
       const res = await importOutreachContacts(file);
       const ids = res.contact_ids ?? [];
       setImportedContactIds(ids);
-      setImportWizardMessage(
-        `Uploaded ${ids.length} contact${ids.length === 1 ? "" : "s"}.`,
-      );
+      const msg =
+        res.message ||
+        `Imported ${ids.length} contact${ids.length === 1 ? "" : "s"}.`;
+      setImportWizardMessage(msg);
+      if (ids.length === 0) {
+        setEstimateWarning(msg);
+        setEstimateCount(0);
+      }
       const cfg = await getOnboardingConfig();
       setConfig(cfg);
     } catch (err) {
       setImportedContactIds([]);
       setImportWizardMessage(null);
+      setSelectedFileName(null);
       setEstimateWarning(err instanceof Error ? err.message : String(err));
     } finally {
       setImporting(false);
@@ -297,13 +310,10 @@ export function OnboardingDrivesPage() {
         name,
         template_id: selectedTemplateId,
         language_code: languageCode,
-        district_code:
-          audienceSource === "platform" ? districtCode || null : null,
-        sector_code: audienceSource === "platform" ? sectorCode || null : null,
-        registration_filter:
-          audienceSource === "excel" ? "unregistered" : registrationFilter,
-        outreach_contact_ids:
-          audienceSource === "excel" ? importedContactIds : null,
+        district_code: usesExcelImport ? null : districtCode || null,
+        sector_code: usesExcelImport ? null : sectorCode || null,
+        registration_filter: usesExcelImport ? "unregistered" : registrationFilter,
+        outreach_contact_ids: usesExcelImport ? importedContactIds : null,
       });
       setLaunchMessage(res.message);
       setCampaigns((prev) => [res.campaign, ...prev]);
@@ -669,9 +679,7 @@ export function OnboardingDrivesPage() {
                 size="sm"
                 onClick={() => setStep(step + 1)}
                 disabled={
-                  step === 3 &&
-                  audienceSource === "excel" &&
-                  importedContactIds.length === 0
+                  step === 3 && usesExcelImport && importedContactIds.length === 0
                 }
               >
                 Next
@@ -711,6 +719,11 @@ export function OnboardingDrivesPage() {
                   checked={selectedTemplateId === t.id}
                   onChange={() => {
                     setSelectedTemplateId(t.id);
+                    if (!templateUsesExcelAudience(t.id)) {
+                      setImportedContactIds([]);
+                      setImportWizardMessage(null);
+                      setSelectedFileName(null);
+                    }
                     if (!t.languages.includes(languageCode)) {
                       setLanguageCode(t.languages[0] === "ta" ? "ta" : "en");
                     }
@@ -784,53 +797,72 @@ export function OnboardingDrivesPage() {
               />
             </div>
 
-            <fieldset>
-              <legend className="block text-xs font-medium text-slate-700 mb-2">
-                Who should receive this campaign?
-              </legend>
-              <div className="space-y-2">
-                <label className="flex gap-2 items-start text-sm text-slate-800 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="audienceSource"
-                    checked={audienceSource === "platform"}
-                    onChange={() => {
-                      setAudienceSource("platform");
-                      setImportedContactIds([]);
-                      setImportWizardMessage(null);
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span>
-                    <span className="font-medium">MSMEs on the platform</span>
-                    <span className="block text-xs text-slate-500">
-                      Filter by district, sector, and registration status.
-                    </span>
-                  </span>
-                </label>
-                <label className="flex gap-2 items-start text-sm text-slate-800 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="audienceSource"
-                    checked={audienceSource === "excel"}
-                    onChange={() => {
-                      setAudienceSource("excel");
-                      setRegistrationFilter("unregistered");
-                    }}
-                    className="mt-0.5"
-                  />
-                  <span>
-                    <span className="font-medium">Excel / CSV file</span>
-                    <span className="block text-xs text-slate-500">
-                      Send only to contacts in your upload (unregistered
-                      prospects).
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </fieldset>
+            <p className="text-sm text-slate-600">
+              Audience:{" "}
+              <span className="font-medium text-slate-900">
+                {audienceLabelPreview()}
+              </span>{" "}
+              <span className="text-slate-500">
+                (from template &quot;{selectedTemplate?.name ?? "—"}&quot;)
+              </span>
+            </p>
 
-            {audienceSource === "platform" ? (
+            {usesExcelImport ? (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
+                <label className="block text-xs font-medium text-slate-700">
+                  Contact list (Excel / CSV)
+                </label>
+                <p className="text-sm text-slate-600">
+                  Upload a <strong>.xlsx</strong> or <strong>.csv</strong> with
+                  columns:{" "}
+                  <code className="text-xs">
+                    company_name, phone, district, taluka, pincode
+                  </code>
+                  . The campaign will message{" "}
+                  <strong>only the rows in this file</strong>.
+                </p>
+                <input
+                  ref={contactFileInputRef}
+                  type="file"
+                  accept=".csv,.xlsx"
+                  disabled={importing}
+                  className="sr-only"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                      setSelectedFileName(f.name);
+                      void handleWizardImport(f);
+                    }
+                    e.target.value = "";
+                  }}
+                />
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={importing}
+                    onClick={() => contactFileInputRef.current?.click()}
+                  >
+                    {importing ? "Reading file…" : "Choose file"}
+                  </Button>
+                  <span className="text-sm text-slate-600">
+                    {selectedFileName ?? "No file chosen"}
+                  </span>
+                </div>
+                {importWizardMessage && (
+                  <p
+                    className={`text-sm ${
+                      importedContactIds.length > 0
+                        ? "text-emerald-700"
+                        : "text-amber-800"
+                    }`}
+                  >
+                    {importWizardMessage}
+                  </p>
+                )}
+              </div>
+            ) : (
               <>
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">
@@ -866,57 +898,7 @@ export function OnboardingDrivesPage() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Audience
-                  </label>
-                  <select
-                    value={registrationFilter}
-                    onChange={(e) =>
-                      setRegistrationFilter(
-                        e.target.value as RegistrationFilter,
-                      )
-                    }
-                    className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
-                  >
-                    <option value="incomplete">
-                      Registered — profile incomplete
-                    </option>
-                    <option value="all">All MSMEs matching filters</option>
-                  </select>
-                </div>
               </>
-            ) : (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
-                <p className="text-sm text-slate-600">
-                  Upload a <strong>.xlsx</strong> or <strong>.csv</strong> with
-                  columns:{" "}
-                  <code className="text-xs">
-                    name, phone, district_code, sector_code
-                  </code>
-                  . The campaign will message{" "}
-                  <strong>only the rows in this file</strong>.
-                </p>
-                <input
-                  type="file"
-                  accept=".csv,.xlsx"
-                  disabled={importing}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleWizardImport(f);
-                    e.target.value = "";
-                  }}
-                  className="text-sm w-full"
-                />
-                {importing && (
-                  <p className="text-sm text-slate-500">Reading file…</p>
-                )}
-                {importWizardMessage && (
-                  <p className="text-sm text-emerald-700">
-                    {importWizardMessage}
-                  </p>
-                )}
-              </div>
             )}
 
             <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-md p-2">

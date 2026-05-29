@@ -42,6 +42,44 @@ def _sync_district_master() -> None:
         session.commit()
 
 
+def _migrate_outreach_contact_columns() -> None:
+    """Add outreach contact columns for Excel import (company_name, district, taluk, pincode)."""
+    if not settings.database_url.startswith("sqlite"):
+        return
+    import sqlalchemy as sa
+
+    _sqlite_add_column_if_missing("outreach_contacts", "company_name", "VARCHAR")
+    _sqlite_add_column_if_missing("outreach_contacts", "district", "VARCHAR")
+    _sqlite_add_column_if_missing("outreach_contacts", "taluk", "VARCHAR")
+    _sqlite_add_column_if_missing("outreach_contacts", "pincode", "VARCHAR")
+    with engine.connect() as conn:
+        conn.execute(
+            sa.text(
+                "UPDATE outreach_contacts SET company_name = name "
+                "WHERE company_name IS NULL AND name IS NOT NULL"
+            )
+        )
+        conn.execute(
+            sa.text(
+                "UPDATE outreach_contacts SET district = district_code "
+                "WHERE district IS NULL AND district_code IS NOT NULL"
+            )
+        )
+        conn.execute(
+            sa.text(
+                "UPDATE outreach_contacts SET name = company_name "
+                "WHERE (name IS NULL OR name = '') AND company_name IS NOT NULL"
+            )
+        )
+        conn.execute(
+            sa.text(
+                "UPDATE outreach_contacts SET company_name = name "
+                "WHERE (company_name IS NULL OR company_name = '') AND name IS NOT NULL"
+            )
+        )
+        conn.commit()
+
+
 def _remove_retired_districts() -> None:
     """Drop duplicate district rows removed from master_seed (e.g. CHG → use CGL)."""
     from app.models.master import DistrictMaster
@@ -67,6 +105,7 @@ def migrate_db() -> None:
     _sqlite_add_column_if_missing("onboarding_campaign_messages", "enrollment_invite_id", "INTEGER")
     _sqlite_add_column_if_missing("enrollment_invites", "tab1_submitted_at", "DATETIME")
     _sqlite_add_column_if_missing("outreach_contacts", "converted_company_id", "INTEGER")
+    _migrate_outreach_contact_columns()
     _remove_retired_districts()
     _sync_district_master()
     _sync_geo_masters()

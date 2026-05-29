@@ -15,6 +15,7 @@ from app.models.onboarding_campaign import (
     MessageStatus,
     OnboardingCampaignMessage,
 )
+from app.core.outreach_contacts import geo_codes_for_contact
 from app.models.outreach_contact import OutreachContact
 
 
@@ -152,8 +153,16 @@ def build_prefill(session: Session, invite: EnrollmentInvite) -> dict:
     if invite.outreach_contact_id:
         oc = session.get(OutreachContact, invite.outreach_contact_id)
         if oc:
-            data["district_code"] = oc.district_code
-            data["sector_code"] = oc.sector_code
+            data["name"] = oc.company_name
+            data["pincode"] = oc.pincode
+            district_code, taluk_code = geo_codes_for_contact(
+                session,
+                district=oc.district,
+                taluk=oc.taluk,
+                pincode=oc.pincode,
+            )
+            data["district_code"] = district_code
+            data["taluk_code"] = taluk_code
             data["email"] = oc.email or invite.email
             data["contact_email"] = oc.email or invite.email
     return data

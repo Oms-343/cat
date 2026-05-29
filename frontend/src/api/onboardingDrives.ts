@@ -36,7 +36,9 @@ export interface ContactsImportResult {
   created: number;
   updated: number;
   skipped: number;
+  rows_seen: number;
   contact_ids: number[];
+  message: string;
 }
 
 export interface Campaign {
@@ -93,8 +95,6 @@ export interface EstimateAudiencePayload {
   registration_filter: RegistrationFilter;
   outreach_contact_ids?: number[] | null;
 }
-
-export type AudienceSource = "platform" | "excel";
 
 export function getOnboardingConfig(): Promise<OnboardingConfig> {
   return api<OnboardingConfig>("/api/onboarding-drives/config");

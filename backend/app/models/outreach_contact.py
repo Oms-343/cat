@@ -8,11 +8,14 @@ class OutreachContact(SQLModel, table=True):
     __tablename__ = "outreach_contacts"
 
     id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(index=True)
+    company_name: str = Field(index=True)
+    # Legacy NOT NULL column on older DBs; kept in sync with company_name on import.
+    name: str = Field(default="", index=True)
     phone: str = Field(index=True)
     email: str | None = None
-    district_code: str | None = Field(default=None, index=True)
-    sector_code: str | None = Field(default=None, index=True)
+    district: str | None = Field(default=None, index=True)
+    taluk: str | None = Field(default=None, index=True)
+    pincode: str | None = Field(default=None, index=True)
     source: str = Field(default="import")
     is_active: bool = Field(default=True, index=True)
     converted_company_id: int | None = Field(default=None, foreign_key="companies.id")

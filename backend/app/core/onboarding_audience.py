@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from sqlmodel import Session, select
 
 from app.core.company_completion import profile_completion_pct
+from app.core.outreach_contacts import IMPORT_COLUMNS_HINT, outreach_district_filter
 from app.core.phone import normalize_phone
 from app.models.company import Company
 from app.models.master import DistrictMaster, SectorMaster
@@ -74,12 +75,11 @@ def _resolve_outreach_contacts(
     if outreach_contact_ids:
         stmt = stmt.where(OutreachContact.id.in_(outreach_contact_ids))
     else:
-        if district_code:
-            stmt = stmt.where(OutreachContact.district_code == district_code)
-        if sector_code:
-            stmt = stmt.where(OutreachContact.sector_code == sector_code)
+        district_clause = outreach_district_filter(session, district_code)
+        if district_clause is not None:
+            stmt = stmt.where(district_clause)
 
-    rows = session.exec(stmt.order_by(OutreachContact.name)).all()
+    rows = session.exec(stmt.order_by(OutreachContact.company_name)).all()
     seen_phones: set[str] = set()
     recipients: list[AudienceRecipient] = []
     for row in rows:
@@ -92,7 +92,7 @@ def _resolve_outreach_contacts(
                 company_id=None,
                 outreach_contact_id=row.id,
                 phone=phone,
-                name=row.name,
+                name=row.company_name,
             )
         )
     return recipients
@@ -126,12 +126,12 @@ def resolve_audience(
         if not recipients:
             msg = (
                 "No valid contacts in the uploaded file. "
-                "Each row needs name and phone (columns: name, phone, district_code, sector_code)."
+                f"Each row needs company_name and phone (columns: {IMPORT_COLUMNS_HINT})."
             )
             if not outreach_contact_ids:
                 msg = (
                     "No outreach contacts match these filters. "
-                    "Upload an Excel or CSV file with name, phone, district_code, sector_code."
+                    f"Upload an Excel or CSV file with columns: {IMPORT_COLUMNS_HINT}."
                 )
             return AudienceResult(recipients=[], audience_label=label, warning=msg)
         if outreach_contact_ids:

@@ -377,7 +377,7 @@ def seed_subitems() -> None:
 def seed_outreach_contacts() -> None:
     with Session(engine) as session:
         added = 0
-        for name, phone, district_code, sector_code, email in OUTREACH_CONTACTS:
+        for company_name, phone, district, taluk, pincode, email in OUTREACH_CONTACTS:
             normalized = normalize_phone(phone)
             if not normalized:
                 continue
@@ -388,10 +388,12 @@ def seed_outreach_contacts() -> None:
                 continue
             session.add(
                 OutreachContact(
-                    name=name,
+                    company_name=company_name,
+                    name=company_name,
                     phone=normalized,
-                    district_code=district_code,
-                    sector_code=sector_code,
+                    district=district,
+                    taluk=taluk,
+                    pincode=pincode,
                     email=email,
                     source="seed",
                 )
@@ -418,15 +420,17 @@ def seed_demo_enrollment_invite() -> None:
             session.add(existing)
             session.flush()
 
-        name, phone, district_code, sector_code, email = OUTREACH_CONTACTS[0]
+        company_name, phone, district, taluk, pincode, email = OUTREACH_CONTACTS[0]
         phone = normalize_phone(phone) or phone
         oc = session.exec(select(OutreachContact).where(OutreachContact.phone == phone)).first()
         if not oc:
             oc = OutreachContact(
-                name=name,
+                company_name=company_name,
+                name=company_name,
                 phone=phone,
-                district_code=district_code,
-                sector_code=sector_code,
+                district=district,
+                taluk=taluk,
+                pincode=pincode,
                 email=email,
                 source="seed",
             )
@@ -438,7 +442,7 @@ def seed_demo_enrollment_invite() -> None:
                 token=demo_token,
                 outreach_contact_id=oc.id,
                 phone=phone,
-                recipient_name=name,
+                recipient_name=company_name,
                 email=email,
                 kind=InviteKind.INITIAL,
                 status=InviteStatus.ACTIVE,

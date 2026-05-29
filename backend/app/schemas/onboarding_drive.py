@@ -66,7 +66,9 @@ class ContactsImportOut(BaseModel):
     created: int
     updated: int
     skipped: int
+    rows_seen: int = 0
     contact_ids: list[int] = []
+    message: str = ""
 
 
 class CampaignOut(BaseModel):
