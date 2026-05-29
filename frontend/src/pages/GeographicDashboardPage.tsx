@@ -33,7 +33,7 @@ import {
 } from "../components/dashboard/DashboardStatCard";
 import { Alert, PageShell, Select } from "../components/ui";
 import { cn } from "../utils/cn";
-import { Briefcase, Factory, MapPin, Scale } from "lucide-react";
+import { Briefcase, Factory, MapPin, Scale, X } from "lucide-react";
 
 /** Matches backend `UNASSIGNED_TALUK_CODE` — MSMEs in district with no taluk/pincode. */
 const UNASSIGNED_TALUK_CODE = "_UNASSIGNED";
@@ -510,6 +510,31 @@ function RefinementPanel({
 }) {
   const hasFilters = Boolean(sector || turnover);
 
+  const sectorName =
+    masters?.sectors.find((s) => s.code === sector)?.name ?? sector;
+  const turnoverName =
+    masters?.turnoverRanges.find((t) => t.code === turnover)?.name ?? turnover;
+
+  const activeTags = [
+    sector && {
+      key: "sector" as const,
+      icon: Briefcase,
+      label: sectorName,
+      onRemove: () => onUpdate({ sector: null }),
+    },
+    turnover && {
+      key: "turnover" as const,
+      icon: Scale,
+      label: turnoverName,
+      onRemove: () => onUpdate({ turnover: null }),
+    },
+  ].filter(Boolean) as {
+    key: "sector" | "turnover";
+    icon: typeof Briefcase;
+    label: string;
+    onRemove: () => void;
+  }[];
+
   return (
     <div
       className={cn(
@@ -518,7 +543,9 @@ function RefinementPanel({
       )}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
-        <p className="text-sm font-semibold text-ink">Refinement Panel</p>
+        <p className="text-sm font-semibold text-ink">
+          Sector & turnover filters
+        </p>
         {hasFilters && (
           <button
             type="button"
@@ -556,6 +583,28 @@ function RefinementPanel({
           ))}
         </FilterSelect>
       </div>
+
+      {activeTags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+          {activeTags.map(({ key, icon: TagIcon, label, onRemove }) => (
+            <span
+              key={key}
+              className="inline-flex items-center gap-1.5 rounded-full border border-brand-accent/25 bg-brand-accent/10 pl-2.5 pr-1.5 py-1 text-xs font-medium text-brand-accent"
+            >
+              <TagIcon className="w-3.5 h-3.5" strokeWidth={1.75} aria-hidden />
+              <span className="max-w-[180px] truncate">{label}</span>
+              <button
+                type="button"
+                onClick={onRemove}
+                aria-label={`Remove ${label} filter`}
+                className="grid place-items-center w-4 h-4 rounded-full text-brand-accent/70 hover:bg-brand-accent/20 hover:text-brand-accent transition-colors"
+              >
+                <X className="w-3 h-3" strokeWidth={2.25} aria-hidden />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
