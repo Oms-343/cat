@@ -13,9 +13,7 @@ export function HomePage() {
           WhatsApp, tap that link — do not change the address in your browser.
         </p>
         <p className="text-slate-600">
-          <strong>Local development:</strong> after running{' '}
-          <code className="rounded bg-slate-100 px-1">python -m app.seed</code> in the backend,
-          you can test with:
+          <strong>Local development:</strong> preview the enrollment form (no backend invite required):
         </p>
         <Link
           to="/enroll/demo"

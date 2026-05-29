@@ -4,13 +4,15 @@ import { fetchInvite, submitTab1 } from '../api/enroll'
 import { Tab1CompanyForm } from '../components/Tab1CompanyForm'
 import { Tab2Sections } from '../components/Tab2Sections'
 import { EnrollLayout } from '../components/EnrollLayout'
+import { DEMO_INVITE, isDemoToken } from '../lib/demoInvite'
 
 type Tab = '1' | '2'
 
 export function EnrollPage() {
   const { token } = useParams<{ token: string }>()
+  const isDemo = isDemoToken(token)
   const [searchParams] = useSearchParams()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!isDemo)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [invite, setInvite] = useState<Awaited<ReturnType<typeof fetchInvite>> | null>(null)
@@ -18,6 +20,10 @@ export function EnrollPage() {
 
   const reload = useCallback(async () => {
     if (!token) return
+    if (isDemoToken(token)) {
+      setInvite(DEMO_INVITE)
+      return
+    }
     const data = await fetchInvite(token)
     setInvite(data)
     if (data.can_access_tab2 && searchParams.get('tab') === '2') {
@@ -29,6 +35,12 @@ export function EnrollPage() {
 
   useEffect(() => {
     if (!token) return
+    if (isDemo) {
+      setInvite(DEMO_INVITE)
+      setError(null)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     fetchInvite(token)
       .then((data) => {
@@ -38,10 +50,14 @@ export function EnrollPage() {
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [token, searchParams])
+  }, [token, searchParams, isDemo])
 
   async function handleTab1Submit(payload: Parameters<typeof submitTab1>[1]) {
     if (!token) return
+    if (isDemo) {
+      setError('Preview only — open your personal WhatsApp invitation link to save your profile.')
+      return
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -125,6 +141,13 @@ export function EnrollPage() {
           Tab 2 — Optional details
         </button>
       </div>
+
+      {isDemo ? (
+        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Preview form — not connected to a live invitation. Use the link from your WhatsApp message to
+          register and save.
+        </p>
+      ) : null}
 
       {error ? (
         <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>

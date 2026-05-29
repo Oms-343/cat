@@ -18,11 +18,9 @@ from app.models.company_subitem import (
 from app.models.master import MASTERS
 from app.models.user import User, UserRole
 from app.models.outreach_contact import OutreachContact
-from app.models.enrollment_invite import EnrollmentInvite, InviteKind, InviteStatus
+from app.models.enrollment_invite import EnrollmentInvite
 from app.data.outreach_seed import OUTREACH_CONTACTS
 from app.core.phone import normalize_phone
-from app.config import get_settings
-
 DUMMY_USERS = [
     {
         "email": "admin@tidco.com",
@@ -403,56 +401,20 @@ def seed_outreach_contacts() -> None:
         print(f"Outreach contacts: +{added}")
 
 
-def seed_demo_enrollment_invite() -> None:
-    """Local dev invite so http://localhost:5174/enroll/demo works without a campaign."""
-    if get_settings().app_env != "development":
-        return
+def remove_demo_enrollment_invite() -> None:
+    """Drop legacy /enroll/demo token — preview is frontend-only."""
     demo_token = "demo"
     with Session(engine) as session:
-        existing = session.exec(
-            select(EnrollmentInvite).where(EnrollmentInvite.token == demo_token)
-        ).first()
-        if existing and existing.status == InviteStatus.ACTIVE and not existing.used_at:
-            print(f"Demo enrollment invite: already active at /enroll/{demo_token}")
-            return
-        if existing and existing.status == InviteStatus.USED:
-            existing.status = InviteStatus.REVOKED
-            session.add(existing)
-            session.flush()
-
-        company_name, phone, district, taluk, pincode, email = OUTREACH_CONTACTS[0]
-        phone = normalize_phone(phone) or phone
-        oc = session.exec(select(OutreachContact).where(OutreachContact.phone == phone)).first()
-        if not oc:
-            oc = OutreachContact(
-                company_name=company_name,
-                name=company_name,
-                phone=phone,
-                district=district,
-                taluk=taluk,
-                pincode=pincode,
-                email=email,
-                source="seed",
-            )
-            session.add(oc)
-            session.flush()
-
-        session.add(
-            EnrollmentInvite(
-                token=demo_token,
-                outreach_contact_id=oc.id,
-                phone=phone,
-                recipient_name=company_name,
-                email=email,
-                kind=InviteKind.INITIAL,
-                status=InviteStatus.ACTIVE,
-            )
+        rows = list(
+            session.exec(
+                select(EnrollmentInvite).where(EnrollmentInvite.token == demo_token)
+            ).all()
         )
-        session.commit()
-        print(
-            f"Demo enrollment invite: open http://localhost:5174/enroll/{demo_token} "
-            f"(pre-filled for {name})"
-        )
+        for row in rows:
+            session.delete(row)
+        if rows:
+            session.commit()
+            print(f"Removed {len(rows)} demo enrollment invite(s) (use /enroll/demo in the UI).")
 
 
 def main() -> None:
@@ -463,7 +425,7 @@ def main() -> None:
     seed_companies()
     seed_subitems()
     seed_outreach_contacts()
-    seed_demo_enrollment_invite()
+    remove_demo_enrollment_invite()
 
 
 if __name__ == "__main__":
