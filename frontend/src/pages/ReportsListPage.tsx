@@ -8,7 +8,6 @@ import {
   History,
   MapPin,
   ScrollText,
-  SlidersHorizontal,
   TrendingUp,
 } from 'lucide-react'
 import { listReports } from '../api/reports'
@@ -16,13 +15,14 @@ import { ApiError } from '../api/client'
 import type { ReportMeta } from '../types/report'
 import { Alert, Badge, Button, Card, PageHeader, PageShell } from '../components/ui'
 
+const HIDDEN_REPORT_SLUGS = new Set(['custom-summary'])
+
 const reportIconMap: Record<string, LucideIcon> = {
   'sector-summary': BarChart3,
   'district-profile': MapPin,
   'growth-trends': TrendingUp,
   'profile-completion': ClipboardCheck,
   'certification-report': Award,
-  'custom-summary': SlidersHorizontal,
 }
 
 const reportCardIconClass = 'h-5 w-5 text-muted mb-2'
@@ -61,7 +61,7 @@ export function ReportsListPage() {
 
       {reports && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {reports.map((r) => (
+          {reports.filter((r) => !HIDDEN_REPORT_SLUGS.has(r.slug)).map((r) => (
             <Link key={r.slug} to={`/reports/${r.slug}`} className="block group">
               <Card
                 padding="sm"

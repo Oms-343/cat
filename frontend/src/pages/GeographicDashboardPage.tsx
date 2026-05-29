@@ -312,9 +312,7 @@ export function GeographicDashboardPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 mb-4 items-stretch">
         <RefinementPanel
-          className={
-            level === "state" ? "xl:col-span-6" : "xl:col-span-12"
-          }
+          className={level === "state" ? "xl:col-span-6" : "xl:col-span-12"}
           sector={sector}
           turnover={turnover}
           masters={masters}
@@ -328,11 +326,7 @@ export function GeographicDashboardPage() {
                 loading && "opacity-60 pointer-events-none",
               )}
               label="Total MSMEs"
-              value={
-                overview
-                  ? overview.total_companies.toLocaleString()
-                  : "—"
-              }
+              value={overview ? overview.total_companies.toLocaleString() : "—"}
               icon={<MsmeCountChartIcon />}
               detail={
                 overview ? (
@@ -360,9 +354,7 @@ export function GeographicDashboardPage() {
               )}
               label="Active districts"
               value={
-                overview
-                  ? `${overview.total_districts_with_msmes} of 38`
-                  : "—"
+                overview ? `${overview.total_districts_with_msmes} of 38` : "—"
               }
               secondaryValue={
                 overview
@@ -611,6 +603,11 @@ function RefinementPanel({
           ))}
         </FilterSelect>
       </div>
+
+      <p className="text-xs text-muted mt-2">
+        Refine MSME counts on the map and regional lists as you drill down the
+        map.
+      </p>
 
       <div
         className={cn(
