@@ -40,6 +40,13 @@ function templateUsesExcelAudience(templateId: string): boolean {
   return templateId === "onboarding_reminder_v1";
 }
 
+const DRIVE_SECTIONS = [
+  { key: "campaigns", label: "Campaigns" },
+  { key: "templates", label: "Templates" },
+] as const;
+
+type DriveSection = (typeof DRIVE_SECTIONS)[number]["key"];
+
 export function OnboardingDrivesPage() {
   const [config, setConfig] = useState<OnboardingConfig | null>(null);
   const [templates, setTemplates] = useState<WhatsAppTemplate[]>([]);
@@ -82,6 +89,7 @@ export function OnboardingDrivesPage() {
   );
   const [funnelLoadingId, setFunnelLoadingId] = useState<number | null>(null);
   const [remindingId, setRemindingId] = useState<number | null>(null);
+  const [activeSection, setActiveSection] = useState<DriveSection>("campaigns");
 
   const refreshCampaigns = useCallback(async () => {
     const campRes = await listCampaigns();
@@ -127,7 +135,7 @@ export function OnboardingDrivesPage() {
     if (!hasRunningCampaigns) return;
     const timer = window.setInterval(() => {
       refreshCampaigns().catch(() => {});
-    }, 4000);
+    }, 60_000);
     return () => window.clearInterval(timer);
   }, [hasRunningCampaigns, refreshCampaigns]);
 
@@ -316,6 +324,7 @@ export function OnboardingDrivesPage() {
         outreach_contact_ids: usesExcelImport ? importedContactIds : null,
       });
       setLaunchMessage(res.message);
+      setActiveSection("campaigns");
       setCampaigns((prev) => [res.campaign, ...prev]);
       setSummary((s) => ({
         campaign_count: s.campaign_count + 1,
@@ -353,65 +362,23 @@ export function OnboardingDrivesPage() {
           </>
         }
         actions={
-          <Button
-            type="button"
-            size="sm"
-            onClick={openWizard}
-            disabled={!templates.length}
-          >
-            + New campaign
-          </Button>
+          activeSection === "campaigns" ? (
+            <Button
+              type="button"
+              size="sm"
+              onClick={openWizard}
+              disabled={!templates.length}
+            >
+              + New campaign
+            </Button>
+          ) : undefined
         }
       />
 
-      {config?.dry_run && (
-        <div className="mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
-          <strong>Dry-run mode.</strong> Messages are not sent to WhatsApp.
-          After launch, use <strong>Simulate delivery</strong> on running
-          campaigns to mimic webhook stats. For production, set{" "}
-          <code className="text-xs">WHATSAPP_ACCESS_TOKEN</code>,{" "}
-          <code className="text-xs">WHATSAPP_PHONE_NUMBER_ID</code>, and{" "}
-          <code className="text-xs">WHATSAPP_DRY_RUN=false</code>.
-        </div>
-      )}
-
-      {config && !config.dry_run && config.whatsapp_configured && (
-        <div className="mb-6 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-4 py-3">
-          <strong>Live mode.</strong> Delivery and reply counts update
-          automatically from the WhatsApp webhook.
-        </div>
-      )}
-
-      {config && (
-        <div className="mb-6 text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-md px-4 py-3 space-y-2">
-          <p>
-            <strong>Webhook URL</strong> (register in Meta Developer Console →
-            WhatsApp → Configuration):
-          </p>
-          <code className="block text-xs border border-hairline rounded px-2 py-1.5 break-all">
-            {config.webhook_url}
-          </code>
-          <p className="text-xs text-slate-500">
-            Verify token: <code>WHATSAPP_WEBHOOK_VERIFY_TOKEN</code>
-            {config.webhook_signature_verification
-              ? " · Signature verification enabled (WHATSAPP_APP_SECRET set)"
-              : " · Set WHATSAPP_APP_SECRET to verify X-Hub-Signature-256"}
-          </p>
-          {config.enroll_public_url ? (
-            <p className="text-xs text-slate-600">
-              <strong>Enrollment app URL</strong> (links in WhatsApp messages):{" "}
-              <code className="border border-hairline rounded px-1">
-                {config.enroll_public_url}
-              </code>
-            </p>
-          ) : null}
-          {hasRunningCampaigns && (
-            <p className="text-xs text-blue-700">
-              Refreshing campaign stats every 4 seconds…
-            </p>
-          )}
-        </div>
-      )}
+      <div className="mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
+        This is demo implementation, the real implementation will be
+        implemented after getting the WhatsApp API.
+      </div>
 
       {error && (
         <div className="mb-6 text-sm text-red-800 bg-red-50 border border-red-200 rounded-md px-4 py-3">
@@ -433,6 +400,34 @@ export function OnboardingDrivesPage() {
         </div>
       )}
 
+      <nav
+        className="flex items-end gap-1 border-b border-hairline mb-6"
+        aria-label="Onboarding drive sections"
+      >
+        {DRIVE_SECTIONS.map((section) => {
+          const isActive = activeSection === section.key;
+          return (
+            <button
+              key={section.key}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveSection(section.key)}
+              className={[
+                "shrink-0 px-4 py-2.5 text-sm font-medium rounded-t-md transition-colors",
+                isActive
+                  ? "bg-canvas text-ink border border-hairline border-b-canvas -mb-px shadow-sm"
+                  : "text-muted hover:text-body hover:bg-canvas/60 border border-transparent mb-px",
+              ].join(" ")}
+            >
+              {section.label}
+            </button>
+          );
+        })}
+      </nav>
+
+      {activeSection === "campaigns" && (
+        <>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="border border-hairline rounded-lg p-4">
           <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
@@ -616,47 +611,51 @@ export function OnboardingDrivesPage() {
           )}
         </div>
       </section>
+        </>
+      )}
 
-      <section>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">
-          Pre-approved message templates
-        </h2>
-        <p className="text-sm text-slate-500 mb-4">
-          WhatsApp requires Meta-approved templates. Only templates listed here
-          can be used in campaigns.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {templates.map((t) => (
-            <div
-              key={t.id}
-              className="border border-hairline rounded-lg p-5 flex flex-col"
-            >
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="font-semibold text-slate-900 text-sm">
-                  {t.name}
-                </h3>
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border bg-emerald-50 text-emerald-800 border-emerald-200 shrink-0">
-                  Approved
-                </span>
-              </div>
-              <code className="text-[11px] text-slate-500 bg-slate-50 px-2 py-1 rounded mb-2 block truncate">
-                {t.id}
-              </code>
-              <p className="text-sm text-slate-600 flex-1">{t.purpose}</p>
-              <div className="mt-3 flex gap-1">
-                {t.languages.map((lang) => (
-                  <span
-                    key={lang}
-                    className="text-[10px] font-semibold px-1.5 py-0.5 rounded border bg-slate-100 text-slate-700 border-slate-200 uppercase"
-                  >
-                    {lang === "en" ? "English" : "Tamil"}
+      {activeSection === "templates" && (
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+            Pre-approved message templates
+          </h2>
+          <p className="text-sm text-slate-500 mb-4">
+            WhatsApp requires Meta-approved templates. Only templates listed here
+            can be used in campaigns.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {templates.map((t) => (
+              <div
+                key={t.id}
+                className="border border-hairline rounded-lg p-5 flex flex-col"
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-semibold text-slate-900 text-sm">
+                    {t.name}
+                  </h3>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded border bg-emerald-50 text-emerald-800 border-emerald-200 shrink-0">
+                    Approved
                   </span>
-                ))}
+                </div>
+                <code className="text-[11px] text-slate-500 bg-slate-50 px-2 py-1 rounded mb-2 block truncate">
+                  {t.id}
+                </code>
+                <p className="text-sm text-slate-600 flex-1">{t.purpose}</p>
+                <div className="mt-3 flex gap-1">
+                  {t.languages.map((lang) => (
+                    <span
+                      key={lang}
+                      className="text-[10px] font-semibold px-1.5 py-0.5 rounded border bg-slate-100 text-slate-700 border-slate-200 uppercase"
+                    >
+                      {lang === "en" ? "English" : "Tamil"}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Modal
         open={wizardOpen}
