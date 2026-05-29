@@ -11,6 +11,7 @@ import {
 } from '../api/masters'
 import { ApiError } from '../api/client'
 import { Modal } from '../components/Modal'
+import { isAdminVisibleMaster } from '../constants/adminMasters'
 import type { MasterEntry, MasterSummary } from '../types/master'
 
 interface FormState {
@@ -31,6 +32,7 @@ const emptyForm: FormState = {
 
 export function MasterDetailPage() {
   const { key = '' } = useParams<{ key: string }>()
+  const adminVisible = isAdminVisibleMaster(key)
 
   const [summary, setSummary] = useState<MasterSummary | null>(null)
   const [entries, setEntries] = useState<MasterEntry[] | null>(null)
@@ -60,9 +62,13 @@ export function MasterDetailPage() {
   }
 
   useEffect(() => {
+    if (!adminVisible) {
+      setLoading(false)
+      return
+    }
     refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+  }, [key, adminVisible])
 
   function openAdd() {
     setEditingId(null)
@@ -119,11 +125,26 @@ export function MasterDetailPage() {
     }
   }
 
+  if (!adminVisible) {
+    return (
+      <div className="max-w-6xl mx-auto px-8 py-8">
+        <Link to="/masters" className="text-sm text-blue-600 hover:underline">
+          ← Master Data
+        </Link>
+        <h1 className="text-2xl font-bold text-slate-900 mt-4">Not available</h1>
+        <p className="text-sm text-slate-500 mt-2 max-w-lg">
+          This reference list is not managed here. Use the masters shown on the Master Data
+          home page — they are the ones used in company forms, filters, and reports.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-8 py-8">
       <div className="mb-6">
         <Link to="/masters" className="text-sm text-blue-600 hover:underline">
-          ← All masters
+          ← Master Data
         </Link>
         <h1 className="text-2xl font-bold text-slate-900 mt-1">
           {summary?.label ?? key}

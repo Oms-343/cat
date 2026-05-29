@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listMasters } from '../api/masters'
 import { ApiError } from '../api/client'
+import { sortMastersForAdmin } from '../constants/adminMasters'
 import type { MasterSummary } from '../types/master'
-
-/** Shown via API/seed for geo taluk inference; not admin-maintained in UI yet. */
-const HIDDEN_MASTER_KEYS = new Set(['pincodes'])
 
 export function MastersListPage() {
   const [masters, setMasters] = useState<MasterSummary[] | null>(null)
@@ -27,7 +25,8 @@ export function MastersListPage() {
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Master Data</h1>
         <p className="text-sm text-slate-500">
-          Reference data that powers dropdowns and classifications across the platform.
+          Lists used in company profiles, filters, reports, and onboarding — edit entries here
+          to update dropdowns across the platform.
         </p>
       </header>
 
@@ -41,7 +40,7 @@ export function MastersListPage() {
 
       {masters && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {masters.filter((m) => !HIDDEN_MASTER_KEYS.has(m.key)).map((m) => (
+          {sortMastersForAdmin(masters).map((m) => (
             <Link
               key={m.key}
               to={`/masters/${m.key}`}
