@@ -1,5 +1,5 @@
-from datetime import datetime
-from pydantic import BaseModel
+from datetime import datetime, timezone
+from pydantic import BaseModel, field_serializer
 
 
 class AuditLogOut(BaseModel):
@@ -17,6 +17,15 @@ class AuditLogOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        # Timestamps are recorded in UTC but SQLite stores them naive (no
+        # tzinfo). Assume naive datetimes are UTC and emit an explicit offset
+        # so clients convert to local time correctly.
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc).isoformat()
 
 
 class AuditLogList(BaseModel):

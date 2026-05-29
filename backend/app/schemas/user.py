@@ -1,5 +1,5 @@
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime, timezone
+from pydantic import BaseModel, EmailStr, Field, field_serializer
 from app.models.user import UserRole
 
 
@@ -16,6 +16,17 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+    @field_serializer("created_at", "last_login_at")
+    def serialize_utc(self, value: datetime | None) -> str | None:
+        # Timestamps are recorded in UTC but SQLite stores them naive (no
+        # tzinfo). Assume naive datetimes are UTC and emit an explicit offset
+        # so clients convert to local time correctly.
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc).isoformat()
 
 
 class UserCreate(BaseModel):

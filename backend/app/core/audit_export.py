@@ -1,5 +1,6 @@
 import io
 import json
+from datetime import timezone
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
@@ -33,7 +34,10 @@ def audit_logs_to_xlsx(rows: list[AuditLog]) -> bytes:
         cell.fill = HEADER_FILL
 
     for row_idx, r in enumerate(rows, start=2):
-        ws.cell(row_idx, 1, r.timestamp.isoformat())
+        ts = r.timestamp
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        ws.cell(row_idx, 1, ts.astimezone(timezone.utc).isoformat())
         ws.cell(row_idx, 2, r.action)
         ws.cell(row_idx, 3, r.resource_type or "")
         ws.cell(row_idx, 4, r.resource_id if r.resource_id is not None else "")
