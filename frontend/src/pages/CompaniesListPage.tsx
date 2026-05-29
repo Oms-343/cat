@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { bulkUpdateTags, exportCompanies, listCompanies } from '../api/companies'
+import { exportCompanies, listCompanies } from '../api/companies'
 import { listEntries } from '../api/masters'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import type { CompanyListResponse } from '../types/company'
 import type { MasterEntry } from '../types/master'
-import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 import { Alert, Badge, Button, Card, Input, PageHeader, PageShell, Select } from '../components/ui'
-import { cn } from '../utils/cn'
 
 interface MasterMap {
   districts: MasterEntry[]
@@ -29,7 +27,6 @@ export function CompaniesListPage() {
   const [sector, setSector] = useState('')
   const [district, setDistrict] = useState('')
   const [turnover, setTurnover] = useState('')
-  const [tag, setTag] = useState('')
   const [offset, setOffset] = useState(0)
 
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -61,7 +58,6 @@ export function CompaniesListPage() {
       sector: sector || undefined,
       district: district || undefined,
       turnover: turnover || undefined,
-      tag: tag || undefined,
       limit: PAGE_SIZE,
       offset,
     })
@@ -71,14 +67,13 @@ export function CompaniesListPage() {
         else setError(String(err))
       })
       .finally(() => setLoading(false))
-  }, [q, sector, district, turnover, tag, offset])
+  }, [q, sector, district, turnover, offset])
 
   function clearFilters() {
     setQ('')
     setSector('')
     setDistrict('')
     setTurnover('')
-    setTag('')
     setOffset(0)
   }
 
@@ -117,24 +112,12 @@ export function CompaniesListPage() {
         sector: sector || undefined,
         district: district || undefined,
         turnover: turnover || undefined,
-        tag: tag || undefined,
         ids: selected.size > 0 ? [...selected] : undefined,
       })
     } catch (err) {
       alert(err instanceof Error ? err.message : String(err))
     } finally {
       setExporting(false)
-    }
-  }
-
-  async function handleBulkTag(tagName: string) {
-    if (!canBulk || selected.size === 0) return
-    try {
-      await bulkUpdateTags([...selected], [tagName], [])
-      setSelected(new Set())
-      setOffset(0)
-    } catch (err) {
-      alert(err instanceof ApiError ? err.detail : String(err))
     }
   }
 
@@ -171,24 +154,12 @@ export function CompaniesListPage() {
       {canBulk && selected.size > 0 && (
         <Alert variant="info" className="mb-4 flex flex-wrap items-center gap-2">
           <span>{selected.size} selected</span>
-          {SUGGESTED_COMPANY_TAGS.map((t) => (
-            <Button
-              key={t}
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => handleBulkTag(t)}
-              className="!h-7 !px-2 !text-xs"
-            >
-              Tag {t}
-            </Button>
-          ))}
           <button
             type="button"
             onClick={() => setSelected(new Set())}
             className="ml-auto text-xs text-ink underline"
           >
-            Clear
+            Clear selection
           </button>
         </Alert>
       )}
@@ -249,36 +220,17 @@ export function CompaniesListPage() {
           </Select>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 mt-3">
-          <span className="text-xs text-muted">Tag:</span>
-          {SUGGESTED_COMPANY_TAGS.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => {
-                setOffset(0)
-                setTag(tag === t ? '' : t)
-              }}
-              className={cn(
-                'text-xs px-2.5 py-1 rounded-md border font-medium transition-colors',
-                tag === t
-                  ? 'bg-primary text-on-primary border-primary'
-                  : 'bg-transparent text-body border-hairline hover:bg-surface-card',
-              )}
-            >
-              {t}
-            </button>
-          ))}
-          {(q || sector || district || turnover || tag) && (
+        {(q || sector || district || turnover) && (
+          <div className="flex justify-end mt-3">
             <button
               type="button"
               onClick={clearFilters}
-              className="ml-auto text-xs text-muted hover:text-ink underline"
+              className="text-xs text-muted hover:text-ink underline"
             >
               Clear filters
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </Card>
 
       <Card variant="elevated" padding="none" className="overflow-hidden">

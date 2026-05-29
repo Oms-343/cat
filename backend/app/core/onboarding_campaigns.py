@@ -38,7 +38,6 @@ def create_campaign(
     language_code: str,
     district_code: str | None,
     sector_code: str | None,
-    tag_filter: str | None,
     registration_filter: RegistrationFilter,
     outreach_contact_ids: list[int] | None = None,
 ) -> tuple[OnboardingCampaign, list[AudienceRecipient], str | None]:
@@ -49,7 +48,6 @@ def create_campaign(
         session,
         district_code=district_code,
         sector_code=sector_code,
-        tag_filter=tag_filter,
         registration_filter=registration_filter,
         outreach_contact_ids=outreach_contact_ids,
     )
@@ -64,7 +62,6 @@ def create_campaign(
         language_code=language_code or "en",
         district_code=district_code or None,
         sector_code=sector_code or None,
-        tag_filter=tag_filter,
         registration_filter=registration_filter,
         audience_label=audience.audience_label,
         status=CampaignStatus.RUNNING,
@@ -200,7 +197,6 @@ def launch_campaign(
     language_code: str = "en",
     district_code: str | None,
     sector_code: str | None,
-    tag_filter: str | None,
     registration_filter: RegistrationFilter,
     outreach_contact_ids: list[int] | None = None,
     settings: Settings | None = None,
@@ -215,7 +211,6 @@ def launch_campaign(
         language_code=language_code,
         district_code=district_code,
         sector_code=sector_code,
-        tag_filter=tag_filter,
         registration_filter=registration_filter,
         outreach_contact_ids=outreach_contact_ids,
     )

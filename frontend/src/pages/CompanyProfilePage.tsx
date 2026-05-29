@@ -21,7 +21,6 @@ import { CompanyLocationMap } from '../components/maps/CompanyLocationMap'
 import type { Company, LockedFields } from '../types/company'
 import type { MasterEntry } from '../types/master'
 import { ProfileSectionTabs } from '../components/ProfileSectionTabs'
-import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 
 const SECTION_LABELS: { key: string; label: string }[] = [
   { key: 'basic_details', label: 'Basic Details' },
@@ -416,19 +415,6 @@ export function CompanyProfilePage() {
                   >
                     Add
                   </button>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  <span className="text-xs text-slate-500">Suggested:</span>
-                  {SUGGESTED_COMPANY_TAGS.filter((t) => !(editedTags ?? []).includes(t)).map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => addTag(t)}
-                      className="text-xs px-2 py-0.5 rounded border bg-transparent text-body border-hairline hover:bg-surface-card"
-                    >
-                      + {t}
-                    </button>
-                  ))}
                 </div>
               </div>
             )}

@@ -11,6 +11,7 @@ from typing import Any, Callable
 
 from sqlmodel import Session, select
 
+from app.core.company_completion import profile_completion_pct, section_completion
 from app.models.company import Company
 from app.models.master import DistrictMaster, SectorMaster, TurnoverRangeMaster
 
@@ -54,7 +55,6 @@ def _filtered_companies(
     district: str | None = None,
     sector: str | None = None,
     turnover: str | None = None,
-    tag: str | None = None,
 ) -> list[Company]:
     stmt = select(Company)
     if district:
@@ -63,10 +63,7 @@ def _filtered_companies(
         stmt = stmt.where(Company.sector_code == sector)
     if turnover:
         stmt = stmt.where(Company.turnover_range_code == turnover)
-    rows = list(session.exec(stmt).all())
-    if tag:
-        rows = [c for c in rows if tag in (c.tags or [])]
-    return rows
+    return list(session.exec(stmt).all())
 
 
 def _lookup_name(session: Session, model, code: str | None) -> str | None:
@@ -85,7 +82,6 @@ def run_sector_summary(session: Session, filters: dict[str, Any]) -> ReportResul
     companies = _filtered_companies(
         session,
         district=filters.get("district"),
-        tag=filters.get("tag"),
     )
     sectors = {s.code: s.name for s in session.exec(select(SectorMaster)).all()}
 
@@ -148,7 +144,6 @@ def run_district_profile(session: Session, filters: dict[str, Any]) -> ReportRes
         session,
         district=district_code,
         sector=filters.get("sector"),
-        tag=filters.get("tag"),
     )
     sectors = {s.code: s.name for s in session.exec(select(SectorMaster)).all()}
     turnover_names = {t.code: t.name for t in session.exec(select(TurnoverRangeMaster)).all()}
@@ -174,13 +169,6 @@ def run_district_profile(session: Session, filters: dict[str, Any]) -> ReportRes
         }
         for code, cnt in turnover_counts.most_common()
     ]
-
-    # Tag breakdown
-    tag_counter: Counter[str] = Counter()
-    for c in companies:
-        for t in c.tags or []:
-            tag_counter[t] += 1
-    tag_rows = [{"tag": tag, "company_count": cnt} for tag, cnt in tag_counter.most_common()]
 
     turnovers = [c.exact_turnover_lakhs for c in companies if c.exact_turnover_lakhs]
     workforces = [c.workforce_count for c in companies if c.workforce_count]
@@ -210,13 +198,6 @@ def run_district_profile(session: Session, filters: dict[str, Any]) -> ReportRes
                 ],
                 rows=turnover_rows,
             ),
-            "By Tag": ReportResult(
-                columns=[
-                    {"key": "tag", "label": "Tag"},
-                    {"key": "company_count", "label": "Companies", "format": "number"},
-                ],
-                rows=tag_rows,
-            ),
         },
     )
 
@@ -236,7 +217,7 @@ def run_growth_trends(session: Session, filters: dict[str, Any]) -> ReportResult
             continue
         key = c.created_at.strftime("%Y-%m")
         by_month[key] += 1
-        completion_by_month.setdefault(key, []).append(_completion_score(c))
+        completion_by_month.setdefault(key, []).append(profile_completion_pct(c, session))
 
     rows: list[dict[str, Any]] = []
     cumulative = 0
@@ -272,78 +253,19 @@ def run_growth_trends(session: Session, filters: dict[str, Any]) -> ReportResult
     )
 
 
-def _completion_score(c: Company) -> int:
-    """Lightweight inline version of the profile completion calc."""
-    s1 = all(
-        getattr(c, f) not in (None, "", 0)
-        for f in [
-            "name", "address_line1", "city", "district_code", "pincode",
-            "sector_code", "contact_name", "contact_email", "contact_phone",
-            "workforce_count", "turnover_range_code", "business_activity",
-        ]
-    )
-    s2 = all(getattr(c, f) not in (None, "", 0) for f in ["gst_number", "cin", "udyam_number", "pan"])
-    s7 = bool(c.tags)
-    return (50 if s1 else 0) + (30 if s2 else 0) + (20 if s7 else 0)
-
-
 # ----------------------------------------------------------------------------
-# 4. Tag Analytics
+# 4. Profile Completion
 # ----------------------------------------------------------------------------
 
 
-def run_tag_analytics(session: Session, filters: dict[str, Any]) -> ReportResult:
-    companies = _filtered_companies(
-        session,
-        turnover=filters.get("turnover"),
-        sector=filters.get("sector"),
-    )
-    districts = {d.code: d.name for d in session.exec(select(DistrictMaster)).all()}
-    sectors = {s.code: s.name for s in session.exec(select(SectorMaster)).all()}
-
-    by_tag: dict[str, list[Company]] = {}
-    for c in companies:
-        for t in c.tags or []:
-            by_tag.setdefault(t, []).append(c)
-
-    rows: list[dict[str, Any]] = []
-    for tag, group in by_tag.items():
-        district_counts = Counter(c.district_code for c in group if c.district_code)
-        sector_counts = Counter(c.sector_code for c in group if c.sector_code)
-        rows.append(
-            {
-                "tag": tag,
-                "company_count": len(group),
-                "districts_present": len(district_counts),
-                "top_district": districts.get(
-                    district_counts.most_common(1)[0][0], "—"
-                ) if district_counts else "—",
-                "top_sector": sectors.get(
-                    sector_counts.most_common(1)[0][0], "—"
-                ) if sector_counts else "—",
-            }
-        )
-    rows.sort(key=lambda r: r["company_count"], reverse=True)
-
-    return ReportResult(
-        columns=[
-            {"key": "tag", "label": "Tag"},
-            {"key": "company_count", "label": "Companies", "format": "number"},
-            {"key": "districts_present", "label": "Districts", "format": "number"},
-            {"key": "top_district", "label": "Top District"},
-            {"key": "top_sector", "label": "Top Sector"},
-        ],
-        rows=rows,
-        summary={
-            "total_companies_with_tags": sum(1 for c in companies if c.tags),
-            "unique_tags": len(by_tag),
-        },
-    )
-
-
-# ----------------------------------------------------------------------------
-# 5. Profile Completion
-# ----------------------------------------------------------------------------
+_SECTION_LABELS = {
+    "basic_details": "basic details",
+    "registration": "registration",
+    "products": "products",
+    "certifications": "certifications",
+    "customers": "customers",
+    "machinery": "machinery",
+}
 
 
 def run_profile_completion(session: Session, filters: dict[str, Any]) -> ReportResult:
@@ -358,7 +280,7 @@ def run_profile_completion(session: Session, filters: dict[str, Any]) -> ReportR
     rows: list[dict[str, Any]] = []
     bucket_counts = Counter()
     for c in companies:
-        pct = _completion_score(c)
+        pct = profile_completion_pct(c, session)
         bucket = (
             "90–100%" if pct >= 90 else
             "70–89%" if pct >= 70 else
@@ -368,18 +290,11 @@ def run_profile_completion(session: Session, filters: dict[str, Any]) -> ReportR
         bucket_counts[bucket] += 1
 
         missing: list[str] = []
-        # Section 1 critical fields
-        for field_name in ["address_line1", "city", "district_code", "pincode",
-                           "sector_code", "contact_name", "contact_email",
-                           "contact_phone", "workforce_count", "turnover_range_code",
-                           "business_activity"]:
-            if getattr(c, field_name) in (None, "", 0):
-                missing.append(field_name)
-        for field_name in ["gst_number", "cin", "udyam_number", "pan"]:
-            if getattr(c, field_name) in (None, "", 0):
-                missing.append(field_name)
-        if not c.tags:
-            missing.append("tags")
+        for section_key, complete in section_completion(c, session).items():
+            if section_key == "tags":
+                continue
+            if not complete:
+                missing.append(_SECTION_LABELS.get(section_key, section_key))
 
         rows.append(
             {
@@ -485,7 +400,6 @@ def run_custom_summary(session: Session, filters: dict[str, Any]) -> ReportResul
         session,
         district=filters.get("district"),
         sector=filters.get("sector"),
-        tag=filters.get("tag"),
     )
     districts = {d.code: d.name for d in session.exec(select(DistrictMaster)).all()}
     sectors = {s.code: s.name for s in session.exec(select(SectorMaster)).all()}
@@ -523,19 +437,17 @@ REPORT_REGISTRY: dict[str, ReportDef] = {
         icon="📊",
         filters=[
             FilterSpec("district", "District", "master", master_key="districts"),
-            FilterSpec("tag", "Tag", "string"),
         ],
         runner=run_sector_summary,
     ),
     "district-profile": ReportDef(
         slug="district-profile",
         name="District Profile",
-        description="Detailed snapshot of one district: top sectors, turnover spread, tag breakdown.",
+        description="Detailed snapshot of one district: top sectors and turnover spread.",
         icon="📍",
         filters=[
             FilterSpec("district", "District", "master", master_key="districts", required=True),
             FilterSpec("sector", "Sector", "master", master_key="sectors"),
-            FilterSpec("tag", "Tag", "string"),
         ],
         runner=run_district_profile,
     ),
@@ -546,17 +458,6 @@ REPORT_REGISTRY: dict[str, ReportDef] = {
         icon="📈",
         filters=[],
         runner=run_growth_trends,
-    ),
-    "tag-analytics": ReportDef(
-        slug="tag-analytics",
-        name="Tag Analytics",
-        description="How many MSMEs per tag (Defence, Aerospace, EV…) and where they concentrate.",
-        icon="🏷️",
-        filters=[
-            FilterSpec("sector", "Sector", "master", master_key="sectors"),
-            FilterSpec("turnover", "Turnover Range", "master", master_key="turnover-ranges"),
-        ],
-        runner=run_tag_analytics,
     ),
     "profile-completion": ReportDef(
         slug="profile-completion",
@@ -589,7 +490,6 @@ REPORT_REGISTRY: dict[str, ReportDef] = {
             FilterSpec("group_by", "Group By (sector|district|turnover)", "string"),
             FilterSpec("district", "District", "master", master_key="districts"),
             FilterSpec("sector", "Sector", "master", master_key="sectors"),
-            FilterSpec("tag", "Tag", "string"),
         ],
         runner=run_custom_summary,
     ),

@@ -41,7 +41,6 @@ class CampaignSimulateOut(BaseModel):
 class AudienceEstimateIn(BaseModel):
     district_code: str | None = None
     sector_code: str | None = None
-    tag_filter: str | None = None
     registration_filter: RegistrationFilter = RegistrationFilter.ALL
     outreach_contact_ids: list[int] | None = None
 
@@ -59,7 +58,6 @@ class CampaignCreateIn(BaseModel):
     language_code: str = Field(default="en", pattern="^(en|ta)$")
     district_code: str | None = None
     sector_code: str | None = None
-    tag_filter: str | None = None
     registration_filter: RegistrationFilter = RegistrationFilter.ALL
     outreach_contact_ids: list[int] | None = None
 

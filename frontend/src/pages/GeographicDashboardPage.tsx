@@ -27,7 +27,6 @@ import {
   loadLayoutData,
   loadTalukIndex,
 } from "../components/maps/tnLayoutMap";
-import { SUGGESTED_COMPANY_TAGS } from "../constants/companyTags";
 import {
   DashboardStatCard,
   MsmeCountChartIcon,
@@ -56,15 +55,13 @@ export function GeographicDashboardPage() {
   const pincode = searchParams.get("pincode") ?? "";
   const sector = searchParams.get("sector") ?? "";
   const turnover = searchParams.get("turnover") ?? "";
-  const tag = searchParams.get("tag") ?? "";
 
   const filters = useMemo(
     () => ({
       sector: sector || undefined,
       turnover: turnover || undefined,
-      tag: tag || undefined,
     }),
-    [sector, turnover, tag],
+    [sector, turnover],
   );
 
   const [masters, setMasters] = useState<{
@@ -322,7 +319,6 @@ export function GeographicDashboardPage() {
           }
           sector={sector}
           turnover={turnover}
-          tag={tag}
           masters={masters}
           onUpdate={updateParams}
         />
@@ -498,14 +494,12 @@ function FilterSelect({
 function RefinementPanel({
   sector,
   turnover,
-  tag,
   masters,
   onUpdate,
   className,
 }: {
   sector: string;
   turnover: string;
-  tag: string;
   masters: {
     districts: MasterEntry[];
     sectors: MasterEntry[];
@@ -514,7 +508,7 @@ function RefinementPanel({
   onUpdate: (u: Record<string, string | null>) => void;
   className?: string;
 }) {
-  const hasFilters = Boolean(tag || sector || turnover);
+  const hasFilters = Boolean(sector || turnover);
 
   return (
     <div
@@ -528,9 +522,7 @@ function RefinementPanel({
         {hasFilters && (
           <button
             type="button"
-            onClick={() =>
-              onUpdate({ tag: null, sector: null, turnover: null })
-            }
+            onClick={() => onUpdate({ sector: null, turnover: null })}
             className="text-xs text-brand-accent hover:underline font-medium shrink-0"
           >
             clear filters
@@ -563,27 +555,6 @@ function RefinementPanel({
             </option>
           ))}
         </FilterSelect>
-      </div>
-
-      <p className="text-xs font-semibold text-ink mt-3 mb-1.5">
-        Refine by Tag
-      </p>
-      <div className="flex flex-wrap gap-1">
-        {SUGGESTED_COMPANY_TAGS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => onUpdate({ tag: tag === t ? null : t })}
-            className={cn(
-              "text-xs px-2.5 py-1 rounded-full font-medium transition-colors",
-              tag === t
-                ? "bg-brand-accent text-white shadow-sm"
-                : "bg-brand-accent/10 text-brand-accent hover:bg-brand-accent/15",
-            )}
-          >
-            {t}
-          </button>
-        ))}
       </div>
     </div>
   );

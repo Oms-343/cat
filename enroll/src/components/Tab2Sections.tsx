@@ -10,7 +10,6 @@ import {
   type CompanyMachinery,
   type CompanyProduct,
 } from '../api/enrollSubitems'
-import { SUGGESTED_COMPANY_TAGS } from '../constants/companyTags'
 import { Modal } from './Modal'
 
 const inputCls =
@@ -108,13 +107,6 @@ export function Tab2Sections({
               {t}
               <button type="button" onClick={() => void saveTags(tags.filter((x) => x !== t))} className="text-teal-700">✕</button>
             </span>
-          ))}
-        </div>
-        <div className="mt-2 flex flex-wrap gap-1">
-          {SUGGESTED_COMPANY_TAGS.filter((t) => !tags.includes(t)).map((t) => (
-            <button key={t} type="button" onClick={() => addTag(t)} className="rounded border border-slate-300 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-50">
-              + {t}
-            </button>
           ))}
         </div>
         <div className="mt-3 flex gap-2">

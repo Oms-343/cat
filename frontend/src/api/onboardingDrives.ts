@@ -83,7 +83,6 @@ export interface CreateCampaignPayload {
   language_code: "en" | "ta";
   district_code?: string | null;
   sector_code?: string | null;
-  tag_filter?: string | null;
   registration_filter: RegistrationFilter;
   outreach_contact_ids?: number[] | null;
 }
@@ -91,7 +90,6 @@ export interface CreateCampaignPayload {
 export interface EstimateAudiencePayload {
   district_code?: string | null;
   sector_code?: string | null;
-  tag_filter?: string | null;
   registration_filter: RegistrationFilter;
   outreach_contact_ids?: number[] | null;
 }

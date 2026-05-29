@@ -9,7 +9,6 @@ import {
   MapPin,
   ScrollText,
   SlidersHorizontal,
-  Tags,
   TrendingUp,
 } from 'lucide-react'
 import { listReports } from '../api/reports'
@@ -21,7 +20,6 @@ const reportIconMap: Record<string, LucideIcon> = {
   'sector-summary': BarChart3,
   'district-profile': MapPin,
   'growth-trends': TrendingUp,
-  'tag-analytics': Tags,
   'profile-completion': ClipboardCheck,
   'certification-report': Award,
   'custom-summary': SlidersHorizontal,
@@ -48,7 +46,7 @@ export function ReportsListPage() {
     <PageShell width="lg">
       <PageHeader
         title="MIS Reports"
-        description="Pre-built reports for sector, district, growth, tag analytics, profile completion — exportable to Excel."
+        description="Pre-built reports for sector, district, growth, profile completion — exportable to Excel."
         actions={
           <Link to="/reports/history">
             <Button variant="secondary" size="sm" type="button" className="gap-2">

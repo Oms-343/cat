@@ -53,7 +53,6 @@ def build_audience_label(
     *,
     district_code: str | None,
     sector_code: str | None,
-    tag_filter: str | None,
     registration_filter: RegistrationFilter,
 ) -> str:
     parts = [
@@ -61,8 +60,6 @@ def build_audience_label(
         _sector_name(session, sector_code),
         _registration_label(registration_filter),
     ]
-    if tag_filter:
-        parts.insert(2, f"Tag: {tag_filter}")
     return " · ".join(parts)
 
 
@@ -106,7 +103,6 @@ def resolve_audience(
     *,
     district_code: str | None,
     sector_code: str | None,
-    tag_filter: str | None,
     registration_filter: RegistrationFilter,
     outreach_contact_ids: list[int] | None = None,
 ) -> AudienceResult:
@@ -117,7 +113,6 @@ def resolve_audience(
             session,
             district_code=district_code,
             sector_code=sector_code,
-            tag_filter=tag_filter,
             registration_filter=registration_filter,
         )
 
@@ -154,13 +149,6 @@ def resolve_audience(
     seen_phones: set[str] = set()
 
     for c in companies:
-        if tag_filter:
-            tags = [t.lower() for t in (c.tags or [])]
-            if tag_filter.lower() not in tags and not any(
-                tag_filter.lower() in t for t in tags
-            ):
-                continue
-
         if registration_filter == RegistrationFilter.INCOMPLETE:
             if profile_completion_pct(c, session) >= 100:
                 continue

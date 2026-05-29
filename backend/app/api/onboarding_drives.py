@@ -156,7 +156,6 @@ def estimate_audience(session: SessionDep, body: AudienceEstimateIn) -> Audience
         session,
         district_code=body.district_code or None,
         sector_code=body.sector_code or None,
-        tag_filter=body.tag_filter,
         registration_filter=body.registration_filter,
         outreach_contact_ids=body.outreach_contact_ids or None,
     )
@@ -196,7 +195,6 @@ def create_and_launch_campaign(
             language_code=body.language_code,
             district_code=body.district_code or None,
             sector_code=body.sector_code or None,
-            tag_filter=body.tag_filter,
             registration_filter=body.registration_filter,
             outreach_contact_ids=body.outreach_contact_ids or None,
             settings=settings,

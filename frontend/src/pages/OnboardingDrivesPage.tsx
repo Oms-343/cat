@@ -21,8 +21,6 @@ import {
   type WhatsAppTemplate,
 } from "../api/onboardingDrives";
 import type { MasterEntry } from "../types/master";
-import { SUGGESTED_COMPANY_TAGS } from "../constants/companyTags";
-
 function responseRate(c: Campaign): number {
   if (c.sent === 0) return 0;
   return Math.round((c.responded / c.sent) * 100);
@@ -57,7 +55,6 @@ export function OnboardingDrivesPage() {
   const [registrationFilter, setRegistrationFilter] =
     useState<RegistrationFilter>("incomplete");
   const [languageCode, setLanguageCode] = useState<"en" | "ta">("en");
-  const [tagFilter, setTagFilter] = useState("");
   const [audienceSource, setAudienceSource] =
     useState<AudienceSource>("platform");
   const [importedContactIds, setImportedContactIds] = useState<number[]>([]);
@@ -144,8 +141,6 @@ export function OnboardingDrivesPage() {
         district_code:
           audienceSource === "platform" ? districtCode || null : null,
         sector_code: audienceSource === "platform" ? sectorCode || null : null,
-        tag_filter:
-          audienceSource === "platform" ? tagFilter.trim() || null : null,
         registration_filter:
           audienceSource === "excel" ? "unregistered" : registrationFilter,
         outreach_contact_ids:
@@ -166,7 +161,6 @@ export function OnboardingDrivesPage() {
     importedContactIds,
     districtCode,
     sectorCode,
-    tagFilter,
     registrationFilter,
   ]);
 
@@ -182,7 +176,6 @@ export function OnboardingDrivesPage() {
     setSectorCode("");
     setRegistrationFilter("incomplete");
     setLanguageCode("en");
-    setTagFilter("");
     setAudienceSource("platform");
     setImportedContactIds([]);
     setImportWizardMessage(null);
@@ -307,8 +300,6 @@ export function OnboardingDrivesPage() {
         district_code:
           audienceSource === "platform" ? districtCode || null : null,
         sector_code: audienceSource === "platform" ? sectorCode || null : null,
-        tag_filter:
-          audienceSource === "platform" ? tagFilter.trim() || null : null,
         registration_filter:
           audienceSource === "excel" ? "unregistered" : registrationFilter,
         outreach_contact_ids:
@@ -892,23 +883,6 @@ export function OnboardingDrivesPage() {
                       Registered — profile incomplete
                     </option>
                     <option value="all">All MSMEs matching filters</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Tag filter (optional)
-                  </label>
-                  <select
-                    value={tagFilter}
-                    onChange={(e) => setTagFilter(e.target.value)}
-                    className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm"
-                  >
-                    <option value="">No tag filter</option>
-                    {SUGGESTED_COMPANY_TAGS.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
                   </select>
                 </div>
               </>
