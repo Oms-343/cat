@@ -7,15 +7,22 @@ connect_args = {"check_same_thread": False} if settings.database_url.startswith(
 engine = create_engine(settings.database_url, echo=False, connect_args=connect_args)
 
 
+def _sqlite_column_names(table: str) -> set[str]:
+    import sqlalchemy as sa
+
+    with engine.connect() as conn:
+        rows = conn.execute(sa.text(f"PRAGMA table_info({table})")).fetchall()
+        return {r[1] for r in rows}
+
+
 def _sqlite_add_column_if_missing(table: str, column: str, col_type: str) -> None:
     if not settings.database_url.startswith("sqlite"):
         return
     import sqlalchemy as sa
 
-    with engine.connect() as conn:
-        rows = conn.execute(sa.text(f"PRAGMA table_info({table})")).fetchall()
-        names = {r[1] for r in rows}
-        if column not in names:
+    names = _sqlite_column_names(table)
+    if column not in names:
+        with engine.connect() as conn:
             conn.execute(sa.text(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}"))
             conn.commit()
 
@@ -52,31 +59,36 @@ def _migrate_outreach_contact_columns() -> None:
     _sqlite_add_column_if_missing("outreach_contacts", "district", "VARCHAR")
     _sqlite_add_column_if_missing("outreach_contacts", "taluk", "VARCHAR")
     _sqlite_add_column_if_missing("outreach_contacts", "pincode", "VARCHAR")
+    columns = _sqlite_column_names("outreach_contacts")
     with engine.connect() as conn:
-        conn.execute(
-            sa.text(
-                "UPDATE outreach_contacts SET company_name = name "
-                "WHERE company_name IS NULL AND name IS NOT NULL"
+        if "company_name" in columns and "name" in columns:
+            conn.execute(
+                sa.text(
+                    "UPDATE outreach_contacts SET company_name = name "
+                    "WHERE company_name IS NULL AND name IS NOT NULL"
+                )
             )
-        )
-        conn.execute(
-            sa.text(
-                "UPDATE outreach_contacts SET district = district_code "
-                "WHERE district IS NULL AND district_code IS NOT NULL"
+        # Legacy dev DBs briefly used district_code; production never had it.
+        if "district" in columns and "district_code" in columns:
+            conn.execute(
+                sa.text(
+                    "UPDATE outreach_contacts SET district = district_code "
+                    "WHERE district IS NULL AND district_code IS NOT NULL"
+                )
             )
-        )
-        conn.execute(
-            sa.text(
-                "UPDATE outreach_contacts SET name = company_name "
-                "WHERE (name IS NULL OR name = '') AND company_name IS NOT NULL"
+        if "name" in columns and "company_name" in columns:
+            conn.execute(
+                sa.text(
+                    "UPDATE outreach_contacts SET name = company_name "
+                    "WHERE (name IS NULL OR name = '') AND company_name IS NOT NULL"
+                )
             )
-        )
-        conn.execute(
-            sa.text(
-                "UPDATE outreach_contacts SET company_name = name "
-                "WHERE (company_name IS NULL OR company_name = '') AND name IS NOT NULL"
+            conn.execute(
+                sa.text(
+                    "UPDATE outreach_contacts SET company_name = name "
+                    "WHERE (company_name IS NULL OR company_name = '') AND name IS NOT NULL"
+                )
             )
-        )
         conn.commit()
 
 
