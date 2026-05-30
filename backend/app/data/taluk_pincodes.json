@@ -1,21 +1,9 @@
 [
   {
-    "pincode": "621714",
-    "label": "Sendurai",
-    "district_code": "ARI",
-    "taluk_code": "ARI_05785"
-  },
-  {
     "pincode": "621804",
     "label": "Sendurai SO",
     "district_code": "ARI",
     "taluk_code": "ARI_05785"
-  },
-  {
-    "pincode": "621804",
-    "label": "Udayarpalayam SO",
-    "district_code": "ARI",
-    "taluk_code": "ARI_05786"
   },
   {
     "pincode": "621704",
@@ -102,12 +90,6 @@
     "taluk_code": "CBE_ANNUR"
   },
   {
-    "pincode": "641001",
-    "label": "Coimbatore South SO",
-    "district_code": "CBE",
-    "taluk_code": "CBE_CBE"
-  },
-  {
     "pincode": "642109",
     "label": "KINATHUKADAVU SO",
     "district_code": "CBE",
@@ -120,28 +102,10 @@
     "taluk_code": "CBE_MADUKKARI"
   },
   {
-    "pincode": "641030",
-    "label": "Mettupalayam Road",
-    "district_code": "CBE",
-    "taluk_code": "CBE_MET"
-  },
-  {
     "pincode": "641301",
     "label": "Mettupalayam SO",
     "district_code": "CBE",
     "taluk_code": "CBE_MET"
-  },
-  {
-    "pincode": "641010",
-    "label": "Perur",
-    "district_code": "CBE",
-    "taluk_code": "CBE_PERUR"
-  },
-  {
-    "pincode": "641105",
-    "label": "Perur SO",
-    "district_code": "CBE",
-    "taluk_code": "CBE_PERUR"
   },
   {
     "pincode": "642001",
@@ -192,22 +156,10 @@
     "taluk_code": "CDL_05793"
   },
   {
-    "pincode": "606106",
-    "label": "Tittakudi",
-    "district_code": "CDL",
-    "taluk_code": "CDL_05794"
-  },
-  {
     "pincode": "606303",
     "label": "Tittakudi SO",
     "district_code": "CDL",
     "taluk_code": "CDL_05794"
-  },
-  {
-    "pincode": "606604",
-    "label": "Bhuvanagiri",
-    "district_code": "CDL",
-    "taluk_code": "CDL_BHUVANAGIRI"
   },
   {
     "pincode": "608601",
@@ -222,22 +174,10 @@
     "taluk_code": "CDL_SRIMUSHNAM"
   },
   {
-    "pincode": "608704",
-    "label": "Srimushnam",
-    "district_code": "CDL",
-    "taluk_code": "CDL_SRIMUSHNAM"
-  },
-  {
     "pincode": "608702",
     "label": "Veppur SO",
     "district_code": "CDL",
     "taluk_code": "CDL_VEPPUR"
-  },
-  {
-    "pincode": "600045",
-    "label": "Tambaram SO",
-    "district_code": "CGL",
-    "taluk_code": "CGL_05703"
   },
   {
     "pincode": "603001",
@@ -286,12 +226,6 @@
     "label": "Pallavaram SO",
     "district_code": "CGL",
     "taluk_code": "CGL_PALLAVARAM"
-  },
-  {
-    "pincode": "603110",
-    "label": "Thiruporur SO",
-    "district_code": "CGL",
-    "taluk_code": "CGL_THIRUPORUR"
   },
   {
     "pincode": "600048",
@@ -474,24 +408,6 @@
     "taluk_code": "DDG_ATHOOR"
   },
   {
-    "pincode": "624001",
-    "label": "DindigulWest SO",
-    "district_code": "DDG",
-    "taluk_code": "DDG_DINDIGULWEST"
-  },
-  {
-    "pincode": "624302",
-    "label": "Gujiliamparai",
-    "district_code": "DDG",
-    "taluk_code": "DDG_GUJILIAMPARAI"
-  },
-  {
-    "pincode": "624601",
-    "label": "Gujiliamparai SO",
-    "district_code": "DDG",
-    "taluk_code": "DDG_GUJILIAMPARAI"
-  },
-  {
     "pincode": "624208",
     "label": "Nilakottai SO",
     "district_code": "DDG",
@@ -528,28 +444,10 @@
     "taluk_code": "DHR_05888"
   },
   {
-    "pincode": "636810",
-    "label": "Pennagaram",
-    "district_code": "DHR",
-    "taluk_code": "DHR_05889"
-  },
-  {
     "pincode": "636905",
     "label": "Pennagaram SO",
     "district_code": "DHR",
     "taluk_code": "DHR_05889"
-  },
-  {
-    "pincode": "635205",
-    "label": "Karimangalam",
-    "district_code": "DHR",
-    "taluk_code": "DHR_KARIMANGALAM"
-  },
-  {
-    "pincode": "636903",
-    "label": "KARIMANGALAM SO",
-    "district_code": "DHR",
-    "taluk_code": "DHR_KARIMANGALAM"
   },
   {
     "pincode": "636807",
@@ -572,12 +470,6 @@
   {
     "pincode": "638401",
     "label": "Sathyamangalam SO",
-    "district_code": "ERD",
-    "taluk_code": "ERD_05749"
-  },
-  {
-    "pincode": "638402",
-    "label": "Sathyamangalam",
     "district_code": "ERD",
     "taluk_code": "ERD_05749"
   },
@@ -720,12 +612,6 @@
     "taluk_code": "KAR_05770"
   },
   {
-    "pincode": "639103",
-    "label": "Krishnarayapuram",
-    "district_code": "KAR",
-    "taluk_code": "KAR_05770"
-  },
-  {
     "pincode": "639104",
     "label": "Kulithalai SO",
     "district_code": "KAR",
@@ -790,18 +676,6 @@
     "label": "Seed 606301",
     "district_code": "KLK",
     "taluk_code": "KLK_KALLAKURICHI"
-  },
-  {
-    "pincode": "606202",
-    "label": "Kalvarayan Hills SO",
-    "district_code": "KLK",
-    "taluk_code": "KLK_KALVARAYANHILLS"
-  },
-  {
-    "pincode": "606208",
-    "label": "Kalvarayan Hills",
-    "district_code": "KLK",
-    "taluk_code": "KLK_KALVARAYANHILLS"
   },
   {
     "pincode": "605759",
@@ -918,12 +792,6 @@
     "taluk_code": "KRI_ANCHETTY"
   },
   {
-    "pincode": "635108",
-    "label": "Anchetty",
-    "district_code": "KRI",
-    "taluk_code": "KRI_ANCHETTY"
-  },
-  {
     "pincode": "635104",
     "label": "Bargur SO",
     "district_code": "KRI",
@@ -966,22 +834,10 @@
     "taluk_code": "MDU_05839"
   },
   {
-    "pincode": "625001",
-    "label": "Madurai South SO",
-    "district_code": "MDU",
-    "taluk_code": "MDU_05841"
-  },
-  {
     "pincode": "625702",
     "label": "Kalligudi SO",
     "district_code": "MDU",
     "taluk_code": "MDU_KALLIGUDI"
-  },
-  {
-    "pincode": "625001",
-    "label": "MADURAI EAST SO",
-    "district_code": "MDU",
-    "taluk_code": "MDU_MADURAI_EAST"
   },
   {
     "pincode": "625009",
@@ -1006,12 +862,6 @@
     "label": "Seed 625020",
     "district_code": "MDU",
     "taluk_code": "MDU_MADURAI_EAST"
-  },
-  {
-    "pincode": "625001",
-    "label": "MADURAI WEST SO",
-    "district_code": "MDU",
-    "taluk_code": "MDU_MADURAI_WEST"
   },
   {
     "pincode": "625005",
@@ -1086,38 +936,14 @@
     "taluk_code": "NAG_05799"
   },
   {
-    "pincode": "609107",
-    "label": "Kilvelur",
-    "district_code": "NAG",
-    "taluk_code": "NAG_05800"
-  },
-  {
     "pincode": "611109",
     "label": "Kilvelur SO",
     "district_code": "NAG",
     "taluk_code": "NAG_05800"
   },
   {
-    "pincode": "609804",
-    "label": "Thirukkuvalai",
-    "district_code": "NAG",
-    "taluk_code": "NAG_05801"
-  },
-  {
-    "pincode": "610204",
-    "label": "Thirukkuvalai SO",
-    "district_code": "NAG",
-    "taluk_code": "NAG_05801"
-  },
-  {
     "pincode": "614808",
     "label": "Vedaranyam SO",
-    "district_code": "NAG",
-    "taluk_code": "NAG_05802"
-  },
-  {
-    "pincode": "614810",
-    "label": "Vedaranyam",
     "district_code": "NAG",
     "taluk_code": "NAG_05802"
   },
@@ -1150,12 +976,6 @@
     "label": "Seed 643201",
     "district_code": "NLG",
     "taluk_code": "NLG_05758"
-  },
-  {
-    "pincode": "643217",
-    "label": "Kundah SO",
-    "district_code": "NLG",
-    "taluk_code": "NLG_05759"
   },
   {
     "pincode": "643253",
@@ -1194,12 +1014,6 @@
     "taluk_code": "NMK_05748"
   },
   {
-    "pincode": "637208",
-    "label": "Velur",
-    "district_code": "NMK",
-    "taluk_code": "NMK_05748"
-  },
-  {
     "pincode": "637411",
     "label": "KOLLI HILLS SO",
     "district_code": "NMK",
@@ -1214,12 +1028,6 @@
   {
     "pincode": "637003",
     "label": "MOHANUR SO",
-    "district_code": "NMK",
-    "taluk_code": "NMK_MOHANUR"
-  },
-  {
-    "pincode": "637015",
-    "label": "Mohanur",
     "district_code": "NMK",
     "taluk_code": "NMK_MOHANUR"
   },
@@ -1278,20 +1086,8 @@
     "taluk_code": "PDK_05823"
   },
   {
-    "pincode": "622407",
-    "label": "Ponnamaravathi",
-    "district_code": "PDK",
-    "taluk_code": "PDK_05823"
-  },
-  {
     "pincode": "614624",
     "label": "Alangudi SO",
-    "district_code": "PDK",
-    "taluk_code": "PDK_05824"
-  },
-  {
-    "pincode": "622303",
-    "label": "Alangudi",
     "district_code": "PDK",
     "taluk_code": "PDK_05824"
   },
@@ -1302,22 +1098,10 @@
     "taluk_code": "PDK_05825"
   },
   {
-    "pincode": "622302",
-    "label": "Karambakudi",
-    "district_code": "PDK",
-    "taluk_code": "PDK_05825"
-  },
-  {
     "pincode": "614616",
     "label": "Aranthangi SO",
     "district_code": "PDK",
     "taluk_code": "PDK_05826"
-  },
-  {
-    "pincode": "614624",
-    "label": "Manamelkudi SO",
-    "district_code": "PDK",
-    "taluk_code": "PDK_05827"
   },
   {
     "pincode": "614618",
@@ -1338,12 +1122,6 @@
     "taluk_code": "PDK_ILLUPUR"
   },
   {
-    "pincode": "621312",
-    "label": "Viralimalai",
-    "district_code": "PDK",
-    "taluk_code": "PDK_VIRALIMALAI"
-  },
-  {
     "pincode": "621316",
     "label": "Viralimalai SO",
     "district_code": "PDK",
@@ -1354,18 +1132,6 @@
     "label": "Alathur SO",
     "district_code": "PMB",
     "taluk_code": "PMB_ALATHUR"
-  },
-  {
-    "pincode": "621808",
-    "label": "Alathur",
-    "district_code": "PMB",
-    "taluk_code": "PMB_ALATHUR"
-  },
-  {
-    "pincode": "621118",
-    "label": "Kunnam",
-    "district_code": "PMB",
-    "taluk_code": "PMB_KUNNAM"
   },
   {
     "pincode": "621712",
@@ -1398,12 +1164,6 @@
     "taluk_code": "PMB_VEPPANTHATTA"
   },
   {
-    "pincode": "621116",
-    "label": "Veppanthattai",
-    "district_code": "PMB",
-    "taluk_code": "PMB_VEPPANTHATTA"
-  },
-  {
     "pincode": "623707",
     "label": "Paramakudi SO",
     "district_code": "RMD",
@@ -1416,12 +1176,6 @@
     "taluk_code": "RMD_05857"
   },
   {
-    "pincode": "623704",
-    "label": "Mudukulathur",
-    "district_code": "RMD",
-    "taluk_code": "RMD_05857"
-  },
-  {
     "pincode": "623603",
     "label": "Kamuthi SO",
     "district_code": "RMD",
@@ -1430,12 +1184,6 @@
   {
     "pincode": "623314",
     "label": "Kadaladi SO",
-    "district_code": "RMD",
-    "taluk_code": "RMD_05859"
-  },
-  {
-    "pincode": "623402",
-    "label": "Kadaladi",
     "district_code": "RMD",
     "taluk_code": "RMD_05859"
   },
@@ -1458,28 +1206,10 @@
     "taluk_code": "RMD_05860"
   },
   {
-    "pincode": "623806",
-    "label": "KILAKARAI SO",
-    "district_code": "RMD",
-    "taluk_code": "RMD_KILAKARAI"
-  },
-  {
     "pincode": "623526",
     "label": "Rajasingamangalam SO",
     "district_code": "RMD",
     "taluk_code": "RMD_RAJASINGAMANGALAM"
-  },
-  {
-    "pincode": "623528",
-    "label": "Rajasingamangalam",
-    "district_code": "RMD",
-    "taluk_code": "RMD_RAJASINGAMANGALAM"
-  },
-  {
-    "pincode": "623526",
-    "label": "Rameshwaram SO",
-    "district_code": "RMD",
-    "taluk_code": "RMD_RAMESHWARAM"
   },
   {
     "pincode": "623407",
@@ -1614,12 +1344,6 @@
     "taluk_code": "SLM_PETHANAICKENPALAYAM"
   },
   {
-    "pincode": "636001",
-    "label": "Salem South SO",
-    "district_code": "SLM",
-    "taluk_code": "SLM_SALEM_SOUTH"
-  },
-  {
     "pincode": "636004",
     "label": "Salem West SO",
     "district_code": "SLM",
@@ -1636,18 +1360,6 @@
     "label": "Valapady SO",
     "district_code": "SLM",
     "taluk_code": "SLM_VALAPADY"
-  },
-  {
-    "pincode": "636115",
-    "label": "Valapady",
-    "district_code": "SLM",
-    "taluk_code": "SLM_VALAPADY"
-  },
-  {
-    "pincode": "630302",
-    "label": "Devakottai",
-    "district_code": "SVG",
-    "taluk_code": "SVG_05831"
   },
   {
     "pincode": "630303",
@@ -1678,12 +1390,6 @@
     "label": "Seed 630606",
     "district_code": "SVG",
     "taluk_code": "SVG_05832"
-  },
-  {
-    "pincode": "630606",
-    "label": "Manamadurai",
-    "district_code": "SVG",
-    "taluk_code": "SVG_05833"
   },
   {
     "pincode": "630611",
@@ -1722,12 +1428,6 @@
     "taluk_code": "SVG_THIRUPPATTUR"
   },
   {
-    "pincode": "630611",
-    "label": "Thiruppuvanam SO",
-    "district_code": "SVG",
-    "taluk_code": "SVG_THIRUPPUVANA"
-  },
-  {
     "pincode": "625601",
     "label": "Periyakulam SO",
     "district_code": "THI",
@@ -1744,12 +1444,6 @@
     "label": "Seed 625534",
     "district_code": "THI",
     "taluk_code": "THI_05844"
-  },
-  {
-    "pincode": "625533",
-    "label": "Uthamapalayam",
-    "district_code": "THI",
-    "taluk_code": "THI_05845"
   },
   {
     "pincode": "625579",
@@ -1780,18 +1474,6 @@
     "label": "Ettayapuram SO",
     "district_code": "THV",
     "taluk_code": "THV_05863"
-  },
-  {
-    "pincode": "628501",
-    "label": "Vilathikulam SO",
-    "district_code": "THV",
-    "taluk_code": "THV_05864"
-  },
-  {
-    "pincode": "628501",
-    "label": "Ottapidaram SO",
-    "district_code": "THV",
-    "taluk_code": "THV_05865"
   },
   {
     "pincode": "628215",
@@ -1902,34 +1584,16 @@
     "taluk_code": "TJV_05815"
   },
   {
-    "pincode": "614625",
-    "label": "Orathanadu",
-    "district_code": "TJV",
-    "taluk_code": "TJV_05815"
-  },
-  {
     "pincode": "614804",
     "label": "Peravurani SO",
     "district_code": "TJV",
     "taluk_code": "TJV_05817"
   },
   {
-    "pincode": "613601",
-    "label": "Budalur",
-    "district_code": "TJV",
-    "taluk_code": "TJV_BUDALUR"
-  },
-  {
     "pincode": "614401",
     "label": "Budalur SO",
     "district_code": "TJV",
     "taluk_code": "TJV_BUDALUR"
-  },
-  {
-    "pincode": "614601",
-    "label": "Pattukkotai SO",
-    "district_code": "TJV",
-    "taluk_code": "TJV_PATTUKKOTAI"
   },
   {
     "pincode": "614903",
@@ -1966,24 +1630,6 @@
     "label": "Seed 627953",
     "district_code": "TKS",
     "taluk_code": "TKS_05873"
-  },
-  {
-    "pincode": "627859",
-    "label": "Shenkottai SO",
-    "district_code": "TKS",
-    "taluk_code": "TKS_05874"
-  },
-  {
-    "pincode": "627751",
-    "label": "Alangulam SO",
-    "district_code": "TKS",
-    "taluk_code": "TKS_05875"
-  },
-  {
-    "pincode": "627751",
-    "label": "Kadayanallur SO",
-    "district_code": "TKS",
-    "taluk_code": "TKS_KADAYANALLUR"
   },
   {
     "pincode": "627719",
@@ -2094,12 +1740,6 @@
     "taluk_code": "TRI_MARUNGAPURI"
   },
   {
-    "pincode": "621313",
-    "label": "Marungapuri",
-    "district_code": "TRI",
-    "taluk_code": "TRI_MARUNGAPURI"
-  },
-  {
     "pincode": "621215",
     "label": "Thottiam SO",
     "district_code": "TRI",
@@ -2108,12 +1748,6 @@
   {
     "pincode": "620001",
     "label": "Seed 620001",
-    "district_code": "TRI",
-    "taluk_code": "TRI_TIRUCHIRAPPA"
-  },
-  {
-    "pincode": "620008",
-    "label": "Tiruchirappalli East SO",
     "district_code": "TRI",
     "taluk_code": "TRI_TIRUCHIRAPPA"
   },
@@ -2140,12 +1774,6 @@
     "label": "Dharapuram SO",
     "district_code": "TRP",
     "taluk_code": "TRP_05902"
-  },
-  {
-    "pincode": "641653",
-    "label": "Avanashi SO",
-    "district_code": "TRP",
-    "taluk_code": "TRP_05903"
   },
   {
     "pincode": "641601",
@@ -2208,12 +1836,6 @@
     "taluk_code": "TVA_05803"
   },
   {
-    "pincode": "614601",
-    "label": "Kudavasal SO",
-    "district_code": "TVA",
-    "taluk_code": "TVA_05804"
-  },
-  {
     "pincode": "610207",
     "label": "Nannilam SO",
     "district_code": "TVA",
@@ -2230,18 +1852,6 @@
     "label": "Needamangalam SO",
     "district_code": "TVA",
     "taluk_code": "TVA_05807"
-  },
-  {
-    "pincode": "614601",
-    "label": "Mannargudi SO",
-    "district_code": "TVA",
-    "taluk_code": "TVA_05808"
-  },
-  {
-    "pincode": "614704",
-    "label": "Thiruthuraipoondi SO",
-    "district_code": "TVA",
-    "taluk_code": "TVA_05809"
   },
   {
     "pincode": "610101",
@@ -2266,12 +1876,6 @@
     "label": "Seed 614701",
     "district_code": "TVA",
     "taluk_code": "TVA_KOOTHANALLUR"
-  },
-  {
-    "pincode": "614704",
-    "label": "Muthupettai SO",
-    "district_code": "TVA",
-    "taluk_code": "TVA_MUTHUPETTAI"
   },
   {
     "pincode": "627001",
@@ -2300,12 +1904,6 @@
   {
     "pincode": "627251",
     "label": "Ambasamudram SO",
-    "district_code": "TVL",
-    "taluk_code": "TVL_05878"
-  },
-  {
-    "pincode": "627401",
-    "label": "Ambasamudram",
     "district_code": "TVL",
     "taluk_code": "TVL_05878"
   },
@@ -2340,12 +1938,6 @@
     "taluk_code": "TVL_THISAYANVILAI"
   },
   {
-    "pincode": "632301",
-    "label": "Arani",
-    "district_code": "TVM",
-    "taluk_code": "TVM_05721"
-  },
-  {
     "pincode": "632317",
     "label": "Arani SO",
     "district_code": "TVM",
@@ -2358,12 +1950,6 @@
     "taluk_code": "TVM_05722"
   },
   {
-    "pincode": "604408",
-    "label": "Vandavasi",
-    "district_code": "TVM",
-    "taluk_code": "TVM_05723"
-  },
-  {
     "pincode": "632519",
     "label": "Vandavasi SO",
     "district_code": "TVM",
@@ -2374,12 +1960,6 @@
     "label": "Polur SO",
     "district_code": "TVM",
     "taluk_code": "TVM_05724"
-  },
-  {
-    "pincode": "606701",
-    "label": "Chengam",
-    "district_code": "TVM",
-    "taluk_code": "TVM_05725"
   },
   {
     "pincode": "606754",
@@ -2412,26 +1992,8 @@
     "taluk_code": "TVM_CHETPET"
   },
   {
-    "pincode": "632702",
-    "label": "Chetpet",
-    "district_code": "TVM",
-    "taluk_code": "TVM_CHETPET"
-  },
-  {
-    "pincode": "606754",
-    "label": "Jamunamarathoor SO",
-    "district_code": "TVM",
-    "taluk_code": "TVM_JAMUNAMARATH"
-  },
-  {
     "pincode": "606751",
     "label": "Kalasapakkam SO",
-    "district_code": "TVM",
-    "taluk_code": "TVM_KALASAPAKKAM"
-  },
-  {
-    "pincode": "632508",
-    "label": "Kalasapakkam",
     "district_code": "TVM",
     "taluk_code": "TVM_KALASAPAKKAM"
   },
@@ -2440,24 +2002,6 @@
     "label": "Kilpennathur SO",
     "district_code": "TVM",
     "taluk_code": "TVM_KILPENNATHUR"
-  },
-  {
-    "pincode": "632504",
-    "label": "Kilpennathur",
-    "district_code": "TVM",
-    "taluk_code": "TVM_KILPENNATHUR"
-  },
-  {
-    "pincode": "606803",
-    "label": "Thandarampattu SO",
-    "district_code": "TVM",
-    "taluk_code": "TVM_THANDARAMPATTU"
-  },
-  {
-    "pincode": "606752",
-    "label": "Vembakkam SO",
-    "district_code": "TVM",
-    "taluk_code": "TVM_VEMBAKKAM"
   },
   {
     "pincode": "601201",
@@ -2550,22 +2094,10 @@
     "taluk_code": "VDN_05850"
   },
   {
-    "pincode": "626129",
-    "label": "Tiruchuli",
-    "district_code": "VDN",
-    "taluk_code": "VDN_05852"
-  },
-  {
     "pincode": "626189",
     "label": "Tiruchuli SO",
     "district_code": "VDN",
     "taluk_code": "VDN_05852"
-  },
-  {
-    "pincode": "626101",
-    "label": "Aruppukkottai",
-    "district_code": "VDN",
-    "taluk_code": "VDN_05853"
   },
   {
     "pincode": "626102",
@@ -2598,18 +2130,6 @@
     "taluk_code": "VDN_VEMBAKKOTTAI"
   },
   {
-    "pincode": "626131",
-    "label": "Watrap SO",
-    "district_code": "VDN",
-    "taluk_code": "VDN_WATRAP"
-  },
-  {
-    "pincode": "626136",
-    "label": "Watrap",
-    "district_code": "VDN",
-    "taluk_code": "VDN_WATRAP"
-  },
-  {
     "pincode": "605602",
     "label": "Gingee SO",
     "district_code": "VLP",
@@ -2634,22 +2154,10 @@
     "taluk_code": "VLP_05731"
   },
   {
-    "pincode": "605602",
-    "label": "Viluppuram SO",
-    "district_code": "VLP",
-    "taluk_code": "VLP_05731"
-  },
-  {
     "pincode": "605701",
     "label": "Kandacheepuram SO",
     "district_code": "VLP",
     "taluk_code": "VLP_KANDACHEEPURAM"
-  },
-  {
-    "pincode": "605104",
-    "label": "Marakkanam SO",
-    "district_code": "VLP",
-    "taluk_code": "VLP_MARAKKANAM"
   },
   {
     "pincode": "605402",
@@ -2664,20 +2172,8 @@
     "taluk_code": "VLP_THIRUVENNAINALLUR"
   },
   {
-    "pincode": "605652",
-    "label": "Vikravandi SO",
-    "district_code": "VLP",
-    "taluk_code": "VLP_VIKRAVANDI"
-  },
-  {
     "pincode": "632001",
     "label": "Gudiyatham SO",
-    "district_code": "VLR",
-    "taluk_code": "VLR_05712"
-  },
-  {
-    "pincode": "632602",
-    "label": "Gudiyatham",
     "district_code": "VLR",
     "taluk_code": "VLR_05712"
   },
@@ -2686,12 +2182,6 @@
     "label": "Katpadi SO",
     "district_code": "VLR",
     "taluk_code": "VLR_05713"
-  },
-  {
-    "pincode": "632001",
-    "label": "Vellore",
-    "district_code": "VLR",
-    "taluk_code": "VLR_05717"
   },
   {
     "pincode": "632004",
@@ -2710,12 +2200,6 @@
     "label": "Anaicut SO",
     "district_code": "VLR",
     "taluk_code": "VLR_ANAICUT"
-  },
-  {
-    "pincode": "632001",
-    "label": "K.V. Kuppam SO",
-    "district_code": "VLR",
-    "taluk_code": "VLR_KVKUPPAM"
   },
   {
     "pincode": "635810",

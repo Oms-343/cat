@@ -127,37 +127,17 @@ def _sync_geo_masters() -> None:
     """Keep taluk master and company taluk assignments in sync with pincode map."""
     from sqlmodel import Session
 
-    from app.core.geo_lookup import backfill_company_taluks, sync_taluk_master
-    from app.data.taluk_pincode_seed import PINCODES
-    from app.models.master import PincodeMaster
+    from app.core.geo_lookup import (
+        reconcile_company_taluks,
+        sync_pincode_master,
+        sync_taluk_master,
+    )
 
     with Session(engine) as session:
         sync_taluk_master(session)
-        for idx, (code, name, district_code, taluk_code) in enumerate(PINCODES):
-            existing = session.exec(select(PincodeMaster).where(PincodeMaster.code == code)).first()
-            if existing:
-                changed = False
-                if not existing.taluk_code and taluk_code:
-                    existing.taluk_code = taluk_code
-                    changed = True
-                if not existing.district_code and district_code:
-                    existing.district_code = district_code
-                    changed = True
-                if changed:
-                    session.add(existing)
-                continue
-            session.add(
-                PincodeMaster(
-                    code=code,
-                    name=name,
-                    district_code=district_code,
-                    taluk_code=taluk_code,
-                    is_active=True,
-                    sort_order=idx,
-                )
-            )
+        sync_pincode_master(session)
         session.commit()
-        backfill_company_taluks(session)
+        reconcile_company_taluks(session)
 
 
 def init_db() -> None:
